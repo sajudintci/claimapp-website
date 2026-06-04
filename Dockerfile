@@ -14,7 +14,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --no-audit --no-fund --loglevel=error
 
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
