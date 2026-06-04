@@ -1,5 +1,8 @@
 # syntax=docker/dockerfile:1
-# Coolify: set Base Directory to `frontend` (folder that contains package.json + package-lock.json).
+# Build from THIS folder only:
+#   cd frontend && docker build -t claimora-frontend .
+#
+# Coolify (monorepo root): use /Dockerfile at repo root, NOT this file.
 
 FROM node:20-bookworm-slim AS base
 WORKDIR /app
@@ -10,19 +13,10 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json* ./
-
-RUN if [ ! -f package-lock.json ]; then \
-      echo "ERROR: package-lock.json missing. Commit it or set Coolify Base Directory to frontend/." >&2; \
-      exit 1; \
-    fi \
-  && npm ci --no-audit --no-fund
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
 FROM base AS builder
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates \
-  && rm -rf /var/lib/apt/lists/*
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

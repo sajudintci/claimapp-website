@@ -34,22 +34,30 @@ Dibaca di `src/lib/api/client.ts`. Template: [`.env.example`](./.env.example).
 
 ## Docker (production)
 
-**Coolify:** Base Directory = `frontend`, Dockerfile = `Dockerfile` (atau `frontend/Dockerfile` jika repo monorepo). Pastikan `package-lock.json` ikut ter-commit dan ter-push.
+### Coolify (repo monorepo `rs_abby`)
+
+| Setting | Nilai |
+|---------|--------|
+| **Base Directory** | `/` (root repo) |
+| **Dockerfile** | `Dockerfile` (di **root**, bukan `frontend/Dockerfile`) |
+| **Build arg** | `NEXT_PUBLIC_API_BASE_URL=https://your-api.com/api` |
+
+Root tidak punya `package-lock.json` — hanya ada di `frontend/`. Dockerfile root menyalin `frontend/package.json` + `frontend/package-lock.json`.
+
+Alternatif: Base Directory = `frontend`, Dockerfile = `Dockerfile` (pakai `frontend/Dockerfile`).
+
+### Lokal
 
 ```bash
+# Dari root monorepo
+docker build -f Dockerfile --build-arg NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api -t claimora-frontend .
+
+# Atau dari folder frontend
 cd frontend
-docker build \
-  --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api \
-  -t claimora-frontend .
-docker run -p 3000:3000 claimora-frontend
+docker build --build-arg NEXT_PUBLIC_API_BASE_URL=http://localhost:4000/api -t claimora-frontend .
 ```
 
 `NEXT_PUBLIC_*` harus diset saat **build** (bukan hanya saat `docker run`).
-
-Jika build gagal di `npm ci`:
-- Cek log lengkap di Coolify (bukan hanya baris terakhir).
-- Pastikan build context berisi `package.json` + `package-lock.json`.
-- Image memakai `node:20-bookworm-slim` (bukan Alpine) agar dependency Next/sharp kompatibel.
 
 ## Scripts
 
