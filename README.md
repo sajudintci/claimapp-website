@@ -32,6 +32,18 @@ Dibaca di `src/lib/api/client.ts`. Template: [`.env.example`](./.env.example).
 
 **Jangan commit** `.env` atau `.env.local` — hanya `.env.example`.
 
+## Docker (production)
+
+```bash
+cd frontend
+docker build \
+  --build-arg NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api \
+  -t claimora-frontend .
+docker run -p 3000:3000 claimora-frontend
+```
+
+`NEXT_PUBLIC_*` harus diset saat **build** (bukan hanya saat `docker run`).
+
 ## Scripts
 
 | Perintah | Deskripsi |
