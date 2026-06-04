@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Claimora Frontend
 
-## Getting Started
+UI web untuk **Claimora** — review klaim asuransi, upload dokumen, dan tinjau hasil ekstraksi AI (Next.js App Router).
 
-First, run the development server:
+## Prasyarat
+
+- **Node.js** 20+ (disarankan LTS)
+- **Backend** Claimora berjalan (default `http://localhost:4000`) — lihat [`../backend/README.md`](../backend/README.md)
+
+## Setup cepat
 
 ```bash
+cd frontend
+cp .env.example .env.local
+# Sesuaikan NEXT_PUBLIC_API_BASE_URL jika backend tidak di localhost:4000
+
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Login membutuhkan user di backend (mis. `npm run seed:super-admin` di folder `backend/`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment
 
-## Learn More
+| Variabel | Deskripsi |
+|----------|-----------|
+| `NEXT_PUBLIC_API_BASE_URL` | Base URL API backend, dengan suffix `/api` (default: `http://localhost:4000/api`) |
 
-To learn more about Next.js, take a look at the following resources:
+Dibaca di `src/lib/api/client.ts`. Template: [`.env.example`](./.env.example).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Jangan commit** `.env` atau `.env.local` — hanya `.env.example`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+| Perintah | Deskripsi |
+|----------|-----------|
+| `npm run dev` | Development server (Turbopack) |
+| `npm run build` | Production build |
+| `npm run start` | Jalankan build production |
+| `npm run lint` | ESLint (Next.js config) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Struktur penting
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/
+    (auth)/          # Login, register, reset password
+    (platform)/      # Dashboard, claims, extraction review, settings
+  components/        # UI & claim detail (PDF viewer, highlights)
+  lib/api/           # HTTP client ke backend
+```
+
+## Push ke GitHub
+
+Sebelum commit:
+
+1. `.env` / `.env.local` tidak ter-track
+2. `node_modules/`, `.next/`, `out/` diabaikan
+3. Hanya `.env.example` yang di-commit
+
+```bash
+git status   # verifikasi tidak ada secret atau artefak build
+```
+
+## Dokumentasi terkait
+
+- Pipeline ekstraksi (backend): [`../backend/documentations/extraction-pipeline.md`](../backend/documentations/extraction-pipeline.md)

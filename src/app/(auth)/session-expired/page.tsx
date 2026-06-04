@@ -1,0 +1,18 @@
+import Link from "next/link";
+import { AuthShell } from "@/components/claimora/auth/auth-shell";
+
+export default function SessionExpiredPage() {
+  return (
+    <AuthShell
+      title="Session expired"
+      description="Your secure session has ended. Please sign in again."
+    >
+      <Link
+        href="/login"
+        className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
+      >
+        Back to sign in
+      </Link>
+    </AuthShell>
+  );
+}
