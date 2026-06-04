@@ -34,6 +34,8 @@ Dibaca di `src/lib/api/client.ts`. Template: [`.env.example`](./.env.example).
 
 ## Docker (production)
 
+**Coolify:** Base Directory = `frontend`, Dockerfile = `Dockerfile` (atau `frontend/Dockerfile` jika repo monorepo). Pastikan `package-lock.json` ikut ter-commit dan ter-push.
+
 ```bash
 cd frontend
 docker build \
@@ -43,6 +45,11 @@ docker run -p 3000:3000 claimora-frontend
 ```
 
 `NEXT_PUBLIC_*` harus diset saat **build** (bukan hanya saat `docker run`).
+
+Jika build gagal di `npm ci`:
+- Cek log lengkap di Coolify (bukan hanya baris terakhir).
+- Pastikan build context berisi `package.json` + `package-lock.json`.
+- Image memakai `node:20-bookworm-slim` (bukan Alpine) agar dependency Next/sharp kompatibel.
 
 ## Scripts
 
