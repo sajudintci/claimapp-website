@@ -78,14 +78,22 @@ export function ClaimFieldsTable({
 
       <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
         <div className="max-h-[min(52vh,520px)] overflow-auto">
-          <table className="min-w-full text-sm">
+          <table className="w-full min-w-[32rem] table-fixed text-sm">
+            <colgroup>
+              <col className="w-[14%]" />
+              <col className="w-[16%]" />
+              <col className="w-[28%]" />
+              <col className="w-[8%]" />
+              <col className="w-[6%]" />
+              <col className="w-[28%]" />
+            </colgroup>
             <thead className="sticky top-0 z-10 bg-slate-50 shadow-sm dark:bg-slate-800">
               <tr>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Section</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Field</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Value</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Conf.</th>
-                <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Page</th>
+                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Conf.</th>
+                <th className="whitespace-nowrap px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Page</th>
                 <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">Source</th>
               </tr>
             </thead>
@@ -112,41 +120,49 @@ export function ClaimFieldsTable({
                     onClick={canFocus ? () => handleFocusRow(row) : undefined}
                     title={canFocus ? "Locate in PDF" : undefined}
                   >
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400">{row.section}</td>
-                    <td className="px-3 py-2 font-medium text-slate-800 dark:text-slate-200">
-                      <span className="inline-flex items-center gap-1.5">
+                    <td className="px-3 py-2 text-slate-600 break-words dark:text-slate-400">{row.section}</td>
+                    <td className="px-3 py-2 font-medium break-words text-slate-800 dark:text-slate-200">
+                      <span className="inline-flex flex-wrap items-center gap-1.5">
                         {row.field}
-                        {canFocus ? <Crosshair className="size-3 text-blue-600/70 dark:text-blue-400" /> : null}
+                        {canFocus ? <Crosshair className="size-3 shrink-0 text-blue-600/70 dark:text-blue-400" /> : null}
                       </span>
                     </td>
-                    <td className="max-w-[180px] px-3 py-2">
+                    <td className="px-3 py-2">
                       <span
                         className={cn(
-                          "inline-block truncate font-medium",
+                          "block break-words font-medium leading-snug",
                           isMissing ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-100",
                         )}
-                        title={row.value}
                       >
                         {row.value}
                       </span>
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="whitespace-nowrap px-3 py-2">
                       <ConfidencePill value={row.confidence} low={isLowConf} />
                     </td>
-                    <td className="px-3 py-2 text-slate-600 dark:text-slate-400">{row.page}</td>
-                    <td className="max-w-[220px] px-3 py-2">
+                    <td className="whitespace-nowrap px-3 py-2 text-slate-600 dark:text-slate-400">{row.page}</td>
+                    <td className="px-3 py-2">
                       {row.sourceText ? (
                         <button
                           type="button"
-                          className="text-left text-xs text-blue-700 hover:underline dark:text-blue-400"
+                          className="block w-full break-words text-left text-xs leading-relaxed text-blue-700 hover:underline dark:text-blue-400"
                           onClick={(e) => {
                             e.stopPropagation();
                             setExpandedSource(sourceExpanded ? null : rowKey);
                           }}
                         >
-                          {sourceExpanded
-                            ? row.sourceText
-                            : `${row.sourceText.slice(0, 48)}${row.sourceText.length > 48 ? "…" : ""}`}
+                          {sourceExpanded ? (
+                            row.sourceText
+                          ) : (
+                            <>
+                              <span className="line-clamp-3">{row.sourceText}</span>
+                              {row.sourceText.length > 120 ? (
+                                <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-blue-600/80 dark:text-blue-400/80">
+                                  Show more
+                                </span>
+                              ) : null}
+                            </>
+                          )}
                         </button>
                       ) : (
                         <span className="text-xs text-slate-400 dark:text-slate-500">—</span>

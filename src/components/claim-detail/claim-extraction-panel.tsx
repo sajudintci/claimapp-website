@@ -58,7 +58,7 @@ export function ClaimExtractionPanel({
     (ctx.payload.summary as Record<string, unknown> | undefined) ?? {};
 
   return (
-    <section className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Extraction output</h2>

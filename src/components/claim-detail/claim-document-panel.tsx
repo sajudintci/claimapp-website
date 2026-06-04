@@ -73,8 +73,8 @@ export function ClaimDocumentPanel({
     <section
       ref={panelRef}
       className={cn(
-        "flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900",
-        isFullscreen && "min-h-screen rounded-none border-0",
+        "flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900",
+        isFullscreen ? "min-h-screen rounded-none border-0" : "max-h-[min(78vh,820px)]",
       )}
     >
       <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-800">
@@ -104,18 +104,23 @@ export function ClaimDocumentPanel({
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col p-3 pt-0">
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col p-3 pt-0",
+          !isFullscreen && "h-[min(68vh,640px)] min-h-[360px]",
+        )}
+      >
         {isPreviewLoading ? (
-          <div className="flex min-h-[480px] flex-1 items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex flex-1 items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <Loader2 className="size-5 animate-spin" />
             Loading preview…
           </div>
         ) : previewError ? (
-          <div className="flex min-h-[480px] flex-1 items-center justify-center px-4 text-center text-sm text-red-600 dark:text-red-400">
+          <div className="flex flex-1 items-center justify-center px-4 text-center text-sm text-red-600 dark:text-red-400">
             {previewError}
           </div>
         ) : !previewUrl ? (
-          <div className="flex min-h-[480px] flex-1 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex flex-1 items-center justify-center text-sm text-slate-500 dark:text-slate-400">
             No document attached.
           </div>
         ) : isPdf ? (
@@ -126,7 +131,7 @@ export function ClaimDocumentPanel({
             ocrPages={ocrPages}
           />
         ) : (
-          <div className="flex min-h-[480px] flex-1 items-center justify-center overflow-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex flex-1 items-center justify-center overflow-auto rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
             <img
               src={previewUrl}
               alt={selectedDocument?.originalName ?? "Document preview"}

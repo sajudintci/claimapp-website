@@ -97,7 +97,7 @@ export function ClaimProcessingTimeline({
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Processing pipeline</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Job: <span className="font-medium">{ctx.jobStatus}</span>
-            {ctx.isJobActive ? " · auto-refreshing" : ""}
+            {ctx.isJobActive ? " · use Refresh to update status" : ""}
           </p>
         </div>
         {ctx.ocrPageCount != null ? (

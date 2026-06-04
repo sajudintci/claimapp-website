@@ -16,6 +16,7 @@ import { parseOcrPagesFromPayload } from "@/lib/pdf/pdf-ocr-pages";
 import { LoadingSkeleton } from "@/components/claimora/states";
 import { useApiQuery } from "@/hooks/use-api-query";
 import { API_BASE_URL, apiAuthedFetch, getSessionToken } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
 
 export default function ClaimDetailPage() {
   const params = useParams<{ id: string }>();
@@ -51,11 +52,7 @@ export default function ClaimDetailPage() {
   const abbyyTransactionId =
     (ctx.payload.abbyyTransactionId as string | null | undefined) ?? null;
 
-  useEffect(() => {
-    if (!claimId || !ctx.isJobActive) return;
-    const timer = window.setInterval(() => refetch(), 3000);
-    return () => window.clearInterval(timer);
-  }, [claimId, ctx.isJobActive, refetch]);
+  const isRefreshing = isLoading && Boolean(data);
 
   useEffect(() => {
     if (!selectedDocumentId && documents.length > 0) {
@@ -161,15 +158,17 @@ export default function ClaimDetailPage() {
         extractionSource={data?.latestResult?.source}
         ctx={ctx}
         isRetrying={isRetrying}
+        isRefreshing={isRefreshing}
         isUpdatingStatus={isUpdatingStatus}
+        onRefresh={refetch}
         onRetry={retryExtraction}
         onMarkReviewed={() => updateReviewStatus("Reviewed")}
         onNeedsAttention={() => updateReviewStatus("Needs Attention")}
       />
 
-      {isLoading ? <LoadingSkeleton /> : null}
+      {isLoading && !data ? <LoadingSkeleton /> : null}
 
-      {!isLoading && data ? (
+      {data ? (
         <>
           <ClaimProcessingTimeline ctx={ctx} hasDocuments={documents.length > 0} />
           <ClaimOcrCreditsPanel ctx={ctx} />
@@ -177,7 +176,7 @@ export default function ClaimDetailPage() {
 
           <MobileWorkspaceTabs active={mobileTab} onChange={setMobileTab} />
 
-          <div className="grid gap-4 xl:grid-cols-2">
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
             <div className={mobileTab === "extraction" ? "hidden xl:block" : "block"}>
               <ClaimDocumentPanel
                 selectedDocument={selectedDocument}
@@ -189,7 +188,7 @@ export default function ClaimDetailPage() {
               />
             </div>
 
-            <div className={mobileTab === "document" ? "hidden xl:block" : "block"}>
+            <div className={cn(mobileTab === "document" ? "hidden xl:block" : "block", "min-w-0")}>
               <ClaimExtractionPanel
                 ctx={ctx}
                 extractionSource={data.latestResult?.source}

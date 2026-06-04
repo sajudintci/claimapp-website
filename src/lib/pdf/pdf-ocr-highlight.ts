@@ -1,4 +1,5 @@
 import type { PageViewport } from "pdfjs-dist/types/src/display/display_utils";
+import type { OcrLineBox, OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
 import type { HighlightRect } from "@/lib/pdf/types";
 
 function normalize(text: string): string {
@@ -43,16 +44,16 @@ function lineScore(line: string, query: string): number {
   return (hit / qWords.length) * 50;
 }
 
-export function findBestOcrLineIndex(
-  lines: string[],
+function bestScoreForQueries(
+  texts: string[],
   sourceText: string,
   value?: string,
-): number {
+): { index: number; score: number } {
   let bestIdx = -1;
   let bestScore = 0;
 
   for (const query of buildQueries(sourceText, value)) {
-    lines.forEach((line, i) => {
+    texts.forEach((line, i) => {
       const score = lineScore(line, query);
       if (score > bestScore) {
         bestScore = score;
@@ -62,11 +63,127 @@ export function findBestOcrLineIndex(
     if (bestScore >= 70) break;
   }
 
-  return bestScore >= 35 ? bestIdx : -1;
+  return { index: bestScore >= 35 ? bestIdx : -1, score: bestScore };
 }
 
-/** Approximate highlight band from OCR line index (when PDF has no text layer). */
-export function findOcrLineHighlight(
+export function findBestOcrLineIndex(
+  lines: string[],
+  sourceText: string,
+  value?: string,
+): number {
+  return bestScoreForQueries(lines, sourceText, value).index;
+}
+
+/** Map ABBYY layout box (page pixel space) to PDF.js viewport CSS pixels. */
+export function abbyyBoxToViewportRect(
+  box: OcrLineBox,
+  pageWidth: number,
+  pageHeight: number,
+  viewport: PageViewport,
+): HighlightRect {
+  const sx = viewport.width / pageWidth;
+  const sy = viewport.height / pageHeight;
+  return {
+    left: box.l * sx,
+    top: box.t * sy,
+    width: Math.max((box.r - box.l) * sx, 4),
+    height: Math.max((box.b - box.t) * sy, 6),
+  };
+}
+
+function rectFromBox(
+  box: OcrLineBox | undefined,
+  ocrPage: OcrPageLines,
+  viewport: PageViewport,
+): HighlightRect[] {
+  const pageWidth = ocrPage.width;
+  const pageHeight = ocrPage.height;
+  if (!box || !pageWidth || !pageHeight) return [];
+  return [abbyyBoxToViewportRect(box, pageWidth, pageHeight, viewport)];
+}
+
+function findPairHighlight(
+  ocrPage: OcrPageLines,
+  viewport: PageViewport,
+  sourceText: string,
+  value?: string,
+): HighlightRect[] {
+  const pairs = ocrPage.pairs;
+  if (!pairs?.length) return [];
+
+  const candidates = pairs.map((p) => ({
+    texts: [p.text, `${p.label} : ${p.value}`, p.value, p.label],
+    region: p.region,
+  }));
+
+  let bestIdx = -1;
+  let bestScore = 0;
+  for (let i = 0; i < candidates.length; i++) {
+    for (const t of candidates[i]!.texts) {
+      for (const query of buildQueries(sourceText, value)) {
+        const score = lineScore(t, query);
+        if (score > bestScore) {
+          bestScore = score;
+          bestIdx = i;
+        }
+      }
+    }
+  }
+
+  if (bestIdx < 0 || bestScore < 35) return [];
+  return rectFromBox(candidates[bestIdx]!.region, ocrPage, viewport);
+}
+
+function findTableCellHighlight(
+  ocrPage: OcrPageLines,
+  viewport: PageViewport,
+  sourceText: string,
+  value?: string,
+): HighlightRect[] {
+  const tables = ocrPage.tables;
+  if (!tables?.length) return [];
+
+  const cells: Array<{ text: string; region?: OcrLineBox }> = [];
+  for (const table of tables) {
+    for (const tr of table.rows) {
+      for (const cell of tr.cells) {
+        if (cell.text.length >= 1) cells.push({ text: cell.text, region: cell.region });
+      }
+    }
+  }
+  if (cells.length === 0) return [];
+
+  const { index } = bestScoreForQueries(
+    cells.map((c) => c.text),
+    sourceText,
+    value,
+  );
+  if (index < 0) return [];
+  return rectFromBox(cells[index]!.region, ocrPage, viewport);
+}
+
+/** Highlight using ABBYY regions (pairs → table cells → row/line index). */
+export function findOcrRegionHighlight(
+  ocrPage: OcrPageLines,
+  viewport: PageViewport,
+  sourceText: string,
+  value?: string,
+): HighlightRect[] {
+  const fromPair = findPairHighlight(ocrPage, viewport, sourceText, value);
+  if (fromPair.length > 0) return fromPair;
+
+  const fromTable = findTableCellHighlight(ocrPage, viewport, sourceText, value);
+  if (fromTable.length > 0) return fromTable;
+
+  const idx = findBestOcrLineIndex(ocrPage.lines, sourceText, value);
+  if (idx < 0) return [];
+
+  const box = ocrPage.regions?.[idx];
+  return rectFromBox(box ?? undefined, ocrPage, viewport);
+}
+
+/** Fallback band when PDF has no text layer and ABBYY regions are unavailable. */
+export function findOcrLineHighlightApprox(
   lines: string[],
   viewport: PageViewport,
   sourceText: string,
@@ -89,4 +206,18 @@ export function findOcrLineHighlight(
       height: bandH,
     },
   ];
+}
+
+export function findOcrLineHighlight(
+  lines: string[],
+  viewport: PageViewport,
+  sourceText: string,
+  value?: string,
+  ocrPage?: OcrPageLines,
+): HighlightRect[] {
+  if (ocrPage) {
+    const precise = findOcrRegionHighlight(ocrPage, viewport, sourceText, value);
+    if (precise.length > 0) return precise;
+  }
+  return findOcrLineHighlightApprox(lines, viewport, sourceText, value);
 }

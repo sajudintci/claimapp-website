@@ -82,3 +82,24 @@ export function createFocusFromLineItem(
     label,
   });
 }
+
+export function createFocusFromTestResult(
+  label: string,
+  test: Record<string, unknown>,
+): DocumentFocusTarget | null {
+  const page = typeof test.page === "number" ? test.page : null;
+  const sourceText = String(test.source_text ?? "").trim();
+  const name = String(test.test_name ?? "").trim();
+  const result = String(test.result ?? "").trim();
+  const category = String(test.test_category ?? "").trim();
+  const fallbackSnippet = [category, name, result].filter(Boolean).join(" ").trim();
+  const searchText = sourceText || fallbackSnippet;
+  const value = sourceText || name || result || undefined;
+  if (!hasPdfTrace(page, searchText, value)) return null;
+  return createDocumentFocus({
+    page,
+    sourceText: searchText,
+    value,
+    label,
+  });
+}

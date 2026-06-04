@@ -15,7 +15,9 @@ type ClaimDetailHeaderProps = {
   extractionSource?: string;
   ctx: ExtractionContext;
   isRetrying: boolean;
+  isRefreshing?: boolean;
   isUpdatingStatus: "Reviewed" | "Needs Attention" | null;
+  onRefresh?: () => void;
   onRetry: () => void;
   onMarkReviewed: () => void;
   onNeedsAttention: () => void;
@@ -28,7 +30,9 @@ export function ClaimDetailHeader({
   extractionSource,
   ctx,
   isRetrying,
+  isRefreshing = false,
   isUpdatingStatus,
+  onRefresh,
   onRetry,
   onMarkReviewed,
   onNeedsAttention,
@@ -90,6 +94,22 @@ export function ClaimDetailHeader({
         </div>
 
         <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {onRefresh ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+              onClick={onRefresh}
+              disabled={isRefreshing || isRetrying || isUpdatingStatus !== null}
+              title="Refresh claim data"
+            >
+              {isRefreshing ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <RefreshCw className="size-4" />
+              )}
+              Refresh
+            </button>
+          ) : null}
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"

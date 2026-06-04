@@ -7,7 +7,7 @@ import { PdfHighlightLayer } from "@/components/claim-detail/pdf/pdf-highlight-l
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
 import { isPdfRenderCancelled, swallowRenderCancel } from "@/lib/pdf/pdfjs-client";
 import { resolvePageHighlights } from "@/lib/pdf/pdf-focus-resolve";
-import { getOcrPageLines, type OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
+import { getOcrPageData, getOcrPageLines, type OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
 import type { HighlightRect, PdfPageMeta } from "@/lib/pdf/types";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ export function PdfPageCanvas({
 }: PdfPageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [highlights, setHighlights] = useState<HighlightRect[]>([]);
-  const [highlightVia, setHighlightVia] = useState<"pdf" | "ocr" | "none">("none");
+  const [highlightVia, setHighlightVia] = useState<"pdf" | "ocr" | "ocr_coords" | "none">("none");
 
   useLayoutEffect(() => {
     const pdf = pdfRef.current;
@@ -70,7 +70,8 @@ export function PdfPageCanvas({
           const content = await page.getTextContent();
           const items = content.items.filter((x): x is TextItem => "str" in x);
           const ocrLines = getOcrPageLines(ocrPages, pageNumber);
-          const resolved = resolvePageHighlights(items, ocrLines, vp, documentFocus);
+          const ocrPage = getOcrPageData(ocrPages, pageNumber);
+          const resolved = resolvePageHighlights(items, ocrLines, vp, documentFocus, ocrPage);
           if (!dead) {
             setHighlights(resolved.rects);
             setHighlightVia(resolved.via);

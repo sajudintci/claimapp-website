@@ -2,7 +2,7 @@
 
 import { Crosshair } from "lucide-react";
 import { ExtractionClaim } from "@/lib/extraction/claim-extraction";
-import { createFocusFromLineItem } from "@/lib/extraction/document-focus";
+import { createFocusFromLineItem, createFocusFromTestResult } from "@/lib/extraction/document-focus";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ export function ClaimLineItemsTab({
     <div className="space-y-6">
       {canFocusPdf ? (
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Click a line item row to locate it in the PDF.
+          Click a row in line items or laboratory tests to locate it in the PDF.
         </p>
       ) : null}
 
@@ -59,18 +59,27 @@ export function ClaimLineItemsTab({
       <DataTable
         title="Laboratory tests"
         emptyLabel="No laboratory tests extracted."
-        columns={["Category", "Test", "Result", "Unit", "Reference"]}
-        rows={tests.map((test, index) => ({
-          key: String(index),
-          focus: null,
-          cells: [
-            String(test.test_category ?? "-"),
-            String(test.test_name ?? "-"),
-            String(test.result ?? "-"),
-            String(test.unit ?? "-"),
-            String(test.reference_range ?? "-"),
-          ],
-        }))}
+        columns={["Category", "Test", "Result", "Unit", "Reference", "Conf.", "Page"]}
+        canFocusPdf={canFocusPdf}
+        activeFocusLabel={activeFocusLabel}
+        onFocusField={onFocusField}
+        rows={tests.map((test, index) => {
+          const label = `Lab test · ${String(test.test_name ?? index + 1).slice(0, 40)}`;
+          const focus = canFocusPdf ? createFocusFromTestResult(label, test) : null;
+          return {
+            key: String(index),
+            focus,
+            cells: [
+              String(test.test_category ?? "-"),
+              String(test.test_name ?? "-"),
+              String(test.result ?? "-"),
+              String(test.unit ?? "-"),
+              String(test.reference_range ?? "-"),
+              `${Math.round(Number(test.confidence ?? 0) * 100)}%`,
+              test.page != null ? String(test.page) : "-",
+            ],
+          };
+        })}
       />
     </div>
   );

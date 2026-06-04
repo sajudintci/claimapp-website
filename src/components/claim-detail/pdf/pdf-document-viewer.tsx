@@ -29,7 +29,7 @@ const FALLBACK_WIDTH = 720;
 
 const MATCH_LABEL: Record<PdfFocusMatchStatus, string> = {
   matched: "Text highlighted in document",
-  matched_ocr: "Highlighted from OCR line (approximate position)",
+  matched_ocr: "Highlighted from ABBYY OCR coordinates",
   page_only: "Page located — text could not be matched",
   none: "No location in document",
 };
@@ -236,7 +236,7 @@ export function PdfDocumentViewer({ url, zoom, documentFocus, ocrPages }: PdfDoc
   }, [documentFocus?.id, scale, loading, totalPages, goToPage, ocrPages]);
 
   return (
-    <div ref={containerRef} className="flex h-full min-h-[480px] min-w-0 flex-col">
+    <div ref={containerRef} className="flex h-full min-h-0 min-w-0 flex-col">
       {!loading && totalPages > 0 ? (
         <div className="mb-2 flex shrink-0 items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 dark:border-slate-700 dark:bg-slate-800/80">
           <div className="flex gap-1">
@@ -297,7 +297,7 @@ export function PdfDocumentViewer({ url, zoom, documentFocus, ocrPages }: PdfDoc
 
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 snap-y snap-mandatory scroll-smooth overflow-y-auto rounded-xl border border-slate-200/80 bg-[#525659] dark:border-slate-700"
+        className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden scroll-smooth rounded-xl border border-slate-200/80 bg-[#525659] dark:border-slate-700"
       >
         {loading ? (
           <div className="flex min-h-[420px] items-center justify-center gap-2 text-slate-200">
@@ -320,7 +320,7 @@ export function PdfDocumentViewer({ url, zoom, documentFocus, ocrPages }: PdfDoc
                   slotRefs.current[pageNumber] = el;
                 }}
                 data-page={pageNumber}
-                className="flex min-h-full snap-start items-center justify-center px-3 py-4"
+                className="flex items-center justify-center px-3 py-4"
               >
                 {visiblePages.has(pageNumber) && meta ? (
                   <PdfPageCanvas
