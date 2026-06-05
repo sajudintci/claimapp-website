@@ -1,11 +1,11 @@
-# Claimora Frontend
+# Sequis Frontend
 
-UI web untuk **Claimora** — review klaim asuransi, upload dokumen, dan tinjau hasil ekstraksi AI (Next.js App Router).
+UI web untuk **Sequis** — review klaim asuransi, upload dokumen, dan tinjau hasil ekstraksi AI (Next.js App Router).
 
 ## Prasyarat
 
 - **Node.js** 20+ (disarankan LTS)
-- **Backend** Claimora berjalan (default `http://localhost:4000`) — lihat [`../backend/README.md`](../backend/README.md)
+- **Backend** berjalan (default `http://localhost:4000`) — lihat [`../backend/README.md`](../backend/README.md)
 
 ## Setup cepat
 

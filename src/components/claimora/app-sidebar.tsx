@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import sequisLogo from "@/favicon.png";
 import {
   Building2,
   ClipboardList,
@@ -74,29 +76,26 @@ function isNavActive(pathname: string, item: NavItem): boolean {
 }
 
 function SidebarBrand({ collapsed }: { collapsed: boolean }) {
-  if (collapsed) {
-    return (
-      <Link
-        href="/dashboard"
-        className="mx-auto flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-sm font-bold text-white shadow-sm shadow-blue-600/25 transition-transform hover:scale-[1.02]"
-        title="Claimora — Dashboard"
-      >
-        C
-      </Link>
-    );
-  }
-
   return (
-    <Link href="/dashboard" className="group flex items-center gap-3 rounded-xl px-1 py-0.5 transition-colors">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-sm font-bold text-white shadow-sm shadow-blue-600/25">
-        C
-      </span>
-      <span className="min-w-0">
-        <span className="block text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">Claimora</span>
-        <span className="block truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
-          Insurance Claim Intelligence
-        </span>
-      </span>
+    <Link
+      href="/dashboard"
+      title="Sequis — Dashboard"
+      className={cn(
+        "group flex items-center rounded-xl px-1 py-0.5 transition-opacity hover:opacity-90",
+        collapsed ? "mx-auto justify-center" : "min-w-0",
+      )}
+    >
+      <Image
+        src={sequisLogo}
+        alt="Sequis — Your Better Tomorrow"
+        width={120}
+        height={65}
+        priority
+        className={cn(
+          "object-contain object-left",
+          collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto max-w-[11rem]",
+        )}
+      />
     </Link>
   );
 }
@@ -125,14 +124,14 @@ function NavLink({
         collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2",
         active
           ? collapsed
-            ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-            : "bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+            ? "bg-primary text-white shadow-sm shadow-primary/20"
+            : "bg-primary-50 text-primary-dark dark:bg-primary/10 dark:text-primary"
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100",
       )}
     >
       {!collapsed && active ? (
         <span
-          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-blue-600 dark:bg-blue-400"
+          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary dark:bg-primary"
           aria-hidden
         />
       ) : null}
@@ -142,7 +141,7 @@ function NavLink({
           active
             ? collapsed
               ? "text-white"
-              : "text-blue-600 dark:text-blue-400"
+              : "text-primary dark:text-primary"
             : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300",
         )}
       />

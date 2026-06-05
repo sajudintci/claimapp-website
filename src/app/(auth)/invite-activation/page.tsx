@@ -7,18 +7,18 @@ export default function InviteActivationPage() {
       title="Invitation verified"
       description="Your invite link is valid. Continue to set up your account."
       footer={
-        <Link href="/register" className="font-medium text-blue-600 hover:text-blue-700">
+        <Link href="/register" className="font-medium text-primary hover:text-primary-dark">
           Continue registration →
         </Link>
       }
     >
       <div className="space-y-4 text-sm text-slate-600">
         <p>
-          Insurance Admin invited you to Claimora. Complete registration to activate your account.
+          Admin asuransi mengundang Anda ke Sequis. Selesaikan registrasi untuk mengaktifkan akun.
         </p>
         <Link
           href="/register"
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
+          className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-semibold text-white hover:bg-primary-dark"
         >
           Continue to registration
         </Link>

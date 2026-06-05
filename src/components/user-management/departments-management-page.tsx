@@ -181,7 +181,7 @@ export function DepartmentsManagementPage() {
                   setPage(1);
                 }}
                 placeholder="Search departments…"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
             </div>
           </section>
@@ -268,7 +268,7 @@ function DepartmentsTable({
               >
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-700 ring-1 ring-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-dark ring-1 ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30">
                       <Building2 className="size-4" />
                     </div>
                     <p className="font-semibold text-slate-900 dark:text-slate-100">{dept.name}</p>
@@ -355,7 +355,7 @@ function KpiCard({
   tone: "blue" | "emerald" | "slate";
 }) {
   const tones = {
-    blue: "bg-blue-50 text-blue-700 ring-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900",
+    blue: "bg-primary-50 text-primary-dark ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30",
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
     slate: "bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
   };

@@ -15,7 +15,7 @@ import { NotificationItem, NotificationsResponse } from "@/types/api";
 import { cn } from "@/lib/utils";
 
 const headerIconBtn =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
+  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
 
 function formatRelativeTime(iso: string): string {
   const date = new Date(iso);
@@ -67,9 +67,9 @@ function typeStyles(type: string) {
     default:
       return {
         icon: Info,
-        dot: "bg-blue-500",
-        bg: "bg-blue-50 dark:bg-blue-950/50",
-        iconColor: "text-blue-600 dark:text-blue-400",
+        dot: "bg-primary-500",
+        bg: "bg-primary-50 dark:bg-primary/10",
+        iconColor: "text-primary dark:text-primary",
       };
   }
 }
@@ -137,7 +137,7 @@ export function HeaderNotifications() {
               <button
                 type="button"
                 onClick={() => void markAllRead()}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                className="text-xs font-semibold text-primary hover:text-primary-dark dark:text-primary dark:hover:text-primary"
               >
                 Mark all read
               </button>
@@ -203,7 +203,7 @@ function NotificationRow({
         onClick={onMarkRead}
         className={cn(
           "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60",
-          !item.isRead && "bg-blue-50/40 dark:bg-blue-950/20",
+          !item.isRead && "bg-primary-50/40 dark:bg-primary/10",
         )}
       >
         <span

@@ -3,24 +3,32 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f5f7fb;
-  --foreground: #0f172a;
+  --background: #fafafa;
+  --foreground: #0a0a0a;
   --card: #ffffff;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --primary: #2563eb;
+  --muted: #525252;
+  --border: #e5e5e5;
+  --primary: #008f88;
+  --primary-dark: #006b66;
+  --primary-darker: #005a55;
+  --primary-light: #e6f7f6;
+  --primary-50: #f0faf9;
   --success: #059669;
   --warning: #d97706;
   --danger: #dc2626;
 }
 
 .dark {
-  --background: #0b1220;
-  --foreground: #e2e8f0;
-  --card: #111827;
-  --muted: #94a3b8;
-  --border: #1e293b;
-  --primary: #3b82f6;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #141414;
+  --muted: #a3a3a3;
+  --border: #262626;
+  --primary: #008f88;
+  --primary-dark: #006b66;
+  --primary-darker: #005a55;
+  --primary-light: #0d2e2c;
+  --primary-50: #0a1f1e;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -29,7 +37,15 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-darker: var(--primary-darker);
+  --color-primary-light: var(--primary-light);
+  --color-primary-50: var(--primary-50);
+  --font-sans: var(--font-plus-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -41,5 +57,5 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-plus-jakarta), system-ui, -apple-system, sans-serif;
 }

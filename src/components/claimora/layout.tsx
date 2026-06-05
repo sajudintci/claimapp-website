@@ -26,7 +26,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export { AppSidebar } from "@/components/claimora/app-sidebar";
 
 const headerIconBtn =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
+  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
 
 function HeaderIconButton({
   label,
@@ -99,7 +99,7 @@ export function TopNavbar({
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
             <input
               aria-label="Search claims"
-              className="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/80 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors hover:border-slate-300 hover:bg-white focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:hover:bg-slate-900 dark:focus:border-blue-500 dark:focus:bg-slate-900 md:pr-16"
+              className="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/80 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors hover:border-slate-300 hover:bg-white focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:hover:bg-slate-900 dark:focus:border-primary dark:focus:bg-slate-900 md:pr-16"
               placeholder="Search claims, patients, documents..."
             />
             <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 md:inline">
@@ -137,8 +137,8 @@ export function TopNavbar({
             <button
               type="button"
               className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white pl-1 pr-2.5 text-left shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
-                profileMenuOpen && "border-blue-200 bg-blue-50/40 dark:border-blue-800 dark:bg-blue-950/40",
+                "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white pl-1 pr-2.5 text-left shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
+                profileMenuOpen && "border-primary/30 bg-primary-50/40 dark:border-primary/40 dark:bg-primary/10",
               )}
               aria-label="Profile menu"
               aria-expanded={profileMenuOpen}
@@ -206,7 +206,7 @@ export function PageHeader({ title, description }: { title: string; description:
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-        <span>Claimora</span>
+        <span>Sequis</span>
         {crumbs.map((crumb) => (
           <span key={crumb} className="inline-flex items-center gap-1">
             <ChevronRight className="size-3" />

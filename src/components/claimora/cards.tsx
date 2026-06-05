@@ -12,7 +12,7 @@ export function StatsCard({
   tone: "primary" | "success" | "warning" | "danger";
 }) {
   const toneClasses = {
-    primary: "text-blue-700",
+    primary: "text-primary-dark",
     success: "text-emerald-700",
     warning: "text-amber-700",
     danger: "text-red-700",

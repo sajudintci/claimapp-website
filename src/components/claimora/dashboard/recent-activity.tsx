@@ -38,7 +38,7 @@ export function RecentActivity() {
         </div>
         <Link
           href="/audit-logs"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark dark:text-primary dark:hover:text-primary"
         >
           View all
           <ArrowUpRight className="size-3.5" />
@@ -72,7 +72,7 @@ export function RecentActivity() {
               <span
                 className={cn(
                   "mt-1.5 size-2 shrink-0 rounded-full",
-                  dotColor[item.result] ?? "bg-blue-500",
+                  dotColor[item.result] ?? "bg-primary-500",
                 )}
                 aria-hidden
               />

@@ -127,14 +127,14 @@ export function ClaimOverviewTab({
                   className={cn(
                     "rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-colors dark:border-slate-700 dark:bg-slate-800/50",
                     focusTarget &&
-                      "cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 dark:hover:border-blue-700 dark:hover:bg-blue-950/30",
+                      "cursor-pointer hover:border-primary/40 hover:bg-primary-50/50 dark:hover:border-primary-dark dark:hover:bg-primary/10",
                     activeFocusLabel === label && "border-amber-400 bg-amber-50/80 dark:border-amber-700 dark:bg-amber-950/30",
                     !focusTarget && "cursor-default",
                   )}
                 >
                   <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     {label}
-                    {focusTarget ? <Crosshair className="size-3 text-blue-600/70" /> : null}
+                    {focusTarget ? <Crosshair className="size-3 text-primary/70" /> : null}
                   </p>
                   <p
                     className={`mt-1 text-sm font-medium ${missing ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-100"}`}
@@ -194,7 +194,7 @@ function FocusableKpiCard({
     <>
       <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
         {label}
-        {focusable ? <Crosshair className="size-3 text-blue-600/70 dark:text-blue-400" /> : null}
+        {focusable ? <Crosshair className="size-3 text-primary/70 dark:text-primary" /> : null}
       </p>
       <p className="mt-1 line-clamp-2 text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</p>
     </>
@@ -213,7 +213,7 @@ function FocusableKpiCard({
       type="button"
       onClick={onFocus}
       className={cn(
-        "rounded-xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50/40 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-blue-700 dark:hover:bg-blue-950/30",
+        "rounded-xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-colors hover:border-primary/40 hover:bg-primary-50/40 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-primary-dark dark:hover:bg-primary/10",
         isActive && "border-amber-400 bg-amber-50/80 ring-1 ring-amber-300/60 dark:border-amber-700 dark:bg-amber-950/30",
       )}
     >

@@ -63,7 +63,7 @@ export function ClaimExtractionPanel({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Extraction output</h2>
           {ctx.isJobActive ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-blue-700 dark:text-blue-400">
+            <span className="inline-flex items-center gap-1.5 text-xs text-primary-dark dark:text-primary">
               <Loader2 className="size-3.5 animate-spin" />
               Updating…
             </span>
@@ -98,7 +98,7 @@ export function ClaimExtractionPanel({
                 className={cn(
                   "rounded-md border px-2.5 py-1 text-xs font-semibold",
                   activeClaimIndex === index
-                    ? "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                    ? "border-primary/40 bg-primary-50 text-primary-dark dark:border-primary-dark dark:bg-primary/10 dark:text-primary"
                     : "border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400",
                 )}
               >
@@ -109,7 +109,7 @@ export function ClaimExtractionPanel({
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-4">
         {activeTab === "overview" ? (
           <ClaimOverviewTab
             claims={claims}

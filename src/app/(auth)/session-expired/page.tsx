@@ -9,7 +9,7 @@ export default function SessionExpiredPage() {
     >
       <Link
         href="/login"
-        className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
+        className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-primary text-sm font-semibold text-white hover:bg-primary-dark"
       >
         Back to sign in
       </Link>

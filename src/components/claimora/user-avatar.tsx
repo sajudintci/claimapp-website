@@ -37,7 +37,7 @@ export function UserAvatar({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-blue-600 to-blue-700 font-semibold text-white",
+        "inline-flex shrink-0 items-center justify-center rounded-md bg-gradient-to-br from-primary to-primary-dark font-semibold text-white",
         className,
         textClassName,
       )}

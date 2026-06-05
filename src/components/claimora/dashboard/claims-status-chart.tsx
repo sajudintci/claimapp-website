@@ -10,7 +10,7 @@ const STATUS_COLORS: Record<string, string> = {
   Reviewed: "bg-emerald-500",
   "Needs Attention": "bg-amber-500",
   Failed: "bg-red-500",
-  "In pipeline": "bg-blue-500",
+  "In pipeline": "bg-primary-500",
   Other: "bg-slate-400",
 };
 
@@ -56,7 +56,7 @@ export function ClaimsStatusChart() {
         </div>
         <Link
           href="/claims"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark dark:text-primary dark:hover:text-primary"
         >
           View all
           <ArrowUpRight className="size-3.5" />

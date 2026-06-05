@@ -22,7 +22,7 @@ const icons = {
 };
 
 const accent = {
-  primary: "from-blue-500/10 to-blue-600/5 text-blue-600 ring-blue-500/20",
+  primary: "from-primary/10 to-primary/5 text-primary ring-primary/20",
   success: "from-emerald-500/10 to-emerald-600/5 text-emerald-600 ring-emerald-500/20",
   warning: "from-amber-500/10 to-amber-600/5 text-amber-600 ring-amber-500/20",
   danger: "from-red-500/10 to-red-600/5 text-red-600 ring-red-500/20",
@@ -109,12 +109,12 @@ export function DashboardKpiCards() {
           <Link
             key={kpi.label}
             href={kpi.href}
-            className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+            className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/40"
           >
             <div
               className={cn(
                 "absolute -right-4 -top-4 size-24 rounded-full bg-gradient-to-br opacity-60 blur-2xl transition-opacity group-hover:opacity-100",
-                kpi.tone === "primary" && "from-blue-200",
+                kpi.tone === "primary" && "from-primary/30",
                 kpi.tone === "success" && "from-emerald-200",
                 kpi.tone === "warning" && "from-amber-200",
                 kpi.tone === "danger" && "from-red-200",
@@ -147,7 +147,7 @@ export function DashboardKpiCards() {
             </div>
             <div className="relative mt-4">
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{kpi.label}</p>
-              <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 group-hover:text-blue-800 dark:text-slate-100 dark:group-hover:text-blue-400">
+              <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 group-hover:text-primary-dark dark:text-slate-100 dark:group-hover:text-primary">
                 {kpi.value}
               </p>
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{kpi.subtext}</p>

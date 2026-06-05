@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Claimora",
-  description: "AI-Powered Insurance Claim Intelligence",
+  title: "Sequis",
+  description: "Your Better Tomorrow — asuransi modern yang dekat dengan gaya hidup Anda",
 };
 
 export default function RootLayout({
@@ -25,14 +26,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="id"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("claimora-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;if(d){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem("sequis-theme")||localStorage.getItem("claimora-theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;if(d){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark";}}catch(e){}})();`,
           }}
         />
       </head>

@@ -7,7 +7,7 @@ const actions = [
     label: "Upload documents",
     description: "Add new claim files for AI extraction",
     icon: Upload,
-    color: "text-blue-600 bg-blue-50 ring-blue-100 dark:text-blue-300 dark:bg-blue-950 dark:ring-blue-900",
+    color: "text-primary bg-primary-50 ring-primary/20 dark:text-primary dark:bg-primary/10 dark:ring-primary/30",
   },
   {
     href: "/ai-extraction/confidence-review",
@@ -45,7 +45,7 @@ export function QuickActions() {
           <Link
             key={action.href}
             href={action.href}
-            className="group flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+            className="group flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/40"
           >
             <div
               className={`flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ${action.color}`}
@@ -53,7 +53,7 @@ export function QuickActions() {
               <action.icon className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-1 text-sm font-semibold text-slate-900 group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-400">
+              <p className="flex items-center gap-1 text-sm font-semibold text-slate-900 group-hover:text-primary-dark dark:text-slate-100 dark:group-hover:text-primary">
                 {action.label}
                 <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
               </p>

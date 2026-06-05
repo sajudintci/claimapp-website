@@ -102,7 +102,7 @@ export function DashboardHeader({ onRefresh, isRefreshing }: DashboardHeaderProp
           </button>
           <Link
             href="/claims/upload"
-            className="inline-flex h-9 items-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700"
+            className="inline-flex h-9 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-sm shadow-primary/20 hover:bg-primary-dark"
           >
             <Upload className="size-4" />
             Upload claim

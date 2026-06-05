@@ -224,7 +224,7 @@ export function ClaimsUploadPage() {
                     value={claimNumber}
                     onChange={(e) => setClaimNumber(e.target.value)}
                     placeholder="e.g. CLM-2026-0042 or hospital invoice number"
-                    className="mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
+                    className="mt-1.5 h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 px-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
                     disabled={isUploading}
                   />
                   <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
@@ -236,11 +236,11 @@ export function ClaimsUploadPage() {
                   {...getRootProps()}
                   className={cn(
                     "mt-5 cursor-pointer rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-all outline-none sm:py-12",
-                    isDragActive && !isDragReject && "border-blue-400 bg-blue-50/80 dark:border-blue-600 dark:bg-blue-950/40",
+                    isDragActive && !isDragReject && "border-primary/50 bg-primary-50/80 dark:border-primary dark:bg-primary/10",
                     isDragReject && "border-red-300 bg-red-50/50 dark:border-red-700 dark:bg-red-950/40",
                     !isDragActive &&
                       !isDragReject &&
-                      "border-slate-200 bg-slate-50/50 hover:border-blue-300 hover:bg-blue-50/30 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-600 dark:hover:bg-blue-950/30",
+                      "border-slate-200 bg-slate-50/50 hover:border-primary/40 hover:bg-primary-50/30 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-primary dark:hover:bg-primary/10",
                     isUploading && "pointer-events-none opacity-60",
                   )}
                 >
@@ -248,7 +248,7 @@ export function ClaimsUploadPage() {
                   <div
                     className={cn(
                       "mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl",
-                      isDragActive ? "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400" : "bg-white text-blue-600 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-800 dark:text-blue-400 dark:ring-slate-700",
+                      isDragActive ? "bg-primary-light text-primary dark:bg-primary/10 dark:text-primary" : "bg-white text-primary shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-800 dark:text-primary dark:ring-slate-700",
                     )}
                   >
                     <UploadCloud className="size-7" />
@@ -259,7 +259,7 @@ export function ClaimsUploadPage() {
                       : "Drag & drop your claim document"}
                   </p>
                   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                    or <span className="font-semibold text-blue-600 dark:text-blue-400">browse files</span> on
+                    or <span className="font-semibold text-primary dark:text-primary">browse files</span> on
                     your computer
                   </p>
                   <p className="mt-3 text-xs text-slate-400 dark:text-slate-500">
@@ -275,7 +275,7 @@ export function ClaimsUploadPage() {
                 {selectedFile && fileMeta ? (
                   <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/80 p-4 dark:border-slate-700 dark:bg-slate-800/50">
                     <div className="flex items-start gap-3">
-                      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-blue-400 dark:ring-slate-700">
+                      <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-white text-primary ring-1 ring-slate-200 dark:bg-slate-900 dark:text-primary dark:ring-slate-700">
                         <fileMeta.Icon className="size-5" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -304,7 +304,7 @@ export function ClaimsUploadPage() {
                         type="button"
                         onClick={onConfirmUpload}
                         disabled={isUploading || remaining < 1}
-                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-white shadow-sm shadow-primary/20 hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {isUploading ? (
                           <>
@@ -384,7 +384,7 @@ function UploadSteps({ current }: { current: UploadStep }) {
               className={cn(
                 "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold",
                 done && "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
-                active && "bg-blue-50 text-blue-800 ring-1 ring-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-800",
+                active && "bg-primary-50 text-primary-dark ring-1 ring-primary/30 dark:bg-primary/10 dark:text-primary dark:ring-primary/40",
                 !done && !active && "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400",
               )}
             >
@@ -392,7 +392,7 @@ function UploadSteps({ current }: { current: UploadStep }) {
                 className={cn(
                   "flex size-5 items-center justify-center rounded-full text-[10px]",
                   done && "bg-emerald-600 text-white",
-                  active && "bg-blue-600 text-white",
+                  active && "bg-primary text-white",
                   !done && !active && "bg-slate-300 text-white dark:bg-slate-600",
                 )}
               >

@@ -121,7 +121,7 @@ export function ClaimDetailHeader({
           {ctx.canRetryExtraction ? (
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
               onClick={onRetry}
               disabled={isRetrying || isUpdatingStatus !== null}
             >

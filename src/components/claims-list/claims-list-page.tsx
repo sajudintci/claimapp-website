@@ -133,7 +133,7 @@ export function ClaimsListPage() {
           </button>
           <Link
             href="/claims/upload"
-            className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
           >
             <Plus className="size-4" />
             Upload claim
@@ -154,7 +154,7 @@ export function ClaimsListPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search claim #, patient, provider…"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
               aria-label="Search claims on this page"
             />
           </div>

@@ -179,7 +179,7 @@ export function AuditLogsPage() {
               setPage(1);
             }}
             placeholder="Search action, entity, actor, IP…"
-            className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
         </div>
 
@@ -314,7 +314,7 @@ function AuditRow({
           {targetHref ? (
             <Link
               href={targetHref}
-              className="inline-flex items-center gap-1 font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="inline-flex items-center gap-1 font-medium text-primary hover:underline dark:text-primary"
             >
               {log.entityType}:{log.entityId.slice(0, 8)}…
               <ArrowUpRight className="size-3" />

@@ -131,7 +131,7 @@ function AuditValue({
         target="_blank"
         rel="noreferrer"
         className={cn(
-          "break-all text-blue-600 hover:underline dark:text-blue-400",
+          "break-all text-primary hover:underline dark:text-primary",
           emphasized && "font-medium",
         )}
       >

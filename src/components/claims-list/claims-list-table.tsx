@@ -50,7 +50,7 @@ export function ClaimsListTable({
         </p>
         <Link
           href="/claims/upload"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
         >
           Upload claim
         </Link>
@@ -120,7 +120,7 @@ export function ClaimsListTable({
                 <td className="px-4 py-3.5 text-right">
                   <Link
                     href={`/claims/${claim.id}`}
-                    className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark"
                   >
                     Open
                     <ArrowUpRight className="size-3.5" />
