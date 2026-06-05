@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   Sparkles,
   UploadCloud,
-  Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useApiQuery } from "@/hooks/use-api-query";
@@ -54,7 +53,7 @@ export function ClaimsUploadPage() {
     claimNumber: string;
   } | null>(null);
 
-  const { data: summary, isLoading: creditsLoading } = useApiQuery(
+  const { data: summary } = useApiQuery(
     () => apiAuthedFetch<ReportSummaryResponse>("/reports/summary"),
     [],
   );
@@ -351,12 +350,6 @@ export function ClaimsUploadPage() {
         </div>
 
         <aside className="space-y-4">
-          <CreditsCard
-            remaining={remaining}
-            usedThisMonth={Number(credit.usedThisMonth ?? 0)}
-            monthlyQuota={Number(credit.monthlyQuota ?? 0)}
-            isLoading={creditsLoading}
-          />
           <GuidelinesCard />
           <PipelineCard />
         </aside>
@@ -469,53 +462,6 @@ function SuccessPanel({
           Back to claims list
         </Link>
       </div>
-    </section>
-  );
-}
-
-function CreditsCard({
-  remaining,
-  usedThisMonth,
-  monthlyQuota,
-  isLoading,
-}: {
-  remaining: number;
-  usedThisMonth: number;
-  monthlyQuota: number;
-  isLoading: boolean;
-}) {
-  const low = remaining < Math.max(10, monthlyQuota * 0.05);
-
-  if (isLoading) {
-    return <div className="h-36 animate-pulse rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30" />;
-  }
-
-  return (
-    <section
-      className={cn(
-        "rounded-2xl border p-4 shadow-sm",
-        low ? "border-amber-200/80 bg-amber-50/80 dark:border-amber-900/50 dark:bg-amber-950/40" : "border-emerald-200/80 bg-emerald-50/80 dark:border-emerald-900/50 dark:bg-emerald-950/40",
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <Wallet className={cn("size-4", low ? "text-amber-700 dark:text-amber-400" : "text-emerald-700 dark:text-emerald-400")} />
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-800 dark:text-slate-200">
-          OCR credits
-        </h2>
-      </div>
-      <p className="mt-3 text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100">
-        {remaining.toLocaleString()}
-        <span className="ml-1 text-sm font-medium text-slate-500 dark:text-slate-400">remaining</span>
-      </p>
-      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-        {usedThisMonth.toLocaleString()} used of {monthlyQuota.toLocaleString()} this month
-      </p>
-      {low ? (
-        <p className="mt-2 flex items-start gap-1.5 text-xs font-medium text-amber-900 dark:text-amber-300">
-          <AlertCircle className="mt-0.5 size-3.5 shrink-0" />
-          Low balance — uploads may fail if credits run out during extraction.
-        </p>
-      ) : null}
     </section>
   );
 }
