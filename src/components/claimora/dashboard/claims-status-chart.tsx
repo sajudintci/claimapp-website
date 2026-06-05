@@ -87,13 +87,9 @@ export function ClaimsStatusChart() {
         })}
       </div>
 
-      <div className="mt-6 grid grid-cols-3 gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
+      <div className="mt-6 grid grid-cols-2 gap-2 border-t border-slate-100 pt-5 dark:border-slate-800">
         <StatPill label="Queued" value={Number(processing.queuedJobs ?? 0)} />
         <StatPill label="Active jobs" value={Number(processing.processingJobs ?? 0)} />
-        <StatPill
-          label="Credits left"
-          value={Number(data?.creditUsage?.remainingCredits ?? 0).toLocaleString()}
-        />
       </div>
     </section>
   );

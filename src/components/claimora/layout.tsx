@@ -8,16 +8,12 @@ import {
   CircleHelp,
   Menu,
   MoonStar,
-  Search,
   Settings,
   Sun,
   User,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useTheme } from "@/contexts/theme-context";
-import { useApiQuery } from "@/hooks/use-api-query";
-import { apiAuthedFetch } from "@/lib/api/client";
-import { ReportSummaryResponse } from "@/types/api";
 import { HeaderNotifications } from "@/components/claimora/header-notifications";
 import { UserAvatar } from "@/components/claimora/user-avatar";
 import { cn } from "@/lib/utils";
@@ -72,7 +68,6 @@ export function TopNavbar({
 }) {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
-  const { data: summary } = useApiQuery(() => apiAuthedFetch<ReportSummaryResponse>("/reports/summary"), []);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
@@ -90,29 +85,11 @@ export function TopNavbar({
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-200 dark:border-slate-800 dark:bg-slate-950 dark:shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
       <div className="flex h-14 items-center gap-3 px-4 lg:px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5 lg:max-w-2xl">
-          <HeaderIconButton label="Toggle sidebar" onClick={onSidebarToggle}>
-            <Menu className="size-[18px]" />
-          </HeaderIconButton>
-
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-            <input
-              aria-label="Search claims"
-              className="h-9 w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50/80 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors hover:border-slate-300 hover:bg-white focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:hover:bg-slate-900 dark:focus:border-primary dark:focus:bg-slate-900 md:pr-16"
-              placeholder="Search claims, patients, documents..."
-            />
-            <kbd className="pointer-events-none absolute right-2.5 top-1/2 hidden -translate-y-1/2 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-500 md:inline">
-              ⌘K
-            </kbd>
-          </div>
-        </div>
+        <HeaderIconButton label="Toggle sidebar" onClick={onSidebarToggle}>
+          <Menu className="size-[18px]" />
+        </HeaderIconButton>
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-          <div className="hidden rounded-lg border border-slate-200/80 bg-emerald-50 px-2.5 py-1 dark:border-emerald-900/50 dark:bg-emerald-950/40 sm:block">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400">Sisa Kredit</p>
-            <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">{Number(summary?.creditUsage?.remainingCredits ?? 0).toLocaleString()}</p>
-          </div>
           <div className="flex items-center gap-0.5 rounded-lg border border-slate-200/80 bg-slate-50/50 p-0.5 dark:border-slate-700 dark:bg-slate-900/50">
             <HeaderNotifications />
 

@@ -8,7 +8,6 @@ import { ClaimDocumentPanel } from "@/components/claim-detail/claim-document-pan
 import { ClaimExtractionPanel } from "@/components/claim-detail/claim-extraction-panel";
 import { ClaimIssuesPanel } from "@/components/claim-detail/claim-issues-panel";
 import { ClaimProcessingTimeline } from "@/components/claim-detail/claim-processing-timeline";
-import { ClaimOcrCreditsPanel } from "@/components/claim-detail/claim-ocr-credits-panel";
 import { MobileWorkspaceTabs } from "@/components/claim-detail/mobile-workspace-tabs";
 import { ClaimDetailData, DocumentFocusTarget, MobileWorkspaceTab } from "@/components/claim-detail/types";
 import { buildExtractionContext } from "@/components/claim-detail/utils";
@@ -171,7 +170,6 @@ export default function ClaimDetailPage() {
       {data ? (
         <>
           <ClaimProcessingTimeline ctx={ctx} hasDocuments={documents.length > 0} />
-          <ClaimOcrCreditsPanel ctx={ctx} />
           <ClaimIssuesPanel ctx={ctx} jobError={data.latestJob?.errorMessage} />
 
           <MobileWorkspaceTabs active={mobileTab} onChange={setMobileTab} />

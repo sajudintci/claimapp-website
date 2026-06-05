@@ -7,7 +7,7 @@ import { apiAuthedFetchPaginated } from "@/lib/api/paginated-fetch";
 import { mapClaimFromApi } from "@/lib/api/mappers";
 import { useApiQuery } from "@/hooks/use-api-query";
 import { ClaimRecord } from "@/types/claim";
-import { ConfidenceBadge, StatusBadge } from "@/components/claimora/badges";
+import { StatusBadge } from "@/components/claimora/badges";
 import { cn } from "@/lib/utils";
 
 const PRIORITY_STATUSES = ["Needs Attention", "Processing", "Extracted", "Failed"] as const;
@@ -98,7 +98,6 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
                 <Th>Provider</Th>
                 <Th>Amount</Th>
                 <Th>Status</Th>
-                <Th>Confidence</Th>
                 <Th className="text-right">Action</Th>
               </tr>
             </thead>
@@ -122,9 +121,6 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
                   </td>
                   <td className="px-5 py-3.5">
                     <StatusBadge status={claim.status} />
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <ConfidenceBadge confidence={claim.confidence} />
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <Link
