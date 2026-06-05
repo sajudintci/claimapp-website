@@ -8,7 +8,7 @@ import {
   FileSearch,
 } from "lucide-react";
 import { ClaimRecord, ClaimStatus } from "@/types/claim";
-import { ConfidenceBadge, StatusBadge } from "@/components/claimora/badges";
+import { StatusBadge } from "@/components/claimora/badges";
 import { cn } from "@/lib/utils";
 
 const statusHint: Partial<Record<ClaimStatus, string>> = {
@@ -71,7 +71,6 @@ export function ClaimsListTable({
               <Th>OCR credits</Th>
               <Th>Submitted</Th>
               <Th>Status</Th>
-              <Th>Confidence</Th>
               <Th className="text-right">Action</Th>
             </tr>
           </thead>
@@ -113,9 +112,6 @@ export function ClaimsListTable({
                       <p className="text-[10px] text-slate-500 dark:text-slate-400">{statusHint[claim.status]}</p>
                     ) : null}
                   </div>
-                </td>
-                <td className="px-4 py-3.5">
-                  <ConfidenceBadge confidence={claim.confidence} />
                 </td>
                 <td className="px-4 py-3.5 text-right">
                   <Link

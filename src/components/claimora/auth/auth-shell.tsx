@@ -1,6 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
-import { FileSearch, Heart, Lock, ShieldCheck } from "lucide-react";
+import { FileSearch, Lock, ShieldCheck } from "lucide-react";
+import sequisLogo from "@/favicon.png";
 import { cn } from "@/lib/utils";
+
+function SequisLogo({ className }: { className?: string }) {
+  return (
+    <Image
+      src={sequisLogo}
+      alt="Sequis — Your Better Tomorrow"
+      width={120}
+      height={65}
+      priority
+      className={cn("h-auto w-[9rem] max-w-full object-contain object-left", className)}
+    />
+  );
+}
 
 export function AuthShell({
   title,
@@ -34,12 +49,7 @@ export function AuthShell({
 
         <div className="relative z-10 flex flex-1 flex-col justify-between p-10 xl:p-12">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-sm">
-              <Heart className="size-3.5" />
-              Your Better Tomorrow
-            </div>
-            <h1 className="mt-6 text-4xl font-bold tracking-tight text-white">Sequis</h1>
-            <p className="mt-3 max-w-md text-base leading-relaxed text-white/80">
+            <p className="max-w-md text-base leading-relaxed text-white/80">
               Asuransi yang relevan, efisien, dan dekat dengan kebutuhan gaya hidup Anda di era
               digital.
             </p>
@@ -77,10 +87,6 @@ export function AuthShell({
               </div>
             ))}
           </div>
-
-          <p className="text-xs text-white/50">
-            © 2026 Sequis · Lingkungan aman untuk data asuransi
-          </p>
         </div>
       </aside>
 
@@ -94,11 +100,8 @@ export function AuthShell({
         <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-primary-light/60 blur-3xl dark:bg-primary/10" />
 
         <div className="relative mx-auto w-full max-w-[420px]">
-          <Link href="/login" className="mb-8 inline-flex items-center gap-2 lg:hidden">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
-              S
-            </span>
-            <span className="text-lg font-bold text-neutral-900 dark:text-neutral-100">Sequis</span>
+          <Link href="/login" className="mb-8 inline-block">
+            <SequisLogo />
           </Link>
 
           <div className={cn("mb-8", isLogin && "mb-6")}>

@@ -9,17 +9,6 @@ export default function LoginPage() {
       variant="login"
       title="Selamat datang kembali"
       description="Masuk dengan akun Anda untuk mengelola klaim, meninjau dokumen, dan melacak aktivitas dengan mudah."
-      footer={
-        <p>
-          Invited by your organization?{" "}
-          <Link
-            href="/register"
-            className="font-semibold text-primary underline-offset-2 hover:text-primary-dark hover:underline dark:text-primary dark:hover:text-primary"
-          >
-            Complete registration
-          </Link>
-        </p>
-      }
     >
       <Suspense
         fallback={

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Filter, Plus, RefreshCw, Search } from "lucide-react";
 import { ClaimsListKpis } from "@/components/claims-list/claims-list-kpis";
-import { ClaimsListOcrCredits } from "@/components/claims-list/claims-list-ocr-credits";
 import { ClaimsListTable } from "@/components/claims-list/claims-list-table";
 import { ErrorState } from "@/components/claimora/states";
 import { apiAuthedFetchPaginated } from "@/lib/api/paginated-fetch";
@@ -140,8 +139,6 @@ export function ClaimsListPage() {
           </Link>
         </div>
       </header>
-
-      <ClaimsListOcrCredits />
 
       <ClaimsListKpis />
 

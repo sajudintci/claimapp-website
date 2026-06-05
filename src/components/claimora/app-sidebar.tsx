@@ -7,13 +7,11 @@ import sequisLogo from "@/favicon.png";
 import {
   Building2,
   ClipboardList,
-  FileSearch,
   FolderOpen,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  ShieldCheck,
   Upload,
   Users,
   X,
@@ -44,13 +42,6 @@ const menuSections: NavSection[] = [
     items: [
       { label: "All Claims", href: "/claims", icon: FolderOpen },
       { label: "Upload Claim", href: "/claims/upload", icon: Upload },
-    ],
-  },
-  {
-    title: "AI Extraction",
-    items: [
-      { label: "Extraction Results", href: "/ai-extraction/results", icon: FileSearch },
-      { label: "Confidence Review", href: "/ai-extraction/confidence-review", icon: ShieldCheck },
     ],
   },
   {
