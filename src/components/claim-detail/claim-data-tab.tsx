@@ -108,9 +108,9 @@ export function ClaimDataTab({
       grouped.set(row.section, list);
     }
 
-    const orderedSections = FIELD_SECTION_ORDER.filter((section) => grouped.has(section));
+    const orderedSections: string[] = FIELD_SECTION_ORDER.filter((section) => grouped.has(section));
     for (const section of grouped.keys()) {
-      if (!orderedSections.includes(section as (typeof FIELD_SECTION_ORDER)[number])) {
+      if (!orderedSections.includes(section)) {
         orderedSections.push(section);
       }
     }
