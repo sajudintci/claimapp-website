@@ -6,12 +6,15 @@ import type { OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
 
 type EmbeddedPdfViewerProps = {
   url: string;
-  zoom: number;
   documentFocus: DocumentFocusTarget | null;
   ocrPages: OcrPageLines[];
+  onDownload?: () => void;
+  onOpenInNewTab?: () => void;
+  onToggleFullscreen?: () => void;
+  isFullscreen?: boolean;
 };
 
-/** Enterprise PDF viewer: PDF.js canvas + PDF/OCR text highlights. */
+/** PDF.js viewer with standard toolbar, thumbnails, and OCR/text highlights. */
 export function EmbeddedPdfViewer(props: EmbeddedPdfViewerProps) {
   return <PdfDocumentViewer {...props} />;
 }

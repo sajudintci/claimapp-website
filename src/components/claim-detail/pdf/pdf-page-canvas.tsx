@@ -15,6 +15,7 @@ type PdfPageCanvasProps = {
   pageNumber: number;
   meta: PdfPageMeta;
   scale: number;
+  rotation?: number;
   pdfRef: RefObject<PDFDocumentProxy | null>;
   documentFocus: DocumentFocusTarget | null;
   isHighlightPage: boolean;
@@ -25,6 +26,7 @@ export function PdfPageCanvas({
   pageNumber,
   meta,
   scale,
+  rotation = 0,
   pdfRef,
   documentFocus,
   isHighlightPage,
@@ -46,7 +48,7 @@ export function PdfPageCanvas({
       try {
         const page = await pdf.getPage(pageNumber);
         if (dead) return;
-        const vp = page.getViewport({ scale });
+        const vp = page.getViewport({ scale, rotation });
         const ctx = canvas.getContext("2d");
         if (!ctx || dead) return;
 
@@ -92,7 +94,7 @@ export function PdfPageCanvas({
         swallowRenderCancel(task.promise);
       }
     };
-  }, [pageNumber, scale, pdfRef, isHighlightPage, documentFocus?.id, ocrPages]);
+  }, [pageNumber, scale, rotation, pdfRef, isHighlightPage, documentFocus?.id, ocrPages]);
 
   const showHighlight = isHighlightPage && highlights.length > 0;
 

@@ -3,38 +3,23 @@
 import Link from "next/link";
 import { ArrowUpRight, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useApiQuery } from "@/hooks/use-api-query";
-import { apiAuthedFetchPaginated } from "@/lib/api/paginated-fetch";
-import { AuditLogRecord } from "@/types/api";
+import { DashboardMetricsResponse } from "@/types/api";
+import { formatRelativeTime } from "@/components/claimora/dashboard/dashboard-utils";
 
-const dotColor: Record<string, string> = {
-  Success: "bg-emerald-500",
-  Warning: "bg-amber-500",
-  Failed: "bg-red-500",
+type RecentActivityProps = {
+  items?: DashboardMetricsResponse["recentActivity"];
+  isLoading?: boolean;
 };
 
-function formatAction(action: string): string {
-  return action
-    .toLowerCase()
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-export function RecentActivity() {
-  const { data, isLoading } = useApiQuery(async () => {
-    const res = await apiAuthedFetchPaginated<{ items: AuditLogRecord[] }>(
-      "/audit-logs?page=1&limit=6",
-    );
-    return res.data.items ?? [];
-  }, []);
-  const items = data ?? [];
+export function RecentActivity({ items, isLoading }: RecentActivityProps) {
+  const rows = items ?? [];
 
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-      <div className="mb-4 flex items-center justify-between">
+    <section className="flex h-full flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+      <div className="mb-5 flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Recent activity</h2>
-          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Audit trail and system events</p>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Recent Activity</h2>
+          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">Latest workflow events</p>
         </div>
         <Link
           href="/audit-logs"
@@ -46,47 +31,33 @@ export function RecentActivity() {
       </div>
 
       {isLoading ? (
-        <ul className="space-y-3">
+        <ul className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <li key={i} className="h-12 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
+            <li key={i} className="h-14 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
           ))}
         </ul>
-      ) : items.length === 0 ? (
-        <div className="flex flex-col items-center py-8 text-center">
+      ) : rows.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
           <ClipboardList className="mb-2 size-8 text-slate-300 dark:text-slate-600" />
           <p className="text-sm text-slate-500 dark:text-slate-400">No recent activity recorded.</p>
-          <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-            Sign in or upload a claim to generate audit events.
-          </p>
         </div>
       ) : (
-        <ul className="space-y-0">
-          {items.map((item, index) => (
-            <li
-              key={item.id}
-              className={cn(
-                "relative flex gap-3 py-3",
-                index !== items.length - 1 && "border-b border-slate-100 dark:border-slate-800",
-              )}
-            >
+        <ul className="relative space-y-0">
+          <span
+            className="absolute bottom-2 left-[7px] top-2 w-px bg-slate-200 dark:bg-slate-700"
+            aria-hidden
+          />
+          {rows.map((item, index) => (
+            <li key={item.id} className={cn("relative flex gap-3", index !== rows.length - 1 && "pb-5")}>
               <span
-                className={cn(
-                  "mt-1.5 size-2 shrink-0 rounded-full",
-                  dotColor[item.result] ?? "bg-blue-500",
-                )}
+                className="relative z-10 mt-1.5 size-3.5 shrink-0 rounded-full border-2 border-white bg-slate-400 ring-1 ring-slate-200 dark:border-slate-900 dark:bg-slate-500 dark:ring-slate-700"
                 aria-hidden
               />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-800 dark:text-slate-200">
-                  <span className="font-semibold">{item.actorName ?? "System"}</span>{" "}
-                  <span className="text-slate-600 dark:text-slate-400">{formatAction(item.action)}</span>
-                </p>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</p>
                 <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                  {item.entityType}
-                  {item.entityId ? ` · ${item.entityId.slice(0, 12)}` : ""}
-                  {item.createdAt
-                    ? ` · ${new Date(item.createdAt).toLocaleString()}`
-                    : ""}
+                  {item.actorName ?? "System"}
+                  {item.createdAt ? ` • ${formatRelativeTime(item.createdAt)}` : ""}
                 </p>
               </div>
             </li>

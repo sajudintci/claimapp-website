@@ -1,10 +1,11 @@
-import { ClaimStatus } from "@/types/claim";
+import { fallbackExtractionProgress } from "@/lib/extraction/extraction-progress";
 import {
   ClaimDetailData,
   ExtractionContext,
   PreExtractedFieldKey,
   TracedFieldDisplay,
 } from "@/components/claim-detail/types";
+import { ClaimStatus } from "@/types/claim";
 
 export const PRE_EXTRACTED_FIELD_KEYS: PreExtractedFieldKey[] = [
   "policyNumber",
@@ -38,11 +39,15 @@ export function buildExtractionContext(
   const isJobActive = jobStatus === "QUEUED" || jobStatus === "PROCESSING";
   const llmStatus = String(extraction.llmStatus ?? "");
   const ocrSufficient = extraction.ocrSufficient !== false;
+  const extractionProgress =
+    data?.latestJob?.progress ??
+    (jobStatus !== "N/A" ? fallbackExtractionProgress(jobStatus) : null);
 
   return {
     payload: extraction,
     confidence: Math.round(((extraction.confidence as number | undefined) ?? 0) * 100),
     jobStatus,
+    extractionProgress,
     currentStatus: (data?.claim?.status ?? "Processing") as ClaimStatus,
     llmStatus,
     llmError: extraction.llmError as string | null | undefined,

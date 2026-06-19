@@ -23,6 +23,44 @@ export type ReportSummaryResponse = {
   };
 };
 
+export type DashboardMetricsResponse = {
+  kpis: {
+    totalUploaded: number;
+    pendingReview: number;
+    pendingApproval: number;
+    approved: number;
+    highPriorityCount: number;
+    dueTodayCount: number;
+    approvalRate: number;
+    uploadTrend: string;
+  };
+  workQueue: Array<{
+    id: string;
+    claimNumber: string;
+    patientName: string;
+    provider: string;
+    status: string;
+    displayStatus: string;
+    submittedAt: string;
+  }>;
+  recentActivity: Array<{
+    id: string;
+    title: string;
+    actorName: string | null;
+    createdAt: string;
+  }>;
+  extractionQuality: Array<{
+    label: string;
+    pct: number;
+    count: number;
+  }>;
+  throughput: Array<{
+    label: string;
+    uploaded: number;
+    processed: number;
+  }>;
+};
+
 export type NotificationItem = {
   id: string;
   type: string;

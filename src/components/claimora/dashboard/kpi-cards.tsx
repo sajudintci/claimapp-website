@@ -1,156 +1,94 @@
 "use client";
 
 import Link from "next/link";
+import { CheckCircle2, ClipboardCheck, FileStack, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  AlertTriangle,
-  CheckCircle2,
-  FileStack,
-  TrendingDown,
-  TrendingUp,
-  XCircle,
-} from "lucide-react";
-import { useApiQuery } from "@/hooks/use-api-query";
-import { apiAuthedFetch } from "@/lib/api/client";
-import { ReportSummaryResponse } from "@/types/api";
+import { DashboardMetricsResponse } from "@/types/api";
 
-const icons = {
-  primary: FileStack,
-  success: CheckCircle2,
-  warning: AlertTriangle,
-  danger: XCircle,
-};
-
-const accent = {
-  primary: "from-blue-500/10 to-blue-600/5 text-blue-600 ring-blue-500/20",
-  success: "from-emerald-500/10 to-emerald-600/5 text-emerald-600 ring-emerald-500/20",
-  warning: "from-amber-500/10 to-amber-600/5 text-amber-600 ring-amber-500/20",
-  danger: "from-red-500/10 to-red-600/5 text-red-600 ring-red-500/20",
-};
-
-type KpiItem = {
+type KpiCard = {
   label: string;
   value: string;
-  trend: string;
-  trendUp: boolean;
-  tone: keyof typeof icons;
   subtext: string;
   href: string;
+  icon: React.ComponentType<{ className?: string }>;
 };
 
-export function DashboardKpiCards() {
-  const { data, isLoading } = useApiQuery(async () => {
-    const summary = await apiAuthedFetch<ReportSummaryResponse>("/reports/summary");
-    const kpis = summary.kpis ?? {};
-    const trends = summary.trends ?? {
-      totalClaims: "+0%",
-      reviewedClaims: "+0%",
-      failedClaims: "-0%",
-      needsAttention: "-0%",
-    };
-    const items: KpiItem[] = [
-      {
-        label: "Total claims",
-        value: String(kpis.totalClaims ?? 0),
-        trend: trends.totalClaims ?? "+0%",
-        trendUp: true,
-        tone: "primary",
-        subtext: "All claims in organization",
-        href: "/claims",
-      },
-      {
-        label: "Needs attention",
-        value: String(kpis.needsAttention ?? 0),
-        trend: trends.needsAttention ?? "-0%",
-        trendUp: false,
-        tone: "warning",
-        subtext: "Awaiting reviewer action",
-        href: `/claims?status=${encodeURIComponent("Needs Attention")}`,
-      },
-      {
-        label: "Reviewed",
-        value: String(kpis.reviewedClaims ?? 0),
-        trend: trends.reviewedClaims ?? "+0%",
-        trendUp: true,
-        tone: "success",
-        subtext: "Completed reviews",
-        href: `/claims?status=${encodeURIComponent("Reviewed")}`,
-      },
-      {
-        label: "Failed extraction",
-        value: String(kpis.failedClaims ?? 0),
-        trend: trends.failedClaims ?? "-0%",
-        trendUp: false,
-        tone: "danger",
-        subtext: "Retry or re-upload required",
-        href: `/claims?status=${encodeURIComponent("Failed")}`,
-      },
-    ];
-    return items;
-  }, []);
+type DashboardKpiCardsProps = {
+  kpis?: DashboardMetricsResponse["kpis"];
+  isLoading?: boolean;
+};
 
-  if (isLoading) {
+export function DashboardKpiCards({ kpis, isLoading }: DashboardKpiCardsProps) {
+  if (isLoading || !kpis) {
     return (
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-36 animate-pulse rounded-2xl bg-slate-200/70 dark:bg-slate-800" />
+          <div key={i} className="h-32 animate-pulse rounded-2xl bg-slate-200/70 dark:bg-slate-800" />
         ))}
       </section>
     );
   }
 
+  const cards: KpiCard[] = [
+    {
+      label: "Total Uploaded",
+      value: kpis.totalUploaded.toLocaleString("id-ID"),
+      subtext: kpis.uploadTrend,
+      href: "/claims",
+      icon: FileStack,
+    },
+    {
+      label: "Pending Review",
+      value: kpis.pendingReview.toLocaleString("id-ID"),
+      subtext:
+        kpis.highPriorityCount > 0
+          ? `${kpis.highPriorityCount} high priority`
+          : "Awaiting reviewer action",
+      href: `/claims?status=${encodeURIComponent("Needs Attention")}`,
+      icon: FileText,
+    },
+    {
+      label: "Pending Approval",
+      value: kpis.pendingApproval.toLocaleString("id-ID"),
+      subtext: kpis.dueTodayCount > 0 ? `${kpis.dueTodayCount} due today` : "Ready for approval",
+      href: `/claims?status=${encodeURIComponent("Extracted")}`,
+      icon: ClipboardCheck,
+    },
+    {
+      label: "Approved",
+      value: kpis.approved.toLocaleString("id-ID"),
+      subtext: `${kpis.approvalRate.toFixed(1).replace(".", ",")}% rate`,
+      href: `/claims?status=${encodeURIComponent("Reviewed")}`,
+      icon: CheckCircle2,
+    },
+  ];
+
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {(data ?? []).map((kpi) => {
-        const Icon = icons[kpi.tone];
-        const trendPositive =
-          (kpi.trendUp && kpi.tone !== "danger") || (!kpi.trendUp && kpi.tone === "danger");
+      {cards.map((kpi) => {
+        const Icon = kpi.icon;
         return (
           <Link
             key={kpi.label}
             href={kpi.href}
-            className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-800"
+            className="group rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-slate-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700"
           >
-            <div
-              className={cn(
-                "absolute -right-4 -top-4 size-24 rounded-full bg-gradient-to-br opacity-60 blur-2xl transition-opacity group-hover:opacity-100",
-                kpi.tone === "primary" && "from-blue-200",
-                kpi.tone === "success" && "from-emerald-200",
-                kpi.tone === "warning" && "from-amber-200",
-                kpi.tone === "danger" && "from-red-200",
-              )}
-            />
-            <div className="relative flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{kpi.label}</p>
+                <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                  {kpi.value}
+                </p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{kpi.subtext}</p>
+              </div>
               <div
                 className={cn(
-                  "flex size-10 items-center justify-center rounded-xl bg-gradient-to-br ring-1",
-                  accent[kpi.tone],
+                  "flex size-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 text-slate-500 ring-1 ring-slate-200",
+                  "dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700",
                 )}
               >
                 <Icon className="size-5" />
               </div>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold",
-                  trendPositive
-                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                    : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300",
-                )}
-              >
-                {trendPositive ? (
-                  <TrendingUp className="size-3" />
-                ) : (
-                  <TrendingDown className="size-3" />
-                )}
-                {kpi.trend}
-              </span>
-            </div>
-            <div className="relative mt-4">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{kpi.label}</p>
-              <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900 group-hover:text-blue-800 dark:text-slate-100 dark:group-hover:text-blue-400">
-                {kpi.value}
-              </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{kpi.subtext}</p>
             </div>
           </Link>
         );

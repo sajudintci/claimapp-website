@@ -3,81 +3,148 @@
 import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { JsonViewer } from "@/components/claimora/json-viewer";
-import { ClaimDebugTab } from "@/components/claim-detail/claim-debug-tab";
-import { ClaimFieldsTable } from "@/components/claim-detail/claim-fields-table";
-import { ClaimLineItemsTab } from "@/components/claim-detail/claim-line-items-tab";
-import { ClaimOverviewTab } from "@/components/claim-detail/claim-overview-tab";
+import { ClaimAuditTab } from "@/components/claim-detail/claim-audit-tab";
+import { ClaimCommentTab } from "@/components/claim-detail/claim-comment-tab";
+import { ClaimDataTab } from "@/components/claim-detail/claim-data-tab";
+import { ExtractionDataLoading } from "@/components/claim-detail/extraction-data-loading";
+import { fallbackExtractionProgress } from "@/lib/extraction/extraction-progress";
 import { ExtractionContext, ExtractionTab, DocumentFocusTarget } from "@/components/claim-detail/types";
 import {
   buildFieldRows,
   ExtractionClaim,
   resolveClaimsFromPayload,
+  tracedFieldValue,
 } from "@/lib/extraction/claim-extraction";
 import { cn } from "@/lib/utils";
 
 const TABS: Array<{ id: ExtractionTab; label: string }> = [
-  { id: "overview", label: "Overview" },
-  { id: "fields", label: "Fields" },
-  { id: "lineitems", label: "Line items" },
+  { id: "data", label: "Data" },
   { id: "json", label: "JSON" },
-  { id: "debug", label: "Debug" },
+  { id: "audit", label: "Audit Trails" },
+  { id: "comment", label: "Comment" },
 ];
 
+const OVERVIEW_FIELD_KEYS = [
+  { section: "Patient", field: "name" },
+  { section: "Provider", field: "hospital_name" },
+  { section: "Diagnosis", field: "icd10_description" },
+  { section: "Billing", field: "total_amount_read" },
+] as const;
+
 type ClaimExtractionPanelProps = {
+  claimId: string;
   ctx: ExtractionContext;
-  extractionSource?: string;
-  jobAttempts?: number;
-  abbyyTransactionId?: string | null;
+  reviewPayload: Record<string, unknown>;
+  activeClaimIndex: number;
+  onActiveClaimIndexChange: (index: number) => void;
+  fieldValues: Record<string, string>;
+  originalValues: Record<string, string>;
+  reviewedKeys: Set<string>;
+  onFieldChange: (key: string, value: string) => void;
+  onToggleReviewed: (key: string) => void;
   isPdfDocument?: boolean;
-  documentFocus?: DocumentFocusTarget | null;
   onFocusField?: (focus: DocumentFocusTarget) => void;
+  onSaveDraft: () => void;
+  onSubmit: () => void;
+  isSavingDraft: boolean;
+  isSubmitting: boolean;
+  canSubmit: boolean;
 };
 
-export function ClaimExtractionPanel({
-  ctx,
-  extractionSource,
-  jobAttempts,
-  abbyyTransactionId,
-  isPdfDocument = false,
-  documentFocus,
-  onFocusField,
-}: ClaimExtractionPanelProps) {
-  const [activeTab, setActiveTab] = useState<ExtractionTab>("overview");
-  const [activeClaimIndex, setActiveClaimIndex] = useState(0);
+function buildOverviewRows(activeClaim: ExtractionClaim | undefined, allRows: ReturnType<typeof buildFieldRows>) {
+  if (!activeClaim) return [];
 
-  const claims = useMemo(
-    () => resolveClaimsFromPayload(ctx.payload),
-    [ctx.payload],
-  );
+  const overview: ReturnType<typeof buildFieldRows> = [];
+  for (const spec of OVERVIEW_FIELD_KEYS) {
+    const existing = allRows.find((row) => row.section === spec.section && row.field === spec.field);
+    if (existing) {
+      overview.push(existing);
+      continue;
+    }
+
+    const sectionData = activeClaim[spec.section.toLowerCase() as keyof ExtractionClaim] as
+      | Record<string, unknown>
+      | undefined;
+    const traced = sectionData?.[spec.field];
+    if (!traced) continue;
+
+    overview.push({
+      section: spec.section,
+      field: spec.field,
+      value: tracedFieldValue(traced),
+      confidence:
+        traced && typeof traced === "object" && "confidence" in traced
+          ? Math.round(Number((traced as { confidence?: number }).confidence) * 100) || 0
+          : 0,
+      sourceText:
+        traced && typeof traced === "object" && typeof (traced as { source_text?: string }).source_text === "string"
+          ? (traced as { source_text: string }).source_text
+          : "",
+      page:
+        traced && typeof traced === "object" && (traced as { page?: number | null }).page != null
+          ? String((traced as { page: number }).page)
+          : "-",
+    });
+  }
+
+  return overview;
+}
+
+export function ClaimExtractionPanel({
+  claimId,
+  ctx,
+  reviewPayload,
+  activeClaimIndex,
+  onActiveClaimIndexChange,
+  fieldValues,
+  originalValues,
+  reviewedKeys,
+  onFieldChange,
+  onToggleReviewed,
+  isPdfDocument = false,
+  onFocusField,
+  onSaveDraft,
+  onSubmit,
+  isSavingDraft,
+  isSubmitting,
+  canSubmit,
+}: ClaimExtractionPanelProps) {
+  const [activeTab, setActiveTab] = useState<ExtractionTab>("data");
+
+  const claims = useMemo(() => resolveClaimsFromPayload(ctx.payload), [ctx.payload]);
   const activeClaim = claims[activeClaimIndex] ?? claims[0];
-  const fieldRows = useMemo(
-    () => (activeClaim ? buildFieldRows(activeClaim) : []),
-    [activeClaim],
+  const fieldRows = useMemo(() => (activeClaim ? buildFieldRows(activeClaim) : []), [activeClaim]);
+  const overviewRows = useMemo(
+    () => buildOverviewRows(activeClaim, fieldRows),
+    [activeClaim, fieldRows],
   );
-  const summary =
-    (ctx.payload.summary as Record<string, unknown> | undefined) ?? {};
+
+  const overviewKeys = new Set(overviewRows.map((row) => `${row.section}-${row.field}`));
+  const detailFieldRows = fieldRows.filter((row) => !overviewKeys.has(`${row.section}-${row.field}`));
+  const isExtracting =
+    ctx.isJobActive || (ctx.currentStatus === "Processing" && claims.length === 0);
+
+  if (isExtracting) {
+    return (
+      <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <ExtractionDataLoading progress={ctx.extractionProgress ?? fallbackExtractionProgress(ctx.jobStatus)} />
+      </section>
+    );
+  }
 
   return (
-    <section className="flex min-h-[520px] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-800">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Extraction output</h2>
-          {ctx.isJobActive ? (
-            <span className="inline-flex items-center gap-1.5 text-xs text-blue-700 dark:text-blue-400">
-              <Loader2 className="size-3.5 animate-spin" />
-              Updating…
-            </span>
-          ) : null}
-        </div>
+    <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="shrink-0 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Extraction Output</h2>
 
-        <div className="mt-3 flex flex-wrap gap-1 overflow-x-auto">
+        <div className="mt-3 flex flex-wrap gap-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
+                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
                 activeTab === tab.id
                   ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
@@ -94,7 +161,7 @@ export function ClaimExtractionPanel({
               <button
                 key={index}
                 type="button"
-                onClick={() => setActiveClaimIndex(index)}
+                onClick={() => onActiveClaimIndexChange(index)}
                 className={cn(
                   "rounded-md border px-2.5 py-1 text-xs font-semibold",
                   activeClaimIndex === index
@@ -109,47 +176,58 @@ export function ClaimExtractionPanel({
         ) : null}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        {activeTab === "overview" ? (
-          <ClaimOverviewTab
-            claims={claims}
-            activeClaim={activeClaim}
-            summary={summary}
-            ctx={ctx}
+      <div className="relative min-h-0 flex-1 overflow-y-auto p-4">
+        {activeTab === "data" ? (
+          <ClaimDataTab
+            overviewRows={overviewRows}
+            fieldRows={detailFieldRows}
+            fieldValues={fieldValues}
+            originalValues={originalValues}
+            reviewedKeys={reviewedKeys}
+            onFieldChange={onFieldChange}
+            onToggleReviewed={onToggleReviewed}
             isPdfDocument={isPdfDocument}
-            activeFocusLabel={documentFocus?.label ?? null}
             onFocusField={onFocusField}
           />
         ) : null}
-        {activeTab === "fields" ? (
-          <ClaimFieldsTable
-            rows={fieldRows}
-            isPdfDocument={isPdfDocument}
-            activeFocusLabel={documentFocus?.label ?? null}
-            onFocusField={onFocusField}
-          />
-        ) : null}
-        {activeTab === "lineitems" ? (
-          <ClaimLineItemsTab
-            claim={activeClaim}
-            isPdfDocument={isPdfDocument}
-            activeFocusLabel={documentFocus?.label ?? null}
-            onFocusField={onFocusField}
-          />
-        ) : null}
-        {activeTab === "json" ? (
-          <div className="max-h-[min(60vh,640px)] overflow-auto">
-            <JsonViewer value={ctx.payload} />
-          </div>
-        ) : null}
-        {activeTab === "debug" ? (
-          <ClaimDebugTab
-            ctx={ctx}
-            extractionSource={extractionSource}
-            jobAttempts={jobAttempts}
-            abbyyTransactionId={abbyyTransactionId}
-          />
-        ) : null}
+        {activeTab === "json" ? <JsonViewer value={reviewPayload} /> : null}
+        {activeTab === "audit" ? <ClaimAuditTab claimId={claimId} /> : null}
+        {activeTab === "comment" ? <ClaimCommentTab claimId={claimId} /> : null}
+      </div>
+
+      <div className="shrink-0 border-t border-slate-100 p-4 dark:border-slate-800">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={onSaveDraft}
+            disabled={isSavingDraft || isSubmitting}
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-200 text-sm font-semibold text-slate-800 hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+          >
+            {isSavingDraft ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              "Save as draft"
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={!canSubmit || isSubmitting || isSavingDraft}
+            className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Submitting…
+              </>
+            ) : (
+              "Submit"
+            )}
+          </button>
+        </div>
       </div>
     </section>
   );
