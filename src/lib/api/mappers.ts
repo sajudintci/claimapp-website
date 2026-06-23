@@ -1,4 +1,5 @@
 import { ClaimRecord } from "@/types/claim";
+import { resolveExtractedPatientName } from "@/lib/extraction/patient-display";
 
 type TracedField = {
   value?: string | number;
@@ -35,6 +36,9 @@ type BackendClaim = {
     llmEnhanced?: boolean;
     source?: string;
     claims?: Array<{
+      patient?: {
+        name?: TracedField;
+      };
       encounter?: {
         admission_date?: TracedField;
       };
@@ -52,17 +56,18 @@ function readClaimDate(extractionResult: BackendClaim["extractionResult"]): stri
 
 export function mapClaimFromApi(item: unknown): ClaimRecord {
   const claim = item as BackendClaim;
-  const summary = claim.extractionResult?.summary;
-  const uploadMeta = claim.metadata;
   const confidenceRaw = claim.extractionResult?.confidence;
   const createdAt = claim.createdAt
     ? new Date(claim.createdAt).toISOString()
     : new Date().toISOString();
 
+  const summary = claim.extractionResult?.summary;
+  const extractedPatientName = claim.extractionResult?.claims?.[0]?.patient?.name;
+
   return {
     id: claim.id,
     claimNumber: claim.claimNumber ?? claim.id.slice(0, 8),
-    patientName: summary?.insuredName ?? uploadMeta?.patientName ?? "—",
+    patientName: resolveExtractedPatientName(extractedPatientName),
     provider: summary?.provider ?? "—",
     amount: summary?.amount ?? 0,
     submittedAt: createdAt,

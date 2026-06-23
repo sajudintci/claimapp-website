@@ -68,11 +68,6 @@ export default function ClaimDetailPage() {
   const isPdfDocument = selectedDocument?.mimeType === "application/pdf";
   const currentStatus = (data?.claim?.status as ClaimStatus) ?? "Processing";
 
-  const patientNameFallback = useMemo(() => {
-    const summary = ctx.payload.summary as { insuredName?: string } | undefined;
-    return summary?.insuredName ?? undefined;
-  }, [ctx.payload.summary]);
-
   const isRefreshing = isLoading && Boolean(data);
   const isExtractionActive =
     data?.latestJob?.status === "QUEUED" || data?.latestJob?.status === "PROCESSING";
@@ -306,7 +301,6 @@ export default function ClaimDetailPage() {
           <ClaimMetadataBar
             claimNumber={data.claim?.claimNumber}
             metadata={data.claim?.metadata}
-            patientNameFallback={patientNameFallback}
             reviewerName={data.claim?.reviewer?.name ?? null}
           />
 

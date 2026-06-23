@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 type ClaimMetadataBarProps = {
   claimNumber?: string;
   metadata?: ClaimMetadata | null;
-  patientNameFallback?: string;
   reviewerName?: string | null;
 };
 
@@ -27,11 +26,10 @@ function normalizeDocumentTypes(raw: ClaimMetadata["documentType"]): string[] {
 export function ClaimMetadataBar({
   claimNumber,
   metadata,
-  patientNameFallback,
   reviewerName,
 }: ClaimMetadataBarProps) {
   const documentTypes = normalizeDocumentTypes(metadata?.documentType);
-  const patientName = metadata?.patientName?.trim() || patientNameFallback || "—";
+  const uploadPatientName = metadata?.patientName?.trim() || "—";
 
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 sm:p-6">
@@ -45,7 +43,7 @@ export function ClaimMetadataBar({
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <MetadataItem icon={Bookmark} label="Claim Reference" value={claimNumber ?? "—"} />
         <MetadataItem icon={Flag} label="Priority" value={metadata?.priority?.trim() || "—"} />
-        <MetadataItem icon={User} label="Patient Name" value={patientName} />
+        <MetadataItem icon={User} label="Patient Name" value={uploadPatientName} />
         <MetadataItem icon={FolderOpen} label="Document Type">
           {documentTypes.length > 0 ? (
             <div className="mt-1 flex flex-wrap gap-1.5">

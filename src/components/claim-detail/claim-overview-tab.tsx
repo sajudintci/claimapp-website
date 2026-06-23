@@ -3,6 +3,7 @@
 import { Crosshair } from "lucide-react";
 import {
   ExtractionClaim,
+  tracedFieldReviewValue,
   tracedFieldValue,
 } from "@/lib/extraction/claim-extraction";
 import { createFocusFromPreExtracted, createFocusFromTracedField } from "@/lib/extraction/document-focus";
@@ -50,10 +51,7 @@ export function ClaimOverviewTab({
         <FocusableKpiCard
           label="Patient"
           traceLabel="Patient · name"
-          value={
-            tracedFieldValue(activeClaim?.patient?.name) ||
-            String(summary.insuredName ?? "-")
-          }
+          value={tracedFieldReviewValue(activeClaim?.patient?.name)}
           field={activeClaim?.patient?.name}
           canFocus={canFocusPdf}
           isActive={activeFocusLabel === "Patient · name"}
