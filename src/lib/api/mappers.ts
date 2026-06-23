@@ -1,5 +1,5 @@
 import { ClaimRecord } from "@/types/claim";
-import { resolveExtractedPatientName } from "@/lib/extraction/patient-display";
+import { resolveExtractedPatientNameFromResult } from "@/lib/extraction/patient-display";
 
 type TracedField = {
   value?: string | number;
@@ -62,12 +62,13 @@ export function mapClaimFromApi(item: unknown): ClaimRecord {
     : new Date().toISOString();
 
   const summary = claim.extractionResult?.summary;
-  const extractedPatientName = claim.extractionResult?.claims?.[0]?.patient?.name;
 
   return {
     id: claim.id,
     claimNumber: claim.claimNumber ?? claim.id.slice(0, 8),
-    patientName: resolveExtractedPatientName(extractedPatientName),
+    patientName: resolveExtractedPatientNameFromResult(
+      claim.extractionResult as Record<string, unknown> | null | undefined,
+    ),
     provider: summary?.provider ?? "—",
     amount: summary?.amount ?? 0,
     submittedAt: createdAt,

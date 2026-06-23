@@ -66,8 +66,15 @@ export function WorkQueue({ items, isLoading }: WorkQueueProps) {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-slate-900 dark:text-slate-100">
-                    {claim.patientName !== "—" ? claim.patientName : claim.claimNumber}
+                  <p
+                    className={cn(
+                      "truncate font-semibold",
+                      claim.patientName === "not_found"
+                        ? "text-slate-400 italic dark:text-slate-500"
+                        : "text-slate-900 dark:text-slate-100",
+                    )}
+                  >
+                    {claim.patientName}
                   </p>
                   <p className="mt-0.5 truncate text-sm text-slate-500 dark:text-slate-400">
                     {claim.claimNumber}

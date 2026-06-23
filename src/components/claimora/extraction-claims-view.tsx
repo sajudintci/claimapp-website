@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   buildFieldRows,
   ExtractionClaim,
+  tracedFieldReviewValue,
   tracedFieldValue,
 } from "@/lib/extraction/claim-extraction";
 
@@ -69,7 +70,7 @@ export function ExtractionClaimsView({ claims, summary }: ExtractionClaimsViewPr
       <div className="grid gap-3 sm:grid-cols-2">
         <SummaryCard
           label="Patient"
-          value={tracedFieldValue(activeClaim?.patient?.name) || String(summary?.insuredName ?? "-")}
+          value={tracedFieldReviewValue(activeClaim?.patient?.name)}
         />
         <SummaryCard
           label="Provider"
