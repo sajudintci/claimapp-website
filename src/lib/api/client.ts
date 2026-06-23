@@ -1,3 +1,5 @@
+import { generateId } from "@/lib/utils";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ?? "http://localhost:4000/api";
 
@@ -32,10 +34,7 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
   const { token, headers, body, ...rest } = options;
   const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
   const requestHeaders = new Headers(headers);
-  const requestId =
-    typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const requestId = generateId();
 
   requestHeaders.set("x-request-id", requestId);
   if (!isFormData && !requestHeaders.has("Content-Type")) {

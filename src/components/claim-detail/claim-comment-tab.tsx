@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { generateId } from "@/lib/utils";
 
 type CommentEntry = {
   id: string;
@@ -45,7 +46,7 @@ export function ClaimCommentTab({ claimId }: ClaimCommentTabProps) {
     const body = draft.trim();
     if (!body) return;
     const entry: CommentEntry = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       author: "You",
       initials: "YO",
       body,
