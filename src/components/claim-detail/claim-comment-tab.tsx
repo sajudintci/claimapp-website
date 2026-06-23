@@ -84,7 +84,7 @@ export function ClaimCommentTab({ claimId }: ClaimCommentTabProps) {
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
           placeholder="Add an approval note…"
-          className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          className="w-full resize-y rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
         />
         <button
           type="button"

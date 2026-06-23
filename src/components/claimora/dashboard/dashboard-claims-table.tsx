@@ -61,13 +61,13 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search…"
-              className="h-9 w-full min-w-[160px] rounded-xl border border-slate-200 bg-slate-50/80 pl-8 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 sm:w-48"
+              className="h-9 w-full min-w-[160px] rounded-xl border border-slate-200 bg-slate-50/80 pl-8 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500 sm:w-48"
               aria-label="Search priority claims"
             />
           </div>
           <Link
             href="/claims"
-            className="inline-flex h-9 items-center gap-1 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+            className="inline-flex h-9 items-center gap-1 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
           >
             View all claims
             <ArrowUpRight className="size-3.5" />
@@ -84,7 +84,7 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
       ) : filtered.length === 0 ? (
         <div className="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400">
           No priority claims right now.{" "}
-          <Link href="/claims/upload" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+          <Link href="/claims/upload" className="font-semibold text-primary hover:underline dark:text-primary">
             Upload a claim
           </Link>
         </div>
@@ -129,7 +129,7 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
                   <td className="px-5 py-3.5 text-right">
                     <Link
                       href={`/claims/${claim.id}`}
-                      className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                      className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
                     >
                       Open
                       <ArrowUpRight className="size-3" />

@@ -26,9 +26,9 @@ export function AuthField({
 export const authInputClass = cn(
   "h-11 w-full rounded-lg border border-slate-200 bg-white text-sm text-slate-900",
   "placeholder:text-slate-400 transition-all duration-150",
-  "hover:border-slate-300 focus:border-blue-500 focus:outline-none focus:ring-[3px] focus:ring-blue-500/15",
+  "hover:border-slate-300 focus:border-primary focus:outline-none focus:ring-[3px] focus:ring-primary/15",
   "dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500",
-  "dark:hover:border-slate-600 dark:focus:border-blue-500",
+  "dark:hover:border-slate-600 dark:focus:border-primary",
 );
 
 export function AuthInputWrap({
@@ -61,7 +61,7 @@ export function AuthSubmitButton({
     <button
       type="submit"
       disabled={loading}
-      className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 transition-all duration-150 hover:bg-blue-700 hover:shadow-md hover:shadow-blue-600/25 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-500/30 disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all duration-150 hover:bg-primary-hover hover:shadow-md hover:shadow-primary/25 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {loading && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
       {loading ? "Signing in..." : children}

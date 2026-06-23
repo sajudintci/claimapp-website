@@ -64,7 +64,7 @@ export function ClaimsListTable({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by claim, patient, provider, or file name."
-            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
             aria-label="Search documents"
           />
         </div>
@@ -75,7 +75,7 @@ export function ClaimsListTable({
             <select
               value={statusFilter}
               onChange={(e) => onStatusChange(e.target.value as "" | ClaimStatus)}
-              className="h-11 appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm font-medium text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+              className="h-11 appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm font-medium text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
             >
               {statusOptions.map((option) => (
                 <option key={option.label} value={option.value}>
@@ -93,7 +93,7 @@ export function ClaimsListTable({
             className={cn(
               "inline-flex h-11 items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors",
               showMoreFilters
-                ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                ? "border-primary/20 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary"
                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900",
             )}
           >
@@ -122,7 +122,7 @@ export function ClaimsListTable({
                 <select
                   value={reviewerFilter}
                   onChange={(e) => onReviewerChange(e.target.value)}
-                  className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                  className="h-10 w-full appearance-none rounded-xl border border-slate-200 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
                 >
                   <option value="">All reviewers</option>
                   <option value="unassigned">Unassigned</option>
@@ -157,7 +157,7 @@ export function ClaimsListTable({
           </p>
           <Link
             href="/claims/upload"
-            className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="mt-4 inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
           >
             Upload claim
           </Link>
@@ -195,7 +195,7 @@ export function ClaimsListTable({
                     <td className="px-4 py-4">
                       <Link
                         href={`/claims/${claim.id}`}
-                        className="font-semibold text-slate-900 hover:text-blue-700 dark:text-slate-100 dark:hover:text-blue-400"
+                        className="font-semibold text-slate-900 hover:text-primary-hover dark:text-slate-100 dark:hover:text-primary"
                       >
                         {claim.claimNumber}
                       </Link>
@@ -209,7 +209,7 @@ export function ClaimsListTable({
                           <FileText className="size-4" />
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate font-semibold text-slate-900 group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-400">
+                          <p className="truncate font-semibold text-slate-900 group-hover:text-primary-hover dark:text-slate-100 dark:group-hover:text-primary">
                             {fileName}
                           </p>
                           <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -243,7 +243,7 @@ export function ClaimsListTable({
                     <td className="px-4 py-4 text-right">
                       <Link
                         href={`/claims/${claim.id}`}
-                        className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                        className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
                       >
                         Open
                         <ArrowUpRight className="size-3.5" />

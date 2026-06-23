@@ -6,11 +6,11 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Create your account"
-      description="Activate your Claimora access using your insurance invitation."
+      description="Activate your Sequis access using your insurance invitation."
       footer={
         <p>
           Already registered?{" "}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-700">
+          <Link href="/login" className="font-medium text-primary hover:text-primary-hover">
             Sign in
           </Link>
         </p>

@@ -114,7 +114,7 @@ export function ClaimFieldsTable({
                     key={rowKey}
                     className={cn(
                       "border-t border-slate-100 align-top dark:border-slate-800",
-                      canFocus && "cursor-pointer hover:bg-blue-50/60 dark:hover:bg-blue-950/20",
+                      canFocus && "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
                       activeFocusLabel === rowLabel && "bg-amber-50/80 dark:bg-amber-950/25",
                     )}
                     onClick={canFocus ? () => handleFocusRow(row) : undefined}
@@ -124,7 +124,7 @@ export function ClaimFieldsTable({
                     <td className="px-3 py-2 font-medium break-words text-slate-800 dark:text-slate-200">
                       <span className="inline-flex flex-wrap items-center gap-1.5">
                         {row.field}
-                        {canFocus ? <Crosshair className="size-3 shrink-0 text-blue-600/70 dark:text-blue-400" /> : null}
+                        {canFocus ? <Crosshair className="size-3 shrink-0 text-primary/70 dark:text-primary" /> : null}
                       </span>
                     </td>
                     <td className="px-3 py-2">
@@ -145,7 +145,7 @@ export function ClaimFieldsTable({
                       {row.sourceText ? (
                         <button
                           type="button"
-                          className="block w-full break-words text-left text-xs leading-relaxed text-blue-700 hover:underline dark:text-blue-400"
+                          className="block w-full break-words text-left text-xs leading-relaxed text-primary-hover hover:underline dark:text-primary"
                           onClick={(e) => {
                             e.stopPropagation();
                             setExpandedSource(sourceExpanded ? null : rowKey);
@@ -157,7 +157,7 @@ export function ClaimFieldsTable({
                             <>
                               <span className="line-clamp-3">{row.sourceText}</span>
                               {row.sourceText.length > 120 ? (
-                                <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-blue-600/80 dark:text-blue-400/80">
+                                <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-primary/80 dark:text-primary/80">
                                   Show more
                                 </span>
                               ) : null}

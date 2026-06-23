@@ -168,7 +168,7 @@ export function ClaimExtractionPanel({
                 className={cn(
                   "rounded-md border px-2.5 py-1 text-xs font-semibold",
                   activeClaimIndex === index
-                    ? "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-700 dark:bg-blue-950/50 dark:text-blue-300"
+                    ? "border-primary/30 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary"
                     : "border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400",
                 )}
               >

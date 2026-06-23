@@ -118,13 +118,13 @@ export function LoginForm() {
           <input
             type="checkbox"
             {...register("remember")}
-            className="size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/30"
+            className="size-4 rounded border-slate-300 text-primary focus:ring-primary/30"
           />
           Remember me
         </label>
         <Link
           href="/forgot-password"
-          className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="text-sm font-medium text-primary transition-colors hover:text-primary-hover dark:text-primary dark:hover:text-primary-hover"
         >
           Forgot password?
         </Link>
@@ -147,9 +147,9 @@ export function LoginForm() {
             key={user.id}
             type="button"
             onClick={() => fillDemo(user.email)}
-            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-all hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-800 dark:hover:bg-blue-950/40"
+            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-all hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-primary/40 dark:hover:bg-primary/10"
           >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 text-xs font-semibold text-white">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-xs font-semibold text-white">
               {user.initials}
             </span>
             <span className="min-w-0 flex-1">
@@ -163,10 +163,6 @@ export function LoginForm() {
         ))}
       </div>
 
-      <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-500 dark:text-slate-400">
-        <Lock className="size-3 shrink-0" />
-        Secure insurance environment
-      </p>
     </form>
   );
 }

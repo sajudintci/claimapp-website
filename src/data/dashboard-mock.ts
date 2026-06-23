@@ -44,7 +44,7 @@ export const workflowStages = [
 
 export const claimsByStatus = [
   { status: "Processing", count: 89, color: "bg-slate-500" },
-  { status: "Extracted", count: 312, color: "bg-blue-500" },
+  { status: "Extracted", count: 312, color: "bg-primary/100" },
   { status: "Reviewed", count: 2987, color: "bg-emerald-500" },
   { status: "Needs Attention", count: 136, color: "bg-amber-500" },
   { status: "Failed", count: 12, color: "bg-red-500" },

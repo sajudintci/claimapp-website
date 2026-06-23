@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FileSearch, Lock, ShieldCheck, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function AuthShell({
@@ -20,7 +19,7 @@ export function AuthShell({
   return (
     <div className="grid min-h-screen bg-slate-50 dark:bg-slate-950 lg:grid-cols-[1fr_1.05fr]">
       <aside className="relative hidden overflow-hidden bg-slate-950 lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-700/90 via-blue-600/85 to-slate-900/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/85 to-slate-900/95" />
         <div
           className="absolute inset-0 opacity-[0.07]"
           style={{
@@ -29,58 +28,17 @@ export function AuthShell({
             backgroundSize: "28px 28px",
           }}
         />
-        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-400/20 blur-3xl" />
-        <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-teal-500/20 blur-3xl" />
 
-        <div className="relative z-10 flex flex-1 flex-col justify-between p-10 xl:p-12">
+        <div className="relative z-10 flex flex-1 flex-col justify-center p-10 xl:p-12">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-blue-50 backdrop-blur-sm">
-              <Sparkles className="size-3.5" />
-              Enterprise Insurance AI
-            </div>
-            <h1 className="mt-6 text-4xl font-bold tracking-tight text-white">Claimora</h1>
-            <p className="mt-3 max-w-md text-base leading-relaxed text-blue-100/90">
+            <h1 className="text-4xl font-bold tracking-tight text-white">Sequis</h1>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-teal-100/90">
               AI-Powered Insurance Claim Intelligence — process claims faster with
               structured extraction and audit-ready review workflows.
             </p>
           </div>
-
-          <div className="space-y-4">
-            {[
-              {
-                icon: FileSearch,
-                title: "Document intelligence",
-                text: "Upload claims, run OCR & AI extraction into structured JSON.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Human review & audit",
-                text: "Confidence scoring, corrections, and full activity tracking.",
-              },
-              {
-                icon: Lock,
-                title: "Secure by design",
-                text: "Role-based access for insurance teams in regulated environments.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="flex gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
-              >
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/15">
-                  <item.icon className="size-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{item.title}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-blue-100/80">{item.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-blue-200/70">
-            © 2026 Claimora · Insurance-grade secure environment
-          </p>
         </div>
       </aside>
 
@@ -90,14 +48,14 @@ export function AuthShell({
           isLogin && "bg-[linear-gradient(180deg,#f8fafc_0%,#f1f5f9_100%)] dark:bg-[linear-gradient(180deg,#0f172a_0%,#020617_100%)]",
         )}
       >
-        <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-blue-100/40 blur-3xl dark:bg-blue-900/20" />
+        <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-primary/10 blur-3xl dark:bg-primary/20" />
 
         <div className="relative mx-auto w-full max-w-[420px]">
           <Link href="/login" className="mb-8 inline-flex items-center gap-2 lg:hidden">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-blue-600 text-xs font-bold text-white">
-              C
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
+              S
             </span>
-            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">Claimora</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">Sequis</span>
           </Link>
 
           <div className={cn("mb-8", isLogin && "mb-6")}>

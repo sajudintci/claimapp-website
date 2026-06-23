@@ -8,7 +8,9 @@
   --card: #ffffff;
   --muted: #64748b;
   --border: #e2e8f0;
-  --primary: #2563eb;
+  --primary: #058c87;
+  --primary-hover: #047a76;
+  --primary-foreground: #ffffff;
   --success: #059669;
   --warning: #d97706;
   --danger: #dc2626;
@@ -20,7 +22,9 @@
   --card: #111827;
   --muted: #94a3b8;
   --border: #1e293b;
-  --primary: #3b82f6;
+  --primary: #06b0aa;
+  --primary-hover: #08c4bc;
+  --primary-foreground: #ffffff;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
@@ -29,6 +33,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

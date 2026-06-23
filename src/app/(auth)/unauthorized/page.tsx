@@ -19,7 +19,7 @@ export default function UnauthorizedPage() {
         </Link>
         <Link
           href="/login"
-          className="block text-center text-sm text-blue-600 hover:text-blue-700"
+          className="block text-center text-sm text-primary hover:text-primary-hover"
         >
           Sign in with another account
         </Link>

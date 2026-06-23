@@ -56,7 +56,7 @@ export function ExtractionClaimsView({ claims, summary }: ExtractionClaimsViewPr
               onClick={() => setActiveIndex(index)}
               className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
                 activeIndex === index
-                  ? "border-blue-300 bg-blue-50 text-blue-800"
+                  ? "border-primary/30 bg-primary/10 text-primary-hover"
                   : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >

@@ -23,7 +23,7 @@ export function RecentActivity({ items, isLoading }: RecentActivityProps) {
         </div>
         <Link
           href="/audit-logs"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary"
         >
           View all
           <ArrowUpRight className="size-3.5" />

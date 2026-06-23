@@ -291,8 +291,6 @@ export function ClaimsUploadPage() {
                 )}
               </div>
             </section>
-
-            <GuidelinesCard />
           </div>
 
           <aside className="lg:col-span-2">
@@ -347,7 +345,7 @@ export function ClaimsUploadPage() {
                         cn(
                           inputClassName,
                           "flex min-h-11 h-auto items-center gap-1 py-1",
-                          isFocused && "border-blue-500 ring-2 ring-blue-500/15",
+                          isFocused && "border-primary ring-2 ring-primary/15",
                         ),
                       placeholder: () => "text-slate-400 dark:text-slate-500",
                       input: () => "text-sm text-slate-900 dark:text-slate-100",
@@ -641,28 +639,6 @@ function SubmittedStep({
   );
 }
 
-function GuidelinesCard() {
-  const items = [
-    "Use clear scans or native PDFs (not password-protected).",
-    "One claim per upload; bundle multi-page invoices in a single PDF.",
-    "Ensure patient name and totals are readable for best extraction quality.",
-  ];
-
-  return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-      <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Document Guidelines</h2>
-      <ul className="mt-4 space-y-3">
-        {items.map((text) => (
-          <li key={text} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
-            <Check className="mt-0.5 size-4 shrink-0 text-slate-500 dark:text-slate-400" />
-            {text}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 function ReviewInfoItem({
   icon: Icon,
   label,
@@ -730,7 +706,7 @@ function Alert({ message, className }: { message: string; className?: string }) 
 }
 
 const inputClassName =
-  "h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
+  "h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

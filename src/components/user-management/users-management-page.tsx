@@ -220,7 +220,7 @@ export function UsersManagementPage() {
                   setPage(1);
                 }}
                 placeholder="Search name, email, role, department…"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/80 pl-10 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-100 dark:placeholder:text-slate-500"
               />
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -347,7 +347,7 @@ function UsersTable({
                         <p className="font-semibold text-slate-900 dark:text-slate-100">
                           {user.name}
                           {isSelf ? (
-                            <span className="ml-1.5 text-xs font-medium text-blue-600 dark:text-blue-400">(you)</span>
+                            <span className="ml-1.5 text-xs font-medium text-primary dark:text-primary">(you)</span>
                           ) : null}
                         </p>
                         <p className="flex items-center gap-1 truncate text-xs text-slate-500 dark:text-slate-400">
@@ -465,7 +465,7 @@ function KpiCard({
   tone: "blue" | "emerald" | "slate";
 }) {
   const tones = {
-    blue: "bg-blue-50 text-blue-700 ring-blue-100 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900",
+    blue: "bg-primary/10 text-primary-hover ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30",
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
     slate: "bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
   };

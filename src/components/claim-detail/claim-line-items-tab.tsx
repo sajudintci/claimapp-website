@@ -138,7 +138,7 @@ function DataTable({
                       className={cn(
                         "border-t border-slate-100 dark:border-slate-800",
                         clickable &&
-                          "cursor-pointer hover:bg-blue-50/60 dark:hover:bg-blue-950/20",
+                          "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
                         row.focus?.label === activeFocusLabel && "bg-amber-50/80 dark:bg-amber-950/25",
                       )}
                       onClick={
@@ -153,7 +153,7 @@ function DataTable({
                           {i === 0 && clickable ? (
                             <span className="inline-flex items-center gap-1.5">
                               {cell}
-                              <Crosshair className="size-3 shrink-0 text-blue-600/70 dark:text-blue-400" />
+                              <Crosshair className="size-3 shrink-0 text-primary/70 dark:text-primary" />
                             </span>
                           ) : (
                             cell

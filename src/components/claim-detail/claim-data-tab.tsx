@@ -143,7 +143,7 @@ export function ClaimDataTab({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by field"
-            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           />
         </div>
         <button
@@ -345,7 +345,7 @@ function FieldCard({
               onClick={handleLocate}
               aria-label="Locate in document"
               title="Locate in document"
-              className="inline-flex size-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-blue-400 hover:text-blue-600 dark:border-slate-600 dark:bg-slate-900 dark:hover:text-blue-400"
+              className="inline-flex size-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-primary/40 hover:text-primary dark:border-slate-600 dark:bg-slate-900 dark:hover:text-primary"
             >
               <Crosshair className="size-3.5" />
             </button>
@@ -377,7 +377,7 @@ function FieldCard({
         placeholder="not_found"
         readOnly={false}
         className={cn(
-          "h-10 w-full rounded-lg border px-3 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/15 disabled:opacity-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100",
+          "h-10 w-full rounded-lg border px-3 text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100",
           isNotFound
             ? "border-dashed border-slate-300 bg-slate-100 italic text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
             : "border-slate-200 bg-white text-slate-900",

@@ -25,7 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 export { AppSidebar } from "@/components/claimora/app-sidebar";
 
 const headerIconBtn =
-  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
+  "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white";
 
 function HeaderIconButton({
   label,
@@ -124,8 +124,8 @@ export function TopNavbar({
             <button
               type="button"
               className={cn(
-                "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white pl-1 pr-2.5 text-left shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
-                profileMenuOpen && "border-blue-200 bg-blue-50/40 dark:border-blue-800 dark:bg-blue-950/40",
+                "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white pl-1 pr-2.5 text-left shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
+                profileMenuOpen && "border-primary/20 bg-primary/10 dark:border-primary/30 dark:bg-primary/15",
               )}
               aria-label="Profile menu"
               aria-expanded={profileMenuOpen}
@@ -193,7 +193,7 @@ export function PageHeader({ title, description }: { title: string; description:
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-        <span>Claimora</span>
+        <span>Sequis</span>
         {crumbs.map((crumb) => (
           <span key={crumb} className="inline-flex items-center gap-1">
             <ChevronRight className="size-3" />

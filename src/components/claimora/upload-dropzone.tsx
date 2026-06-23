@@ -48,7 +48,7 @@ export function UploadDropzone() {
     <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
       <div {...getRootProps()} className="cursor-pointer rounded-2xl border border-dashed p-5 text-center outline-none sm:p-8" aria-label="Upload claim documents">
         <input {...getInputProps()} />
-        <UploadCloud className="mx-auto mb-3 size-8 text-blue-600" />
+        <UploadCloud className="mx-auto mb-3 size-8 text-primary" />
         <p className="font-semibold">{isDragActive ? "Drop files here" : "Drag and drop claim files"}</p>
         <p className="text-sm text-slate-500">PDF, PNG, JPG - secure claim documents only</p>
       </div>
@@ -62,7 +62,7 @@ export function UploadDropzone() {
                 Pastikan file sudah benar sebelum kirim ke pipeline OCR.
               </p>
             </div>
-            <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+            <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary-hover">
               {selectedExt}
             </span>
           </div>
@@ -91,7 +91,7 @@ export function UploadDropzone() {
               type="button"
               onClick={onConfirmUpload}
               disabled={!selectedFile || isUploading}
-              className="inline-flex h-10 items-center rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm shadow-blue-600/20 transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isUploading ? "Uploading..." : "Konfirmasi Upload"}
             </button>
