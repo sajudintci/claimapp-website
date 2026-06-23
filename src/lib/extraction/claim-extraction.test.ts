@@ -89,4 +89,25 @@ describe("buildFieldRows", () => {
       }),
     ).toBe("not_found");
   });
+
+  it("renders multiple OCR pages for a traced field", () => {
+    const rows = buildFieldRows({
+      patient: {
+        name: {
+          value: "Budi",
+          source_text: "Nama Pasien: Budi",
+          page: 1,
+          confidence: 0.95,
+          traces: [
+            { source_text: "Nama Pasien: Budi", page: 1 },
+            { source_text: "Patient Name Budi", page: 4 },
+          ],
+        },
+      },
+    });
+
+    const nameRow = rows.find((row) => row.section === "Patient" && row.field === "name");
+    expect(nameRow?.page).toBe("1, 4");
+    expect(nameRow?.traces).toHaveLength(2);
+  });
 });

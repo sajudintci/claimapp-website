@@ -24,6 +24,7 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 import { PdfPageCanvas } from "@/components/claim-detail/pdf/pdf-page-canvas";
 import { PdfPageThumbnail } from "@/components/claim-detail/pdf/pdf-page-thumbnail";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
+import { focusAppliesToPage } from "@/lib/extraction/document-focus";
 import { loadPdfDocument } from "@/lib/pdf/pdfjs-client";
 import { resolveDocumentFocusHighlight } from "@/lib/pdf/pdf-focus-resolve";
 import type { OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
@@ -75,7 +76,7 @@ export function PdfDocumentViewer({
   const [pageInput, setPageInput] = useState("1");
   const [pagesMeta, setPagesMeta] = useState<Record<number, PdfPageMeta>>({});
   const [visiblePages, setVisiblePages] = useState<Set<number>>(() => new Set([1]));
-  const [highlightPage, setHighlightPage] = useState<number | null>(null);
+  const [highlightPages, setHighlightPages] = useState<number[]>([]);
   const [focusLabel, setFocusLabel] = useState<string | null>(null);
   const [matchStatus, setMatchStatus] = useState<PdfFocusMatchStatus>("none");
   const [pdfHasTextLayer, setPdfHasTextLayer] = useState(true);
@@ -109,7 +110,7 @@ export function PdfDocumentViewer({
     setPageInput("1");
     setPagesMeta({});
     setVisiblePages(new Set([1]));
-    setHighlightPage(null);
+    setHighlightPages([]);
     setFocusLabel(null);
     setMatchStatus("none");
     setPdfHasTextLayer(true);
@@ -257,7 +258,7 @@ export function PdfDocumentViewer({
     if (!pdf || loading || totalPages === 0) return;
 
     if (!documentFocus) {
-      setHighlightPage(null);
+      setHighlightPages([]);
       setFocusLabel(null);
       setMatchStatus("none");
       return;
@@ -274,7 +275,7 @@ export function PdfDocumentViewer({
       );
       if (dead) return;
 
-      setHighlightPage(result.page);
+      setHighlightPages(result.pages);
       setFocusLabel(documentFocus.label ?? "Selected field");
       setMatchStatus(result.matchStatus);
       setPdfHasTextLayer(result.textItemCount > 0);
@@ -393,7 +394,11 @@ export function PdfDocumentViewer({
           <Flag className="size-3.5 shrink-0" />
           <span>
             <span className="font-semibold">{focusLabel}</span>
-            {documentFocus?.page ? ` · page ${documentFocus.page}` : ""}
+            {highlightPages.length > 0
+              ? ` · page${highlightPages.length > 1 ? "s" : ""} ${highlightPages.join(", ")}`
+              : documentFocus?.page
+                ? ` · page ${documentFocus.page}`
+                : ""}
             {" · "}
             {MATCH_LABEL[matchStatus]}
           </span>
@@ -433,7 +438,8 @@ export function PdfDocumentViewer({
             ) : (
               Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => {
                 const meta = pagesMeta[pageNumber];
-                const isHighlightPage = highlightPage === pageNumber && documentFocus != null;
+                const isHighlightPage =
+                  documentFocus != null && focusAppliesToPage(documentFocus, pageNumber);
 
                 return (
                   <div
@@ -451,8 +457,8 @@ export function PdfDocumentViewer({
                         scale={scale}
                         rotation={rotation}
                         pdfRef={pdfRef}
-                        documentFocus={isHighlightPage ? documentFocus : null}
-                        isHighlightPage={isHighlightPage}
+                        documentFocus={documentFocus}
+                        shouldHighlight={isHighlightPage}
                         ocrPages={ocrPages}
                       />
                     ) : (

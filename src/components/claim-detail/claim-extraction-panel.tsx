@@ -14,7 +14,9 @@ import {
   ExtractionClaim,
   resolveClaimsFromPayload,
   tracedFieldValue,
+  type TracedField,
 } from "@/lib/extraction/claim-extraction";
+import { formatTracePages, tracesFromField } from "@/lib/extraction/field-trace";
 import { cn } from "@/lib/utils";
 
 const TABS: Array<{ id: ExtractionTab; label: string }> = [
@@ -68,6 +70,12 @@ function buildOverviewRows(activeClaim: ExtractionClaim | undefined, allRows: Re
     const traced = sectionData?.[spec.field];
     if (!traced) continue;
 
+    const tracedField = traced as TracedField;
+    const sourceText =
+      typeof tracedField.source_text === "string" ? tracedField.source_text : "";
+    const pageNum = tracedField.page ?? null;
+    const traces = tracesFromField(tracedField);
+
     overview.push({
       section: spec.section,
       field: spec.field,
@@ -76,14 +84,9 @@ function buildOverviewRows(activeClaim: ExtractionClaim | undefined, allRows: Re
         traced && typeof traced === "object" && "confidence" in traced
           ? Math.round(Number((traced as { confidence?: number }).confidence) * 100) || 0
           : 0,
-      sourceText:
-        traced && typeof traced === "object" && typeof (traced as { source_text?: string }).source_text === "string"
-          ? (traced as { source_text: string }).source_text
-          : "",
-      page:
-        traced && typeof traced === "object" && (traced as { page?: number | null }).page != null
-          ? String((traced as { page: number }).page)
-          : "-",
+      sourceText,
+      page: formatTracePages({ source_text: sourceText, page: pageNum, traces }),
+      traces,
     });
   }
 

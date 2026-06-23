@@ -1,8 +1,18 @@
+import type { FieldTrace } from "@/lib/extraction/field-trace";
+import {
+  formatTracePages,
+  normalizeFieldTraces,
+  tracesFromField,
+} from "@/lib/extraction/field-trace";
+
+export type { FieldTrace };
+
 export type TracedField = {
   value?: string | number;
   source_text?: string;
   page?: number | null;
   confidence?: number;
+  traces?: FieldTrace[];
   value_origin?: "ocr" | "llm_synthesis";
   derived_from?: string[];
 };
@@ -15,6 +25,7 @@ export type ExtractionLineItem = {
   source_text?: string;
   page?: number | null;
   confidence?: number;
+  traces?: FieldTrace[];
   field_origins?: Partial<
     Record<"description" | "quantity" | "amount" | "related_doctor", FieldValueOrigin>
   >;
@@ -29,6 +40,7 @@ export type ExtractionTestResult = {
   source_text?: string;
   page?: number | null;
   confidence?: number;
+  traces?: FieldTrace[];
   field_origins?: Partial<
     Record<
       "test_category" | "test_name" | "result" | "unit" | "reference_range",
@@ -111,6 +123,7 @@ export type FieldRow = {
   confidence: number;
   sourceText: string;
   page: string;
+  traces: FieldTrace[];
   valueOrigin?: FieldValueOrigin;
   derivedFrom?: string[];
 };
@@ -143,9 +156,9 @@ function scalarFieldValue(raw: unknown): string {
 
 function readTracedField(
   field: unknown,
-): Pick<FieldRow, "value" | "confidence" | "sourceText" | "page" | "valueOrigin" | "derivedFrom"> {
+): Pick<FieldRow, "value" | "confidence" | "sourceText" | "page" | "traces" | "valueOrigin" | "derivedFrom"> {
   if (!field || typeof field !== "object") {
-    return { value: "not_found", confidence: 0, sourceText: "", page: "-" };
+    return { value: "not_found", confidence: 0, sourceText: "", page: "-", traces: [] };
   }
 
   const traced = field as TracedField;
@@ -156,12 +169,20 @@ function readTracedField(
       : !isExtractedValueMissing(reviewValue)
         ? "ocr"
         : undefined;
+  const sourceText = typeof traced.source_text === "string" ? traced.source_text : "";
+  const pageNum = traced.page != null ? traced.page : null;
+  const traces = tracesFromField({
+    source_text: sourceText,
+    page: pageNum,
+    traces: traced.traces,
+  });
 
   return {
     value: tracedFieldReviewValue(traced),
     confidence: tracedFieldConfidence(traced),
-    sourceText: typeof traced.source_text === "string" ? traced.source_text : "",
-    page: traced.page != null ? String(traced.page) : "-",
+    sourceText,
+    page: formatTracePages({ source_text: sourceText, page: pageNum, traces }),
+    traces,
     valueOrigin,
     derivedFrom: Array.isArray(traced.derived_from)
       ? traced.derived_from.filter((entry): entry is string => typeof entry === "string")
@@ -169,13 +190,16 @@ function readTracedField(
   };
 }
 
+function readRecordTraces(record: Record<string, unknown>) {
+  const sourceText = recordSourceText(record);
+  const pageNum = record.page != null ? Number(record.page) : null;
+  const rawTraces = Array.isArray(record.traces) ? record.traces : [];
+  return normalizeFieldTraces({ traces: rawTraces }, { source_text: sourceText, page: pageNum });
+}
+
 function recordConfidence(record: Record<string, unknown>): number {
   const confidence = Number(record.confidence);
   return Number.isFinite(confidence) ? Math.round(confidence * 100) : 0;
-}
-
-function recordPage(record: Record<string, unknown>): string {
-  return record.page != null ? String(record.page) : "-";
 }
 
 function recordSourceText(record: Record<string, unknown>): string {
@@ -206,13 +230,19 @@ function pushLineItemRows(rows: FieldRow[], items: ExtractionLineItem[] | undefi
 
     for (const field of LINE_ITEM_FIELDS) {
       const fieldOrigins = record.field_origins as ExtractionLineItem["field_origins"];
+      const traces = readRecordTraces(record);
       rows.push({
         section: "Line Items",
         field: `${itemNo}-${field}`,
         value: scalarFieldValue(record[field]),
         confidence: recordConfidence(record),
         sourceText: recordSourceText(record),
-        page: recordPage(record),
+        page: formatTracePages({
+          source_text: recordSourceText(record),
+          page: record.page != null ? Number(record.page) : null,
+          traces,
+        }),
+        traces,
         valueOrigin:
           fieldOrigins?.[field] ??
           (!isExtractedValueMissing(scalarFieldValue(record[field])) ? "ocr" : undefined),
@@ -231,13 +261,19 @@ function pushLaboratoryRows(rows: FieldRow[], tests: ExtractionTestResult[] | un
 
     for (const field of LABORATORY_FIELDS) {
       const fieldOrigins = record.field_origins as ExtractionTestResult["field_origins"];
+      const traces = readRecordTraces(record);
       rows.push({
         section: "Laboratory",
         field: `${testNo}-${field}`,
         value: scalarFieldValue(record[field]),
         confidence: recordConfidence(record),
         sourceText: recordSourceText(record),
-        page: recordPage(record),
+        page: formatTracePages({
+          source_text: recordSourceText(record),
+          page: record.page != null ? Number(record.page) : null,
+          traces,
+        }),
+        traces,
         valueOrigin:
           fieldOrigins?.[field as keyof NonNullable<ExtractionTestResult["field_origins"]>] ??
           (!isExtractedValueMissing(scalarFieldValue(record[field])) ? "ocr" : undefined),

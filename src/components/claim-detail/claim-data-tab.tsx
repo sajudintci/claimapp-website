@@ -385,7 +385,11 @@ function FieldCard({
       />
 
       <div className="mt-2 flex flex-wrap gap-1.5">
-        {row.page !== "-" ? <MetaTag>Page {row.page}</MetaTag> : null}
+        {row.page !== "-" ? (
+          <MetaTag>
+            {row.traces.length > 1 ? `Pages ${row.page}` : `Page ${row.page}`}
+          </MetaTag>
+        ) : null}
         {row.confidence > 0 ? <MetaTag>{row.confidence}%</MetaTag> : null}
         {row.valueOrigin === "llm_synthesis" ? (
           <MetaTag title={row.derivedFrom?.join(", ") ?? undefined}>LLM synthesis</MetaTag>
@@ -393,12 +397,23 @@ function FieldCard({
           <MetaTag>OCR extracted</MetaTag>
         ) : null}
         {isNotFound ? <MetaTag>Not found in OCR</MetaTag> : null}
-        {row.sourceText.trim() ? (
-          <MetaTag title={row.sourceText}>
-            {row.valueOrigin === "llm_synthesis" ? "Based on" : "OCR"}:{" "}
-            {truncateSource(row.sourceText)}
-          </MetaTag>
-        ) : null}
+        {row.traces.length > 1
+          ? row.traces.map((trace, index) =>
+              trace.source_text.trim() ? (
+                <MetaTag
+                  key={`${trace.page ?? "na"}-${index}`}
+                  title={trace.source_text}
+                >
+                  P{trace.page ?? "?"}: {truncateSource(trace.source_text, 32)}
+                </MetaTag>
+              ) : null,
+            )
+          : row.sourceText.trim() ? (
+              <MetaTag title={row.sourceText}>
+                {row.valueOrigin === "llm_synthesis" ? "Based on" : "OCR"}:{" "}
+                {truncateSource(row.sourceText)}
+              </MetaTag>
+            ) : null}
       </div>
     </div>
   );

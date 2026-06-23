@@ -70,6 +70,16 @@ function createDefaultMetadata(): UploadMetadata {
   };
 }
 
+function getMetadataValidationErrors(metadata: UploadMetadata): string[] {
+  const errors: string[] = [];
+  if (!metadata.claimReference.trim()) errors.push("Claim reference is required.");
+  if (!metadata.patientName.trim()) errors.push("Patient name is required.");
+  if (metadata.documentType.length === 0) errors.push("Document type is required.");
+  if (!metadata.priority) errors.push("Priority is required.");
+  if (!metadata.assignReviewer) errors.push("Reviewer assignment is required.");
+  return errors;
+}
+
 export function ClaimsUploadPage() {
   const router = useRouter();
   const [step, setStep] = useState<UploadStep>("select");
@@ -125,8 +135,7 @@ export function ClaimsUploadPage() {
   });
 
   const assignReviewerLabel = useMemo(() => {
-    if (!metadata.assignReviewer) return "Auto-assign";
-    return reviewers.find((r) => r.id === metadata.assignReviewer)?.name ?? "Selected reviewer";
+    return reviewers.find((r) => r.id === metadata.assignReviewer)?.name ?? "—";
   }, [metadata.assignReviewer, reviewers]);
 
   const selectedDocumentTypes = useMemo(
@@ -134,7 +143,9 @@ export function ClaimsUploadPage() {
     [metadata.documentType],
   );
 
-  const canProceed = Boolean(selectedFile);
+  const metadataErrors = useMemo(() => getMetadataValidationErrors(metadata), [metadata]);
+
+  const canProceed = Boolean(selectedFile) && metadataErrors.length === 0;
 
   const onConfirmUpload = useCallback(async () => {
     if (!selectedFile) return;
@@ -144,14 +155,12 @@ export function ClaimsUploadPage() {
 
     const form = new FormData();
     form.append("document", selectedFile);
-    form.append("claimNumber", metadata.claimReference.trim() || `CLM-${Date.now()}`);
-    if (metadata.patientName.trim()) form.append("patientName", metadata.patientName.trim());
+    form.append("claimNumber", metadata.claimReference.trim());
+    form.append("patientName", metadata.patientName.trim());
     metadata.documentType.forEach((type) => form.append("documentType", type));
-    if (metadata.priority) form.append("priority", metadata.priority);
+    form.append("priority", metadata.priority);
     if (metadata.notes.trim()) form.append("notes", metadata.notes.trim());
-    if (metadata.assignReviewer) {
-      form.append("reviewerId", metadata.assignReviewer);
-    }
+    form.append("reviewerId", metadata.assignReviewer);
 
     try {
       const data = await apiAuthedFetch<UploadResponse>("/claims/upload", {
@@ -296,27 +305,29 @@ export function ClaimsUploadPage() {
               </div>
 
               <div className="space-y-4">
-                <Field label="Claim Reference">
+                <Field label="Claim Reference" required>
                   <input
                     type="text"
                     value={metadata.claimReference}
                     onChange={(e) => updateMetadata("claimReference", e.target.value)}
                     placeholder="e.g. CLM-2026-04128"
                     className={inputClassName}
+                    required
                   />
                 </Field>
 
-                <Field label="Patient Name">
+                <Field label="Patient Name" required>
                   <input
                     type="text"
                     value={metadata.patientName}
                     onChange={(e) => updateMetadata("patientName", e.target.value)}
                     placeholder="Patient full name"
                     className={inputClassName}
+                    required
                   />
                 </Field>
 
-                <Field label="Document Type">
+                <Field label="Document Type" required>
                   <Select<DocumentTypeOption, true>
                     isMulti
                     instanceId="claim-document-type"
@@ -330,7 +341,6 @@ export function ClaimsUploadPage() {
                       )
                     }
                     placeholder="Select document type"
-                    isClearable
                     unstyled
                     classNames={{
                       control: ({ isFocused }) =>
@@ -369,11 +379,12 @@ export function ClaimsUploadPage() {
                   />
                 </Field>
 
-                <Field label="Priority">
+                <Field label="Priority" required>
                   <select
                     value={metadata.priority}
                     onChange={(e) => updateMetadata("priority", e.target.value)}
                     className={inputClassName}
+                    required
                   >
                     <option value="">Select priority</option>
                     {PRIORITIES.map((priority) => (
@@ -384,13 +395,14 @@ export function ClaimsUploadPage() {
                   </select>
                 </Field>
 
-                <Field label="Assign Reviewer">
+                <Field label="Assign Reviewer" required>
                   <select
                     value={metadata.assignReviewer}
                     onChange={(e) => updateMetadata("assignReviewer", e.target.value)}
                     className={inputClassName}
+                    required
                   >
-                    <option value="">Auto-assign</option>
+                    <option value="">Select reviewer</option>
                     {reviewers.map((reviewer) => (
                       <option key={reviewer.id} value={reviewer.id}>
                         {reviewer.name}
@@ -399,7 +411,7 @@ export function ClaimsUploadPage() {
                   </select>
                 </Field>
 
-                <Field label="Notes">
+                <Field label="Notes" hint="Optional">
                   <textarea
                     value={metadata.notes}
                     onChange={(e) => updateMetadata("notes", e.target.value)}
@@ -410,10 +422,19 @@ export function ClaimsUploadPage() {
                 </Field>
               </div>
 
+              {metadataErrors.length > 0 && selectedFile ? (
+                <Alert message={metadataErrors[0]} className="mt-4" />
+              ) : null}
+
               <button
                 type="button"
                 disabled={!canProceed}
                 onClick={() => {
+                  const errors = getMetadataValidationErrors(metadata);
+                  if (errors.length > 0) {
+                    setUploadError(errors[0]);
+                    return;
+                  }
                   setUploadError(null);
                   setStep("review");
                 }}
@@ -451,21 +472,19 @@ export function ClaimsUploadPage() {
               <ReviewInfoItem
                 icon={Bookmark}
                 label="Claim Reference"
-                value={metadata.claimReference.trim() || "Auto-generated on upload"}
+                value={metadata.claimReference.trim()}
               />
               <ReviewInfoItem
                 icon={FolderOpen}
                 label="Document Type"
-                value={
-                  metadata.documentType.length > 0 ? metadata.documentType.join(", ") : "—"
-                }
+                value={metadata.documentType.join(", ")}
               />
-              <ReviewInfoItem icon={Flag} label="Priority" value={metadata.priority || "—"} />
+              <ReviewInfoItem icon={Flag} label="Priority" value={metadata.priority} />
               <ReviewInfoItem icon={Users} label="Assignment" value={assignReviewerLabel} />
               <ReviewInfoItem
                 icon={User}
                 label="Patient Name"
-                value={metadata.patientName.trim() || "—"}
+                value={metadata.patientName.trim()}
               />
               <ReviewInfoItem
                 icon={StickyNote}
@@ -668,10 +687,28 @@ function ReviewInfoItem({
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  required = false,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</span>
+      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        {label}
+        {required ? <span className="text-red-500"> *</span> : null}
+        {hint ? (
+          <span className="ml-1 text-xs font-normal text-slate-400 dark:text-slate-500">
+            ({hint})
+          </span>
+        ) : null}
+      </span>
       <div className="mt-1.5">{children}</div>
     </label>
   );

@@ -54,6 +54,7 @@ export type TracedFieldDisplay = {
   source_text: string;
   page: number | null;
   confidence: number;
+  traces?: Array<{ source_text: string; page: number | null }>;
 };
 
 export type ExtractionContext = {
@@ -82,10 +83,16 @@ export type ExtractionTab = "data" | "json" | "audit" | "comment";
 
 export type MobileWorkspaceTab = "document" | "extraction";
 
+export type FieldTraceFocus = {
+  page: number | null;
+  sourceText: string;
+};
+
 export type DocumentFocusTarget = {
   id: string;
   page: number | null;
   sourceText: string;
+  traces?: FieldTraceFocus[];
   value?: string;
   label?: string;
 };
