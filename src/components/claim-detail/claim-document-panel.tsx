@@ -72,14 +72,14 @@ export function ClaimDocumentPanel({
     <section
       ref={panelRef}
       className={cn(
-        "flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900",
+        "flex flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900",
         isFullscreen ? "min-h-screen rounded-none border-0" : "max-h-[min(78vh,820px)]",
       )}
     >
       <div
         className={cn(
           "flex min-h-0 flex-1 flex-col",
-          !isFullscreen && "h-[min(68vh,640px)] min-h-[360px]",
+          !isFullscreen && "h-[min(68vh,640px)] min-h-[300px]",
         )}
       >
         {isPreviewLoading ? (
@@ -134,7 +134,7 @@ export function ClaimDocumentPanel({
 
 function PanelHeader({ title }: { title: string }) {
   return (
-    <div className="border-b border-slate-100 px-4 py-2.5 dark:border-slate-800">
+    <div className="border-b border-slate-100 px-3 py-2 dark:border-slate-800">
       <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
     </div>
   );
@@ -163,7 +163,7 @@ function ImageDocumentViewer({
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-4 py-2.5 dark:border-slate-800">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
         <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Claim Document</h2>
         <div className="flex items-center gap-1">
           <ImageToolbarButton label="Zoom out" onClick={onZoomOut}>

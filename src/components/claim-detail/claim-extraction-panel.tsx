@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 const TABS: Array<{ id: ExtractionTab; label: string }> = [
   { id: "data", label: "Data" },
   { id: "json", label: "JSON" },
-  { id: "audit", label: "Audit Trails" },
+  { id: "audit", label: "Audit" },
   { id: "comment", label: "Comment" },
 ];
 
@@ -129,57 +129,61 @@ export function ClaimExtractionPanel({
 
   if (isExtracting) {
     return (
-      <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
         <ExtractionDataLoading progress={ctx.extractionProgress ?? fallbackExtractionProgress(ctx.jobStatus)} />
       </section>
     );
   }
 
   return (
-    <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="shrink-0 border-b border-slate-100 px-4 py-3 dark:border-slate-800">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Extraction Output</h2>
+    <section className="relative flex max-h-[min(78vh,820px)] min-w-0 flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="shrink-0 border-b border-slate-100 px-3 py-2 dark:border-slate-800">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="shrink-0 text-sm font-semibold text-slate-900 dark:text-slate-100">
+            Extraction Output
+          </h2>
 
-        <div className="mt-3 flex flex-wrap gap-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-                activeTab === tab.id
-                  ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {claims.length > 1 ? (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {claims.map((_, index) => (
+          <div className="flex min-w-0 flex-1 flex-wrap gap-0.5 rounded-lg border border-slate-200 bg-slate-50 p-0.5 dark:border-slate-700 dark:bg-slate-800/50">
+            {TABS.map((tab) => (
               <button
-                key={index}
+                key={tab.id}
                 type="button"
-                onClick={() => onActiveClaimIndexChange(index)}
+                onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "rounded-md border px-2.5 py-1 text-xs font-semibold",
-                  activeClaimIndex === index
-                    ? "border-primary/30 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary"
-                    : "border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400",
+                  "rounded-md px-2.5 py-1 text-[11px] font-semibold transition-colors",
+                  activeTab === tab.id
+                    ? "bg-white text-slate-900 shadow-sm dark:bg-slate-900 dark:text-slate-100"
+                    : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200",
                 )}
               >
-                Claim {index + 1}
+                {tab.label}
               </button>
             ))}
           </div>
-        ) : null}
+
+          {claims.length > 1 ? (
+            <div className="flex shrink-0 flex-wrap gap-0.5">
+              {claims.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => onActiveClaimIndexChange(index)}
+                  className={cn(
+                    "rounded-md border px-2 py-0.5 text-[11px] font-semibold",
+                    activeClaimIndex === index
+                      ? "border-primary/30 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary"
+                      : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400",
+                  )}
+                >
+                  #{index + 1}
+                </button>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
 
-      <div className="relative min-h-0 flex-1 overflow-y-auto p-4">
+      <div className="relative min-h-0 flex-1 overflow-y-auto p-2.5">
         {activeTab === "data" ? (
           <ClaimDataTab
             overviewRows={overviewRows}
@@ -198,32 +202,32 @@ export function ClaimExtractionPanel({
         {activeTab === "comment" ? <ClaimCommentTab claimId={claimId} /> : null}
       </div>
 
-      <div className="shrink-0 border-t border-slate-100 p-4 dark:border-slate-800">
-        <div className="grid gap-2 sm:grid-cols-2">
+      <div className="shrink-0 border-t border-slate-100 px-2.5 py-2 dark:border-slate-800">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={onSaveDraft}
             disabled={isSavingDraft || isSubmitting}
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-200 text-sm font-semibold text-slate-800 hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+            className="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-slate-100 text-xs font-semibold text-slate-800 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
           >
             {isSavingDraft ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
                 Saving…
               </>
             ) : (
-              "Save as draft"
+              "Save draft"
             )}
           </button>
           <button
             type="button"
             onClick={onSubmit}
             disabled={!canSubmit || isSubmitting || isSavingDraft}
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+            className="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-slate-900 text-xs font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="mr-1.5 size-3.5 animate-spin" />
                 Submitting…
               </>
             ) : (

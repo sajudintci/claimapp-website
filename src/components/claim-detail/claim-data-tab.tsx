@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, ChevronDown, Crosshair, Filter, Search } from "lucide-react";
+import { Check, ChevronDown, Crosshair, Search } from "lucide-react";
 import { FieldRow, FIELD_SECTION_ORDER, isExtractedValueMissing } from "@/lib/extraction/claim-extraction";
 import { fieldRowKey } from "@/lib/extraction/claim-review";
 import { createFocusFromFieldRow } from "@/lib/extraction/document-focus";
@@ -127,50 +127,43 @@ export function ClaimDataTab({
 
   if (allRows.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+      <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-5 text-center text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
         No extracted fields yet. Extraction may still be in progress.
       </p>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <div className="space-y-2">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center">
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by field"
-            className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            placeholder="Search fields…"
+            className="h-8 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
           />
         </div>
-        <button
-          type="button"
-          className="inline-flex h-10 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-        >
-          <Filter className="size-4" />
-          Filters
-        </button>
-      </div>
 
-      <div className="flex flex-wrap gap-2">
-        <ReviewChip
-          active={reviewFilter === "all"}
-          onClick={() => applyReviewFilter("all")}
-          label={`All (${allRows.length})`}
-        />
-        <ReviewChip
-          active={reviewFilter === "reviewed"}
-          onClick={() => applyReviewFilter("reviewed")}
-          label={`Reviewed (${reviewedCount})`}
-        />
-        <ReviewChip
-          active={reviewFilter === "not_reviewed"}
-          onClick={() => applyReviewFilter("not_reviewed")}
-          label={`Not Reviewed (${notReviewedCount})`}
-        />
+        <div className="flex flex-wrap gap-1">
+          <ReviewChip
+            active={reviewFilter === "all"}
+            onClick={() => applyReviewFilter("all")}
+            label={`All (${allRows.length})`}
+          />
+          <ReviewChip
+            active={reviewFilter === "reviewed"}
+            onClick={() => applyReviewFilter("reviewed")}
+            label={`Done (${reviewedCount})`}
+          />
+          <ReviewChip
+            active={reviewFilter === "not_reviewed"}
+            onClick={() => applyReviewFilter("not_reviewed")}
+            label={`Pending (${notReviewedCount})`}
+          />
+        </div>
       </div>
 
       {filteredOverview.length > 0 ? (
@@ -179,7 +172,7 @@ export function ClaimDataTab({
           open={overviewOpen}
           onToggle={() => setOverviewOpen((v) => !v)}
         >
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {filteredOverview.map((row) => (
               <FieldCard
                 key={fieldRowKey(row.section, row.field)}
@@ -211,7 +204,7 @@ export function ClaimDataTab({
             }))
           }
         >
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             {rows.map((row) => (
               <FieldCard
                 key={fieldRowKey(row.section, row.field)}
@@ -254,7 +247,7 @@ function ReviewChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
+        "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-colors",
         active
           ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
           : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800",
@@ -278,18 +271,18 @@ function CollapsibleSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-slate-700">
+    <section className="rounded-lg border border-slate-200 dark:border-slate-700">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
+        className="flex w-full items-center justify-between px-2.5 py-1.5 text-left"
       >
-        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{title}</span>
+        <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">{title}</span>
         <ChevronDown
-          className={cn("size-4 text-slate-500 transition-transform", open && "rotate-180")}
+          className={cn("size-3.5 text-slate-500 transition-transform", open && "rotate-180")}
         />
       </button>
-      {open ? <div className="border-t border-slate-100 px-4 py-3 dark:border-slate-800">{children}</div> : null}
+      {open ? <div className="border-t border-slate-100 px-2.5 py-1.5 dark:border-slate-800">{children}</div> : null}
     </section>
   );
 }
@@ -328,14 +321,14 @@ function FieldCard({
   }
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 dark:border-slate-700 dark:bg-slate-800/40">
-      <div className="mb-2 flex items-center justify-between gap-2">
+    <div className="rounded-md border border-slate-200 bg-slate-50/60 p-2 dark:border-slate-700 dark:bg-slate-800/40">
+      <div className="mb-1 flex items-center justify-between gap-1.5">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="truncate text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
             {label}
           </p>
           {isEdited ? (
-            <p className="mt-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400">Edited</p>
+            <p className="text-[10px] font-medium text-amber-700 dark:text-amber-400">Edited</p>
           ) : null}
         </div>
         <div className="flex items-center gap-1">
@@ -345,9 +338,9 @@ function FieldCard({
               onClick={handleLocate}
               aria-label="Locate in document"
               title="Locate in document"
-              className="inline-flex size-7 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:border-primary/40 hover:text-primary dark:border-slate-600 dark:bg-slate-900 dark:hover:text-primary"
+              className="inline-flex size-6 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:border-primary/40 hover:text-primary dark:border-slate-600 dark:bg-slate-900 dark:hover:text-primary"
             >
-              <Crosshair className="size-3.5" />
+              <Crosshair className="size-3" />
             </button>
           ) : null}
           <button
@@ -359,13 +352,13 @@ function FieldCard({
             aria-label={reviewed ? "Mark as not reviewed" : "Mark as reviewed"}
             aria-pressed={reviewed}
             className={cn(
-              "inline-flex size-7 items-center justify-center rounded-md border transition-colors",
+              "inline-flex size-6 items-center justify-center rounded-md border transition-colors",
               reviewed
                 ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
                 : "border-slate-300 bg-white text-transparent dark:border-slate-600 dark:bg-slate-900",
             )}
           >
-            <Check className={cn("size-4", reviewed ? "opacity-100" : "opacity-0")} />
+            <Check className={cn("size-3.5", reviewed ? "opacity-100" : "opacity-0")} />
           </button>
         </div>
       </div>
@@ -377,14 +370,14 @@ function FieldCard({
         placeholder="not_found"
         readOnly={false}
         className={cn(
-          "h-10 w-full rounded-lg border px-3 text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100",
+          "h-8 w-full rounded-md border px-2 text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 disabled:opacity-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100",
           isNotFound
             ? "border-dashed border-slate-300 bg-slate-100 italic text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
             : "border-slate-200 bg-white text-slate-900",
         )}
       />
 
-      <div className="mt-2 flex flex-wrap gap-1.5">
+      <div className="mt-1.5 flex flex-wrap gap-1">
         {row.page !== "-" ? (
           <MetaTag>
             {row.traces.length > 1 ? `Pages ${row.page}` : `Page ${row.page}`}

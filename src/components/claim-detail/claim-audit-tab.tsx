@@ -70,16 +70,16 @@ export function ClaimAuditTab({ claimId }: ClaimAuditTabProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-12 text-sm text-slate-500 dark:text-slate-400">
-        <Loader2 className="size-5 animate-spin" />
-        Loading audit trails…
+      <div className="flex items-center justify-center gap-1.5 py-6 text-xs text-slate-500 dark:text-slate-400">
+        <Loader2 className="size-4 animate-spin" />
+        Loading audit…
       </div>
     );
   }
 
   if (error) {
     return (
-      <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+      <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-4 text-center text-xs text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
         {error}
       </p>
     );
@@ -87,45 +87,43 @@ export function ClaimAuditTab({ claimId }: ClaimAuditTabProps) {
 
   if (items.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
+      <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-5 text-center text-xs text-slate-500 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
         No audit activity recorded for this claim yet.
       </p>
     );
   }
 
   return (
-    <ol className="relative space-y-0 pl-1">
-      {items.map((item, index) => {
+    <ol className="divide-y divide-slate-100 dark:divide-slate-800">
+      {items.map((item) => {
         const actor = item.actorName ?? item.actorEmail ?? "System";
-        const isLast = index === items.length - 1;
 
         return (
-          <li key={item.id} className="relative flex gap-3 pb-6">
-            {!isLast ? (
-              <span className="absolute left-[15px] top-8 h-[calc(100%-1rem)] w-px bg-slate-200 dark:bg-slate-700" />
-            ) : null}
+          <li key={item.id} className="flex items-start gap-2 py-2 first:pt-0 last:pb-0">
             <div
               className={cn(
-                "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full ring-4 ring-white dark:ring-slate-900",
+                "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full",
                 item.action === "CLAIM_UPLOADED"
                   ? "bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                   : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
               )}
             >
               {item.action === "CLAIM_UPLOADED" ? (
-                <Upload className="size-3.5" />
+                <Upload className="size-3" />
               ) : (
-                <CheckCircle2 className="size-3.5" />
+                <CheckCircle2 className="size-3" />
               )}
             </div>
-            <div className="min-w-0 pt-0.5">
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                {formatAuditTitle(item.action)}
-              </p>
-              <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">{actor}</p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-500">
-                {formatRelativeDate(item.createdAt)}
-              </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                  {formatAuditTitle(item.action)}
+                </p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                  {formatRelativeDate(item.createdAt)}
+                </p>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{actor}</p>
             </div>
           </li>
         );

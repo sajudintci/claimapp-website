@@ -7,18 +7,12 @@ import Select from "react-select";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import {
   AlertCircle,
-  Bookmark,
   Check,
   ChevronRight,
   FileText,
-  Flag,
-  FolderOpen,
   Info,
   Loader2,
-  StickyNote,
   Upload,
-  User,
-  Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { apiAuthedFetch } from "@/lib/api/client";
@@ -205,12 +199,12 @@ export function ClaimsUploadPage() {
   }
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-4 pb-6">
       <header>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
           Upload Claim Documents
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
           Add claim documents, confirm metadata, and queue them for OCR and AI extraction.
         </p>
       </header>
@@ -218,298 +212,274 @@ export function ClaimsUploadPage() {
       <UploadStepper current={step} />
 
       {step === "select" ? (
-        <div className="grid gap-6 lg:grid-cols-5">
-          <div className="space-y-6 lg:col-span-3">
-            <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-              <div className="mb-5">
-                <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Claim Documents</h2>
-                <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-                  PDF, JPG, and PNG up to 10 MB per file
-                </p>
-              </div>
+        <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Upload Claim</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Add a document and fill in metadata to queue for extraction
+            </p>
+          </div>
 
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-3">
               <div
                 {...getRootProps()}
                 className={cn(
-                  "rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors",
+                  "flex items-center gap-3 rounded-lg border-2 border-dashed px-3 py-3 transition-colors",
                   isDragActive && !isDragReject && "border-slate-400 bg-slate-50 dark:border-slate-500 dark:bg-slate-800/50",
                   isDragReject && "border-red-300 bg-red-50/40 dark:border-red-800 dark:bg-red-950/30",
                   !isDragActive && !isDragReject && "border-slate-200 bg-slate-50/40 dark:border-slate-700 dark:bg-slate-900/40",
                 )}
               >
                 <input {...getInputProps()} />
-                <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
-                  <Upload className="size-5" />
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
+                  <Upload className="size-3.5" />
                 </div>
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                  Drag and drop claim documents
-                </p>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Invoices, lab reports, discharge summaries, prescriptions, and scans
-                </p>
-                <button
-                  type="button"
-                  onClick={open}
-                  className="mt-4 inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
-                >
-                  Browse files
-                </button>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                    Drag & drop or{" "}
+                    <button
+                      type="button"
+                      onClick={open}
+                      className="font-semibold text-slate-900 underline-offset-2 hover:underline dark:text-slate-100"
+                    >
+                      browse
+                    </button>
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">PDF, PNG, JPG · max 10 MB</p>
+                </div>
               </div>
 
-              {uploadError ? <Alert message={uploadError} className="mt-4" /> : null}
-
-              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-800/40">
+              <div className="rounded-lg border border-slate-200 bg-slate-50/70 dark:border-slate-700 dark:bg-slate-800/40">
                 {selectedFile ? (
-                  <div className="flex items-center gap-3 p-4">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
-                      <FileText className="size-4" />
+                  <div className="flex items-center gap-2.5 p-2.5">
+                    <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
+                      <FileText className="size-3.5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
                         {selectedFile.name}
                       </p>
-                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {formatFileType(selectedFile)} · {formatBytes(selectedFile.size)}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setSelectedFile(null)}
-                      className="text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
+                      className="shrink-0 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
                     >
                       Remove
                     </button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center px-6 py-8 text-center">
-                    <FileText className="mb-2 size-8 text-slate-300 dark:text-slate-600" />
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300">No files selected</p>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                      Add one or more files to continue
-                    </p>
+                  <div className="flex items-center gap-2 px-3 py-2.5">
+                    <FileText className="size-3.5 text-slate-300 dark:text-slate-600" />
+                    <p className="text-xs text-slate-500 dark:text-slate-400">No file selected</p>
                   </div>
                 )}
               </div>
-            </section>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Claim Reference" required>
+                <input
+                  type="text"
+                  value={metadata.claimReference}
+                  onChange={(e) => updateMetadata("claimReference", e.target.value)}
+                  placeholder="e.g. CLM-2026-04128"
+                  className={inputClassName}
+                  required
+                />
+              </Field>
+
+              <Field label="Patient Name" required>
+                <input
+                  type="text"
+                  value={metadata.patientName}
+                  onChange={(e) => updateMetadata("patientName", e.target.value)}
+                  placeholder="Patient full name"
+                  className={inputClassName}
+                  required
+                />
+              </Field>
+
+              <Field label="Document Type" required>
+                <Select<DocumentTypeOption, true>
+                  isMulti
+                  instanceId="claim-document-type"
+                  inputId="claim-document-type"
+                  options={DOCUMENT_TYPE_OPTIONS}
+                  value={selectedDocumentTypes}
+                  onChange={(options) =>
+                    updateMetadata(
+                      "documentType",
+                      (options ?? []).map((option) => option.value),
+                    )
+                  }
+                  placeholder="Select type"
+                  unstyled
+                  classNames={{
+                    control: ({ isFocused }) =>
+                      cn(
+                        inputClassName,
+                        "flex min-h-9 h-auto items-center gap-1 py-0.5",
+                        isFocused && "border-primary ring-2 ring-primary/15",
+                      ),
+                    placeholder: () => "text-slate-400 dark:text-slate-500",
+                    input: () => "text-sm text-slate-900 dark:text-slate-100",
+                    valueContainer: () => "gap-1",
+                    multiValue: () =>
+                      "rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100",
+                    multiValueLabel: () => "px-1.5 py-0.5 text-xs font-medium",
+                    multiValueRemove: () =>
+                      "rounded-r-md px-1 hover:bg-slate-200 dark:hover:bg-slate-700",
+                    indicatorsContainer: () => "text-slate-400",
+                    dropdownIndicator: () => "px-2",
+                    clearIndicator: () => "px-1",
+                    menu: () =>
+                      "mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-950",
+                    menuList: () => "py-1",
+                    option: ({ isFocused, isSelected }) =>
+                      cn(
+                        "cursor-pointer px-3 py-2 text-sm",
+                        isSelected &&
+                          "bg-slate-100 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-100",
+                        !isSelected &&
+                          isFocused &&
+                          "bg-slate-50 text-slate-900 dark:bg-slate-800/70 dark:text-slate-100",
+                        !isSelected &&
+                          !isFocused &&
+                          "text-slate-900 dark:text-slate-100",
+                      ),
+                  }}
+                />
+              </Field>
+
+              <Field label="Priority" required>
+                <select
+                  value={metadata.priority}
+                  onChange={(e) => updateMetadata("priority", e.target.value)}
+                  className={inputClassName}
+                  required
+                >
+                  <option value="">Select priority</option>
+                  {PRIORITIES.map((priority) => (
+                    <option key={priority} value={priority}>
+                      {priority}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field label="Assign Reviewer" required className="sm:col-span-2">
+                <select
+                  value={metadata.assignReviewer}
+                  onChange={(e) => updateMetadata("assignReviewer", e.target.value)}
+                  className={inputClassName}
+                  required
+                >
+                  <option value="">Select reviewer</option>
+                  {reviewers.map((reviewer) => (
+                    <option key={reviewer.id} value={reviewer.id}>
+                      {reviewer.name}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <Field label="Notes" hint="Optional" className="sm:col-span-2">
+                <textarea
+                  value={metadata.notes}
+                  onChange={(e) => updateMetadata("notes", e.target.value)}
+                  rows={2}
+                  placeholder="Optional notes for reviewers"
+                  className={cn(inputClassName, "min-h-16 resize-y")}
+                />
+              </Field>
+            </div>
           </div>
 
-          <aside className="lg:col-span-2">
-            <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-              <div className="mb-5">
-                <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Document Metadata</h2>
-                <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
-                  Used to route the claim correctly
-                </p>
-              </div>
+          {uploadError ? <Alert message={uploadError} className="mt-3" /> : null}
+          {metadataErrors.length > 0 && selectedFile && !uploadError ? (
+            <Alert message={metadataErrors[0]} className="mt-3" />
+          ) : null}
 
-              <div className="space-y-4">
-                <Field label="Claim Reference" required>
-                  <input
-                    type="text"
-                    value={metadata.claimReference}
-                    onChange={(e) => updateMetadata("claimReference", e.target.value)}
-                    placeholder="e.g. CLM-2026-04128"
-                    className={inputClassName}
-                    required
-                  />
-                </Field>
-
-                <Field label="Patient Name" required>
-                  <input
-                    type="text"
-                    value={metadata.patientName}
-                    onChange={(e) => updateMetadata("patientName", e.target.value)}
-                    placeholder="Patient full name"
-                    className={inputClassName}
-                    required
-                  />
-                </Field>
-
-                <Field label="Document Type" required>
-                  <Select<DocumentTypeOption, true>
-                    isMulti
-                    instanceId="claim-document-type"
-                    inputId="claim-document-type"
-                    options={DOCUMENT_TYPE_OPTIONS}
-                    value={selectedDocumentTypes}
-                    onChange={(options) =>
-                      updateMetadata(
-                        "documentType",
-                        (options ?? []).map((option) => option.value),
-                      )
-                    }
-                    placeholder="Select document type"
-                    unstyled
-                    classNames={{
-                      control: ({ isFocused }) =>
-                        cn(
-                          inputClassName,
-                          "flex min-h-11 h-auto items-center gap-1 py-1",
-                          isFocused && "border-primary ring-2 ring-primary/15",
-                        ),
-                      placeholder: () => "text-slate-400 dark:text-slate-500",
-                      input: () => "text-sm text-slate-900 dark:text-slate-100",
-                      valueContainer: () => "gap-1",
-                      multiValue: () =>
-                        "rounded-md bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100",
-                      multiValueLabel: () => "px-1.5 py-0.5 text-xs font-medium",
-                      multiValueRemove: () =>
-                        "rounded-r-md px-1 hover:bg-slate-200 dark:hover:bg-slate-700",
-                      indicatorsContainer: () => "text-slate-400",
-                      dropdownIndicator: () => "px-2",
-                      clearIndicator: () => "px-1",
-                      menu: () =>
-                        "mt-1 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-950",
-                      menuList: () => "py-1",
-                      option: ({ isFocused, isSelected }) =>
-                        cn(
-                          "cursor-pointer px-3 py-2 text-sm",
-                          isSelected &&
-                            "bg-slate-100 font-medium text-slate-900 dark:bg-slate-800 dark:text-slate-100",
-                          !isSelected &&
-                            isFocused &&
-                            "bg-slate-50 text-slate-900 dark:bg-slate-800/70 dark:text-slate-100",
-                          !isSelected &&
-                            !isFocused &&
-                            "text-slate-900 dark:text-slate-100",
-                        ),
-                    }}
-                  />
-                </Field>
-
-                <Field label="Priority" required>
-                  <select
-                    value={metadata.priority}
-                    onChange={(e) => updateMetadata("priority", e.target.value)}
-                    className={inputClassName}
-                    required
-                  >
-                    <option value="">Select priority</option>
-                    {PRIORITIES.map((priority) => (
-                      <option key={priority} value={priority}>
-                        {priority}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-
-                <Field label="Assign Reviewer" required>
-                  <select
-                    value={metadata.assignReviewer}
-                    onChange={(e) => updateMetadata("assignReviewer", e.target.value)}
-                    className={inputClassName}
-                    required
-                  >
-                    <option value="">Select reviewer</option>
-                    {reviewers.map((reviewer) => (
-                      <option key={reviewer.id} value={reviewer.id}>
-                        {reviewer.name}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-
-                <Field label="Notes" hint="Optional">
-                  <textarea
-                    value={metadata.notes}
-                    onChange={(e) => updateMetadata("notes", e.target.value)}
-                    rows={4}
-                    placeholder="Optional notes for reviewers"
-                    className={cn(inputClassName, "min-h-24 resize-y")}
-                  />
-                </Field>
-              </div>
-
-              {metadataErrors.length > 0 && selectedFile ? (
-                <Alert message={metadataErrors[0]} className="mt-4" />
-              ) : null}
-
-              <button
-                type="button"
-                disabled={!canProceed}
-                onClick={() => {
-                  const errors = getMetadataValidationErrors(metadata);
-                  if (errors.length > 0) {
-                    setUploadError(errors[0]);
-                    return;
-                  }
-                  setUploadError(null);
-                  setStep("review");
-                }}
-                className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-xl bg-slate-900 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
-              >
-                Next
-              </button>
-            </section>
-          </aside>
-        </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              disabled={!canProceed}
+              onClick={() => {
+                const errors = getMetadataValidationErrors(metadata);
+                if (errors.length > 0) {
+                  setUploadError(errors[0]);
+                  return;
+                }
+                setUploadError(null);
+                setStep("review");
+              }}
+              className="inline-flex h-9 items-center justify-center rounded-lg bg-slate-900 px-6 text-sm font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+            >
+              Next
+            </button>
+          </div>
+        </section>
       ) : null}
 
       {step === "review" ? (
-        <div className="space-y-6">
-          <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Selected Documents</h2>
+        <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Review & Confirm</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Verify the document and metadata before uploading
+            </p>
+          </div>
+
+          <div className="space-y-3">
             {selectedFile ? (
-              <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/40">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
-                  <FileText className="size-4" />
+              <div className="flex items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50/70 p-2.5 dark:border-slate-700 dark:bg-slate-800/40">
+                <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
+                  <FileText className="size-3.5" />
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedFile.name}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{selectedFile.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {formatFileType(selectedFile)} · {formatBytes(selectedFile.size)}
                   </p>
                 </div>
               </div>
-            ) : null}
-          </section>
+            ) : (
+              <div className="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 px-3 py-2.5 dark:border-slate-700">
+                <FileText className="size-3.5 text-slate-300 dark:text-slate-600" />
+                <p className="text-xs text-slate-500 dark:text-slate-400">No file selected</p>
+              </div>
+            )}
 
-          <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Claim Information</h2>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <ReviewInfoItem
-                icon={Bookmark}
-                label="Claim Reference"
-                value={metadata.claimReference.trim()}
-              />
-              <ReviewInfoItem
-                icon={FolderOpen}
-                label="Document Type"
-                value={metadata.documentType.join(", ")}
-              />
-              <ReviewInfoItem icon={Flag} label="Priority" value={metadata.priority} />
-              <ReviewInfoItem icon={Users} label="Assignment" value={assignReviewerLabel} />
-              <ReviewInfoItem
-                icon={User}
-                label="Patient Name"
-                value={metadata.patientName.trim()}
-              />
-              <ReviewInfoItem
-                icon={StickyNote}
-                label="Notes"
-                value={metadata.notes.trim() || "—"}
-                className="sm:col-span-2"
-              />
-            </div>
-          </section>
-
-          <div className="rounded-xl bg-slate-100 px-4 py-3 text-sm text-slate-600 dark:bg-slate-800/70 dark:text-slate-300">
-            <div className="flex gap-2">
-              <Info className="mt-0.5 size-4 shrink-0" />
-              <p>
-                Need to edit information? Go back to the previous step to update your document or metadata.
-              </p>
+            <div className="grid gap-x-4 gap-y-2 border-t border-slate-100 pt-3 sm:grid-cols-2 dark:border-slate-800">
+              <ReviewRow label="Claim Reference" value={metadata.claimReference.trim()} />
+              <ReviewRow label="Patient Name" value={metadata.patientName.trim()} />
+              <ReviewRow label="Document Type" value={metadata.documentType.join(", ")} />
+              <ReviewRow label="Priority" value={metadata.priority} />
+              <ReviewRow label="Reviewer" value={assignReviewerLabel} className="sm:col-span-2" />
+              {metadata.notes.trim() ? (
+                <ReviewRow label="Notes" value={metadata.notes.trim()} className="sm:col-span-2" />
+              ) : null}
             </div>
           </div>
 
-          {uploadError ? <Alert message={uploadError} /> : null}
+          <p className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+            <Info className="size-3.5 shrink-0" />
+            Go back to edit the document or metadata.
+          </p>
 
-          <div className="flex flex-wrap justify-end gap-2">
+          {uploadError ? <Alert message={uploadError} className="mt-3" /> : null}
+
+          <div className="mt-4 flex flex-wrap justify-end gap-2">
             <button
               type="button"
               onClick={() => setStep("select")}
               disabled={isUploading}
-              className="inline-flex h-11 items-center rounded-xl bg-slate-200 px-5 text-sm font-semibold text-slate-800 hover:bg-slate-300 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+              className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Back
             </button>
@@ -517,7 +487,7 @@ export function ClaimsUploadPage() {
               type="button"
               onClick={onConfirmUpload}
               disabled={isUploading || !selectedFile}
-              className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+              className="inline-flex h-9 items-center gap-2 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
             >
               {isUploading ? (
                 <>
@@ -529,7 +499,7 @@ export function ClaimsUploadPage() {
               )}
             </button>
           </div>
-        </div>
+        </section>
       ) : null}
 
       {step === "submitted" && lastUploaded ? (
@@ -553,16 +523,16 @@ function UploadStepper({ current }: { current: UploadStep }) {
   const currentIndex = steps.findIndex((step) => step.id === current);
 
   return (
-    <ol className="flex flex-wrap items-center gap-2">
+    <ol className="flex flex-wrap items-center gap-1.5">
       {steps.map((step, index) => {
         const isActive = step.id === current;
         const isComplete = index < currentIndex;
 
         return (
-          <li key={step.id} className="flex items-center gap-2">
+          <li key={step.id} className="flex items-center gap-1.5">
             <div
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium",
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
                 isActive && "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900",
                 !isActive && isComplete && "text-slate-700 dark:text-slate-300",
                 !isActive && !isComplete && "text-slate-400 dark:text-slate-500",
@@ -570,18 +540,18 @@ function UploadStepper({ current }: { current: UploadStep }) {
             >
               <span
                 className={cn(
-                  "inline-flex size-6 items-center justify-center rounded-full text-xs font-semibold",
+                  "inline-flex size-5 items-center justify-center rounded-full text-[10px] font-semibold",
                   isActive && "bg-white text-slate-900 dark:bg-slate-900 dark:text-white",
                   !isActive && isComplete && "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900",
                   !isActive && !isComplete && "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400",
                 )}
               >
-                {isComplete ? <Check className="size-3.5" /> : step.number}
+                {isComplete ? <Check className="size-3" /> : step.number}
               </span>
               {step.label}
             </div>
             {index < steps.length - 1 ? (
-              <ChevronRight className="size-4 text-slate-300 dark:text-slate-600" aria-hidden />
+              <ChevronRight className="size-3.5 text-slate-300 dark:text-slate-600" aria-hidden />
             ) : null}
           </li>
         );
@@ -602,63 +572,60 @@ function SubmittedStep({
   onOpenClaim: () => void;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60 sm:p-8">
-      <div className="flex size-12 items-center justify-center rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900">
-        <Check className="size-5" />
+    <section className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-start gap-3">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+          <Check className="size-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Document uploaded</h2>
+          <p className="mt-0.5 text-sm text-slate-600 dark:text-slate-400">
+            <span className="font-medium text-slate-900 dark:text-slate-100">{claimNumber}</span> is queued for
+            extraction. OCR credits apply on successful processing (1 credit/page).
+          </p>
+          <p className="mt-1 font-mono text-[11px] text-slate-400 dark:text-slate-500">{claimId}</p>
+        </div>
       </div>
-      <h2 className="mt-5 text-xl font-bold text-slate-900 dark:text-slate-100">Document uploaded</h2>
-      <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-        <span className="font-semibold text-slate-900 dark:text-slate-100">{claimNumber}</span> is now in the
-        extraction queue. OCR credits will be applied when processing completes successfully (1 credit per page).
-      </p>
-      <p className="mt-2 font-mono text-xs text-slate-500 dark:text-slate-400">ID: {claimId}</p>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap justify-end gap-2">
         <button
           type="button"
-          onClick={onOpenClaim}
-          className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+          onClick={onUploadAnother}
+          className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
-          View claim workspace
+          Upload another
         </button>
         <Link
           href="/claims"
-          className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+          className="inline-flex h-9 items-center rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
         >
           View all claims
         </Link>
         <button
           type="button"
-          onClick={onUploadAnother}
-          className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+          onClick={onOpenClaim}
+          className="inline-flex h-9 items-center rounded-lg bg-slate-900 px-3.5 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
         >
-          Upload another claim
+          View claim
         </button>
       </div>
     </section>
   );
 }
 
-function ReviewInfoItem({
-  icon: Icon,
+function ReviewRow({
   label,
   value,
   className,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
   className?: string;
 }) {
   return (
-    <div className={cn("flex gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-700 dark:bg-slate-800/40", className)}>
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:ring-slate-700">
-        <Icon className="size-4" />
-      </div>
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{value}</p>
-      </div>
+    <div className={cn("min-w-0", className)}>
+      <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">{label}</p>
+      <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{value || "—"}</p>
     </div>
   );
 }
@@ -667,25 +634,27 @@ function Field({
   label,
   hint,
   required = false,
+  className,
   children,
 }: {
   label: string;
   hint?: string;
   required?: boolean;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <label className="block">
-      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+    <label className={cn("block", className)}>
+      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
         {label}
         {required ? <span className="text-red-500"> *</span> : null}
         {hint ? (
-          <span className="ml-1 text-xs font-normal text-slate-400 dark:text-slate-500">
+          <span className="ml-1 text-[11px] font-normal text-slate-400 dark:text-slate-500">
             ({hint})
           </span>
         ) : null}
       </span>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-1">{children}</div>
     </label>
   );
 }
@@ -706,7 +675,7 @@ function Alert({ message, className }: { message: string; className?: string }) 
 }
 
 const inputClassName =
-  "h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
+  "h-9 w-full rounded-lg border border-slate-200 bg-white px-2.5 text-sm text-slate-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

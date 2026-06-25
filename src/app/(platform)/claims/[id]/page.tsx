@@ -286,7 +286,7 @@ export default function ClaimDetailPage() {
   }
 
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-3 pb-6">
       <ClaimDetailHeader
         status={currentStatus}
         draftSavedAt={draftSavedAt}
@@ -306,7 +306,7 @@ export default function ClaimDetailPage() {
 
           <MobileWorkspaceTabs active={mobileTab} onChange={setMobileTab} />
 
-          <div className="grid gap-4 xl:grid-cols-5 xl:items-start">
+          <div className="grid gap-3 xl:grid-cols-5 xl:items-start">
             <div
               className={cn(
                 "xl:col-span-3",

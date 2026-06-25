@@ -46,26 +46,26 @@ export function ClaimDetailHeader({
   const displayStatus = toDashboardDisplayStatus(resolveDisplayStatus(status, draftSavedAt));
 
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
           Claim Review
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Validate extracted fields against the source document and finalize review status.
         </p>
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-2">
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
         {draftLabel ? (
-          <span className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-            <Cloud className="size-4" />
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Cloud className="size-3.5" />
             {draftLabel}
           </span>
         ) : null}
         <span
           className={cn(
-            "inline-flex rounded-xl px-3 py-2 text-sm font-semibold ring-1 ring-inset",
+            "inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold ring-1 ring-inset",
             dashboardStatusClassName(displayStatus),
           )}
         >
@@ -74,7 +74,7 @@ export function ClaimDetailHeader({
         {onRefresh ? (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
             onClick={onRefresh}
             disabled={isRefreshing}
             title="Refresh claim data"
