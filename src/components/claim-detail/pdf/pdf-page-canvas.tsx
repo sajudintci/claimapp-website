@@ -103,7 +103,7 @@ export function PdfPageCanvas({
         swallowRenderCancel(task.promise);
       }
     };
-  }, [pageNumber, scale, rotation, pdfRef, shouldHighlight, documentFocus?.id, ocrPages]);
+  }, [pageNumber, scale, rotation, pdfRef, shouldHighlight, documentFocus?.id, documentFocus?.page, ocrPages]);
 
   const showHighlight = shouldHighlight && highlights.length > 0;
 

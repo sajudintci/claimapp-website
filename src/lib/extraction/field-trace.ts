@@ -1,13 +1,33 @@
 export type FieldTrace = {
   source_text: string;
   page: number | null;
+  region?: { l: number; t: number; r: number; b: number };
 };
 
 export const MAX_FIELD_TRACES = 8;
 export const MAX_TRACE_SOURCE_CHARS = 400;
 
+export function traceDedupeKey(trace: FieldTrace): string {
+  const region = trace.region;
+  const regionPart = region
+    ? `${region.l},${region.t},${region.r},${region.b}`
+    : "na";
+  return `${trace.page ?? "na"}::${regionPart}::${trace.source_text}`;
+}
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseRegion(input: unknown): FieldTrace["region"] | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const l = Number((input as { l?: unknown }).l);
+  const t = Number((input as { t?: unknown }).t);
+  const r = Number((input as { r?: unknown }).r);
+  const b = Number((input as { b?: unknown }).b);
+  if (![l, t, r, b].every(Number.isFinite)) return undefined;
+  if (r <= l || b <= t) return undefined;
+  return { l, t, r, b };
 }
 
 function normalizeTraceEntry(input: unknown): FieldTrace | null {
@@ -18,7 +38,8 @@ function normalizeTraceEntry(input: unknown): FieldTrace | null {
       : "";
   const page = typeof input.page === "number" && input.page > 0 ? input.page : null;
   if (!source_text) return null;
-  return { source_text, page };
+  const region = parseRegion(input.region);
+  return region ? { source_text, page, region } : { source_text, page };
 }
 
 export function normalizeFieldTraces(
@@ -30,7 +51,7 @@ export function normalizeFieldTraces(
 
   const push = (trace: FieldTrace | null) => {
     if (!trace) return;
-    const key = `${trace.page ?? "na"}::${trace.source_text}`;
+    const key = traceDedupeKey(trace);
     if (seen.has(key)) return;
     seen.add(key);
     traces.push(trace);
@@ -90,4 +111,21 @@ export function formatTracePages(field: {
   if (pages.length === 0) return "-";
   if (pages.length === 1) return String(pages[0]);
   return pages.join(", ");
+}
+
+export function tracePagesFromRow(row: {
+  page: string;
+  traces: FieldTrace[];
+}): number[] {
+  const pages = new Set<number>();
+  for (const trace of row.traces) {
+    if (trace.page != null && trace.page > 0) pages.add(trace.page);
+  }
+  if (pages.size === 0 && row.page !== "-") {
+    for (const part of row.page.split(",")) {
+      const page = Number.parseInt(part.trim(), 10);
+      if (Number.isFinite(page) && page > 0) pages.add(page);
+    }
+  }
+  return Array.from(pages).sort((a, b) => a - b);
 }

@@ -3,7 +3,7 @@ import type { TextItem } from "pdfjs-dist/types/src/display/api";
 import type { PageViewport } from "pdfjs-dist/types/src/display/display_utils";
 import { DocumentFocusTarget, FieldTraceFocus } from "@/components/claim-detail/types";
 import { listFocusTraces } from "@/lib/extraction/document-focus";
-import { findOcrLineHighlight, findOcrRegionHighlight } from "@/lib/pdf/pdf-ocr-highlight";
+import { findOcrLineHighlight, findOcrRegionHighlight, rectFromBox } from "@/lib/pdf/pdf-ocr-highlight";
 import { getOcrPageData, getOcrPageLines, type OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
 import {
   buildPageSearchOrder,
@@ -20,7 +20,9 @@ export type FocusResolveResult = {
   highlightVia: "pdf" | "ocr" | "ocr_coords" | "none";
 };
 
-type MiniFocus = Pick<DocumentFocusTarget, "sourceText" | "value">;
+type MiniFocus = Pick<DocumentFocusTarget, "sourceText" | "value"> & {
+  region?: { l: number; t: number; r: number; b: number };
+};
 
 function resolveSingleTraceHighlights(
   items: TextItem[],
@@ -29,6 +31,11 @@ function resolveSingleTraceHighlights(
   focus: MiniFocus,
   ocrPage?: OcrPageLines,
 ): { rects: HighlightRect[]; via: "pdf" | "ocr" | "ocr_coords" | "none" } {
+  if (focus.region && ocrPage?.width && ocrPage.height) {
+    const direct = rectFromBox(focus.region, ocrPage, viewport);
+    if (direct.length > 0) return { rects: direct, via: "ocr_coords" };
+  }
+
   const hasAbbyyCoords =
     ocrPage?.width != null &&
     ocrPage.height != null &&
@@ -91,7 +98,7 @@ export function resolveTracesOnPage(
       items,
       ocrLines,
       viewport,
-      { sourceText: trace.sourceText, value },
+      { sourceText: trace.sourceText, value, region: trace.region },
       ocrPage,
     );
     if (found.rects.length > 0) {
@@ -121,10 +128,20 @@ export async function resolveDocumentFocusHighlight(
   ocrPages: OcrPageLines[],
 ): Promise<FocusResolveResult> {
   const traces = listFocusTraces(focus);
-  const hintedPage = traces.find((trace) => trace.page != null && trace.page > 0)?.page ?? focus.page;
-  const searchPages = buildPageSearchOrder(hintedPage, totalPages);
+  const targetPage =
+    focus.page != null && focus.page > 0
+      ? focus.page
+      : (traces.find((trace) => trace.page != null && trace.page > 0)?.page ?? null);
+  const hintedPage = targetPage ?? 1;
+  const searchPages =
+    targetPage != null
+      ? [
+          targetPage,
+          ...buildPageSearchOrder(targetPage, totalPages).filter((page) => page !== targetPage),
+        ]
+      : buildPageSearchOrder(hintedPage, totalPages);
   const matchedPages: number[] = [];
-  let primaryPage = searchPages[0] ?? 1;
+  let primaryPage = targetPage ?? searchPages[0] ?? 1;
   let rects: HighlightRect[] = [];
   let highlightVia: "pdf" | "ocr" | "ocr_coords" | "none" = "none";
   let textItemCount = 0;
@@ -140,12 +157,13 @@ export async function resolveDocumentFocusHighlight(
     const ocrPage = getOcrPageData(ocrPages, pageNum);
     const found = resolveTracesOnPage(items, ocrLines, vp, traces, focus.value, ocrPage, pageNum);
     if (found.rects.length > 0) {
-      if (matchedPages.length === 0) {
+      if (matchedPages.length === 0 || pageNum === targetPage) {
         primaryPage = pageNum;
         rects = found.rects;
         highlightVia = found.via;
       }
-      matchedPages.push(pageNum);
+      if (!matchedPages.includes(pageNum)) matchedPages.push(pageNum);
+      if (targetPage != null && pageNum === targetPage) break;
     }
   }
 
@@ -155,13 +173,13 @@ export async function resolveDocumentFocusHighlight(
   const pages = Array.from(new Set([...matchedPages, ...explicitPages])).sort((a, b) => a - b);
 
   return {
-    page: pages[0] ?? primaryPage,
+    page: targetPage ?? pages[0] ?? primaryPage,
     pages,
     rects,
     highlightVia,
     matchStatus: toMatchStatus(
       highlightVia,
-      pages.length > 0 || (focus.page != null && focus.page > 0),
+      (targetPage != null && targetPage > 0) || pages.length > 0,
     ),
     textItemCount,
   };

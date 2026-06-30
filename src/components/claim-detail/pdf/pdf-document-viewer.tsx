@@ -279,13 +279,13 @@ export function PdfDocumentViewer({
       setFocusLabel(documentFocus.label ?? "Selected field");
       setMatchStatus(result.matchStatus);
       setPdfHasTextLayer(result.textItemCount > 0);
-      goToPage(result.page);
+      goToPage(documentFocus.page ?? result.page);
     })();
 
     return () => {
       dead = true;
     };
-  }, [documentFocus?.id, scale, loading, totalPages, goToPage, ocrPages]);
+  }, [documentFocus?.id, documentFocus?.page, scale, loading, totalPages, goToPage, ocrPages]);
 
   function rotateClockwise() {
     setRotation((r) => (r + 90) % 360);

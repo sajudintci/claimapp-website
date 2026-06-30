@@ -13,8 +13,8 @@ export type TracedField = {
   page?: number | null;
   confidence?: number;
   traces?: FieldTrace[];
+  /** Legacy extractions may still store synthesis metadata. */
   value_origin?: "ocr" | "llm_synthesis";
-  derived_from?: string[];
 };
 
 export type ExtractionLineItem = {
@@ -26,9 +26,6 @@ export type ExtractionLineItem = {
   page?: number | null;
   confidence?: number;
   traces?: FieldTrace[];
-  field_origins?: Partial<
-    Record<"description" | "quantity" | "amount" | "related_doctor", FieldValueOrigin>
-  >;
 };
 
 export type ExtractionTestResult = {
@@ -41,12 +38,6 @@ export type ExtractionTestResult = {
   page?: number | null;
   confidence?: number;
   traces?: FieldTrace[];
-  field_origins?: Partial<
-    Record<
-      "test_category" | "test_name" | "result" | "unit" | "reference_range",
-      FieldValueOrigin
-    >
-  >;
 };
 
 export type ExtractionClaim = Record<string, unknown> & {
@@ -114,7 +105,7 @@ export function resolveClaimsFromPayload(payload: Record<string, unknown>): Extr
   return [];
 }
 
-export type FieldValueOrigin = "ocr" | "llm_synthesis";
+export type FieldValueOrigin = "ocr" | "llm";
 
 export type FieldRow = {
   section: string;
@@ -125,7 +116,6 @@ export type FieldRow = {
   page: string;
   traces: FieldTrace[];
   valueOrigin?: FieldValueOrigin;
-  derivedFrom?: string[];
 };
 
 export const FIELD_SECTION_ORDER = [
@@ -156,19 +146,18 @@ function scalarFieldValue(raw: unknown): string {
 
 function readTracedField(
   field: unknown,
-): Pick<FieldRow, "value" | "confidence" | "sourceText" | "page" | "traces" | "valueOrigin" | "derivedFrom"> {
+): Pick<FieldRow, "value" | "confidence" | "sourceText" | "page" | "traces" | "valueOrigin"> {
   if (!field || typeof field !== "object") {
     return { value: "not_found", confidence: 0, sourceText: "", page: "-", traces: [] };
   }
 
   const traced = field as TracedField;
   const reviewValue = tracedFieldReviewValue(traced);
-  const valueOrigin =
-    traced.value_origin === "llm_synthesis" || traced.value_origin === "ocr"
-      ? traced.value_origin
-      : !isExtractedValueMissing(reviewValue)
-        ? "ocr"
-        : undefined;
+  const valueOrigin: FieldValueOrigin | undefined = isExtractedValueMissing(reviewValue)
+    ? undefined
+    : traced.value_origin === "llm_synthesis"
+      ? "llm"
+      : "ocr";
   const sourceText = typeof traced.source_text === "string" ? traced.source_text : "";
   const pageNum = traced.page != null ? traced.page : null;
   const traces = tracesFromField({
@@ -184,9 +173,6 @@ function readTracedField(
     page: formatTracePages({ source_text: sourceText, page: pageNum, traces }),
     traces,
     valueOrigin,
-    derivedFrom: Array.isArray(traced.derived_from)
-      ? traced.derived_from.filter((entry): entry is string => typeof entry === "string")
-      : undefined,
   };
 }
 
@@ -220,6 +206,96 @@ function pushTracedFieldRows(
   }
 }
 
+function parseFieldTraceList(raw: unknown): FieldTrace[] {
+  if (Array.isArray(raw)) {
+    const traces: FieldTrace[] = [];
+    for (const entry of raw) {
+      const normalized = normalizeFieldTraces({ traces: [entry] }, { source_text: "", page: null });
+      if (normalized[0]) traces.push(normalized[0]);
+    }
+    return traces;
+  }
+  if (raw && typeof raw === "object") {
+    const traced = raw as FieldTrace;
+    const sourceText = traced.source_text?.trim() ?? "";
+    const pageNum = traced.page ?? null;
+    return normalizeFieldTraces({ traces: [traced] }, { source_text: sourceText, page: pageNum });
+  }
+  return [];
+}
+
+function tracesMatchingFieldValue(traces: FieldTrace[], fieldValue: string): FieldTrace[] {
+  if (fieldValue === "not_found" || !fieldValue.trim()) return traces;
+  const valueNorm = normalizeTraceText(fieldValue);
+  const valueDigits = fieldValue.replace(/\D/g, "");
+  const matched = traces.filter((trace) => {
+    const sourceNorm = normalizeTraceText(trace.source_text);
+    if (sourceNorm.includes(valueNorm) || valueNorm.includes(sourceNorm)) return true;
+    if (valueDigits.length >= 2) {
+      const sourceDigits = trace.source_text.replace(/\D/g, "");
+      return sourceDigits.includes(valueDigits) || valueDigits.includes(sourceDigits);
+    }
+    return false;
+  });
+  return matched.length > 0 ? matched : traces;
+}
+
+function readArrayFieldTrace(
+  record: Record<string, unknown>,
+  fieldKey: string,
+  fieldValue: string,
+): Pick<FieldRow, "sourceText" | "page" | "traces"> {
+  const fromFieldTraces = parseFieldTraceList(
+    (record.field_traces as Record<string, unknown> | undefined)?.[fieldKey],
+  );
+  if (fromFieldTraces.length > 0) {
+    const primary = fromFieldTraces[0]!;
+    return {
+      sourceText: primary.source_text,
+      page: formatTracePages({ source_text: primary.source_text, page: primary.page, traces: fromFieldTraces }),
+      traces: fromFieldTraces,
+    };
+  }
+
+  const itemSource = recordSourceText(record);
+  const useFieldValue =
+    fieldValue !== "not_found" &&
+    fieldValue.trim().length >= 2 &&
+    !normalizeTraceText(itemSource).includes(normalizeTraceText(fieldValue));
+  const itemTraces = readRecordTraces(record);
+  const relevantTraces = useFieldValue
+    ? tracesMatchingFieldValue(itemTraces, fieldValue)
+    : itemTraces;
+
+  if (relevantTraces.length > 0) {
+    const primary = relevantTraces[0]!;
+    const sourceText = useFieldValue ? primary.source_text || fieldValue : itemSource || primary.source_text;
+    return {
+      sourceText,
+      page: formatTracePages({
+        source_text: sourceText,
+        page: primary.page ?? (record.page != null ? Number(record.page) : null),
+        traces: relevantTraces,
+      }),
+      traces: relevantTraces,
+    };
+  }
+
+  const sourceText = useFieldValue ? fieldValue : itemSource;
+  const pageNum = record.page != null ? Number(record.page) : null;
+  const fallbackTrace: FieldTrace = { source_text: sourceText, page: pageNum };
+  const traces = sourceText.trim() ? [fallbackTrace] : [];
+  return {
+    sourceText,
+    page: formatTracePages({ source_text: sourceText, page: pageNum, traces }),
+    traces,
+  };
+}
+
+function normalizeTraceText(text: string): string {
+  return text.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 function pushLineItemRows(rows: FieldRow[], items: ExtractionLineItem[] | undefined) {
   if (!Array.isArray(items)) return;
 
@@ -229,23 +305,17 @@ function pushLineItemRows(rows: FieldRow[], items: ExtractionLineItem[] | undefi
     const itemNo = index + 1;
 
     for (const field of LINE_ITEM_FIELDS) {
-      const fieldOrigins = record.field_origins as ExtractionLineItem["field_origins"];
-      const traces = readRecordTraces(record);
+      const fieldValue = scalarFieldValue(record[field]);
+      const traceMeta = readArrayFieldTrace(record, field, fieldValue);
       rows.push({
         section: "Line Items",
         field: `${itemNo}-${field}`,
-        value: scalarFieldValue(record[field]),
+        value: fieldValue,
         confidence: recordConfidence(record),
-        sourceText: recordSourceText(record),
-        page: formatTracePages({
-          source_text: recordSourceText(record),
-          page: record.page != null ? Number(record.page) : null,
-          traces,
-        }),
-        traces,
-        valueOrigin:
-          fieldOrigins?.[field] ??
-          (!isExtractedValueMissing(scalarFieldValue(record[field])) ? "ocr" : undefined),
+        sourceText: traceMeta.sourceText,
+        page: traceMeta.page,
+        traces: traceMeta.traces,
+        valueOrigin: !isExtractedValueMissing(fieldValue) ? "ocr" : undefined,
       });
     }
   });
@@ -260,23 +330,17 @@ function pushLaboratoryRows(rows: FieldRow[], tests: ExtractionTestResult[] | un
     const testNo = index + 1;
 
     for (const field of LABORATORY_FIELDS) {
-      const fieldOrigins = record.field_origins as ExtractionTestResult["field_origins"];
-      const traces = readRecordTraces(record);
+      const fieldValue = scalarFieldValue(record[field]);
+      const traceMeta = readArrayFieldTrace(record, field, fieldValue);
       rows.push({
         section: "Laboratory",
         field: `${testNo}-${field}`,
-        value: scalarFieldValue(record[field]),
+        value: fieldValue,
         confidence: recordConfidence(record),
-        sourceText: recordSourceText(record),
-        page: formatTracePages({
-          source_text: recordSourceText(record),
-          page: record.page != null ? Number(record.page) : null,
-          traces,
-        }),
-        traces,
-        valueOrigin:
-          fieldOrigins?.[field as keyof NonNullable<ExtractionTestResult["field_origins"]>] ??
-          (!isExtractedValueMissing(scalarFieldValue(record[field])) ? "ocr" : undefined),
+        sourceText: traceMeta.sourceText,
+        page: traceMeta.page,
+        traces: traceMeta.traces,
+        valueOrigin: !isExtractedValueMissing(fieldValue) ? "ocr" : undefined,
       });
     }
   });

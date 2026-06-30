@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { Check, ChevronDown, Crosshair, Search } from "lucide-react";
 import { FieldRow, FIELD_SECTION_ORDER, isExtractedValueMissing } from "@/lib/extraction/claim-extraction";
 import { fieldRowKey } from "@/lib/extraction/claim-review";
-import { createFocusFromFieldRow } from "@/lib/extraction/document-focus";
+import { createFocusFromFieldRow, createFocusFromFieldRowAtPage } from "@/lib/extraction/document-focus";
+import { tracePagesFromRow } from "@/lib/extraction/field-trace";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
 import { cn } from "@/lib/utils";
 
@@ -306,18 +307,29 @@ function FieldCard({
   isPdfDocument?: boolean;
   onFocusField?: (focus: DocumentFocusTarget) => void;
 }) {
+  const pageOptions = tracePagesFromRow(row);
+  const [selectedPage, setSelectedPage] = useState<number | null>(
+    pageOptions.length > 0 ? pageOptions[0]! : null,
+  );
   const label = row.field
     .replace(/^\d+-/, (match) => `#${match.slice(0, -1)} `)
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
-  const canLocate = isPdfDocument && Boolean(onFocusField) && createFocusFromFieldRow(row) != null;
+  const canLocate =
+    isPdfDocument &&
+    Boolean(onFocusField) &&
+    createFocusFromFieldRowAtPage(row, selectedPage ?? pageOptions[0] ?? null) != null;
   const isEdited = value.trim() !== originalValue.trim();
   const isNotFound = isExtractedValueMissing(value);
 
-  function handleLocate() {
-    if (!onFocusField || !canLocate) return;
-    const focus = createFocusFromFieldRow(row);
+  function focusPage(page: number | null) {
+    if (!onFocusField) return;
+    const focus = createFocusFromFieldRowAtPage(row, page);
     if (focus) onFocusField(focus);
+  }
+
+  function handleLocate() {
+    focusPage(selectedPage ?? pageOptions[0] ?? null);
   }
 
   return (
@@ -377,54 +389,43 @@ function FieldCard({
         )}
       />
 
-      <div className="mt-1.5 flex flex-wrap gap-1">
-        {row.page !== "-" ? (
-          <MetaTag>
-            {row.traces.length > 1 ? `Pages ${row.page}` : `Page ${row.page}`}
-          </MetaTag>
+      <div className="mt-1.5 flex flex-wrap items-center gap-1">
+        {pageOptions.length > 1 ? (
+          <select
+            value={selectedPage ?? pageOptions[0]}
+            onChange={(e) => {
+              const page = Number.parseInt(e.target.value, 10);
+              setSelectedPage(page);
+              focusPage(page);
+            }}
+            className="h-6 rounded-md border border-slate-200 bg-white px-2 text-[10px] font-semibold uppercase tracking-wide text-slate-600 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-300"
+            aria-label={`Pages for ${label}`}
+          >
+            {pageOptions.map((page) => (
+              <option key={page} value={page}>
+                Page {page}
+              </option>
+            ))}
+          </select>
+        ) : pageOptions.length === 1 ? (
+          <MetaTag>Page {pageOptions[0]}</MetaTag>
+        ) : row.page !== "-" ? (
+          <MetaTag>Page {row.page}</MetaTag>
         ) : null}
         {row.confidence > 0 ? <MetaTag>{row.confidence}%</MetaTag> : null}
-        {row.valueOrigin === "llm_synthesis" ? (
-          <MetaTag title={row.derivedFrom?.join(", ") ?? undefined}>LLM synthesis</MetaTag>
-        ) : row.valueOrigin === "ocr" ? (
-          <MetaTag>OCR extracted</MetaTag>
-        ) : null}
-        {isNotFound ? <MetaTag>Not found in OCR</MetaTag> : null}
-        {row.traces.length > 1
-          ? row.traces.map((trace, index) =>
-              trace.source_text.trim() ? (
-                <MetaTag
-                  key={`${trace.page ?? "na"}-${index}`}
-                  title={trace.source_text}
-                >
-                  P{trace.page ?? "?"}: {truncateSource(trace.source_text, 32)}
-                </MetaTag>
-              ) : null,
-            )
-          : row.sourceText.trim() ? (
-              <MetaTag title={row.sourceText}>
-                {row.valueOrigin === "llm_synthesis" ? "Based on" : "OCR"}:{" "}
-                {truncateSource(row.sourceText)}
-              </MetaTag>
-            ) : null}
+        {row.valueOrigin === "ocr" ? <MetaTag>OCR</MetaTag> : null}
+        {row.valueOrigin === "llm" ? <MetaTag>LLM</MetaTag> : null}
       </div>
     </div>
   );
 }
 
-function MetaTag({ children, title }: { children: React.ReactNode; title?: string }) {
+function MetaTag({ children }: { children: React.ReactNode }) {
   return (
     <span
-      title={title}
       className="inline-flex max-w-full truncate rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 dark:bg-slate-700 dark:text-slate-300"
     >
       {children}
     </span>
   );
-}
-
-function truncateSource(text: string, max = 48): string {
-  const trimmed = text.trim();
-  if (trimmed.length <= max) return trimmed;
-  return `${trimmed.slice(0, max - 1)}…`;
 }

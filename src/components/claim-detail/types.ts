@@ -86,6 +86,7 @@ export type MobileWorkspaceTab = "document" | "extraction";
 export type FieldTraceFocus = {
   page: number | null;
   sourceText: string;
+  region?: { l: number; t: number; r: number; b: number };
 };
 
 export type DocumentFocusTarget = {
@@ -108,6 +109,7 @@ export function createDocumentFocus(
     id: params.id ?? `${slug}-${params.page ?? "na"}-${Date.now()}`,
     page: params.page,
     sourceText: params.sourceText,
+    traces: params.traces,
     value: params.value,
     label: params.label,
   };

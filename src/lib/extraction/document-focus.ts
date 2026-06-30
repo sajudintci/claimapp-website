@@ -5,7 +5,7 @@ import {
   TracedFieldDisplay,
 } from "@/components/claim-detail/types";
 import { FieldRow, TracedField, tracedFieldValue } from "@/lib/extraction/claim-extraction";
-import { tracesFromField } from "@/lib/extraction/field-trace";
+import { FieldTrace, tracesFromField, tracePagesFromRow } from "@/lib/extraction/field-trace";
 
 export function isPdfDocument(mimeType: string | undefined): boolean {
   return mimeType === "application/pdf";
@@ -25,6 +25,14 @@ function tracesCanFocus(
   return traces.some((trace) => hasPdfTrace(trace.page, trace.sourceText, value));
 }
 
+function traceToFocus(trace: FieldTrace): FieldTraceFocus {
+  return {
+    page: trace.page,
+    sourceText: trace.source_text,
+    ...(trace.region ? { region: trace.region } : {}),
+  };
+}
+
 function tracesFromUnknownField(field: unknown): FieldTraceFocus[] {
   if (!field || typeof field !== "object") return [];
   const traced = field as TracedField;
@@ -32,10 +40,7 @@ function tracesFromUnknownField(field: unknown): FieldTraceFocus[] {
     source_text: traced.source_text,
     page: traced.page ?? null,
     traces: traced.traces,
-  }).map((trace) => ({
-    page: trace.page,
-    sourceText: trace.source_text,
-  }));
+  }).map(traceToFocus);
 }
 
 export function listFocusTraces(focus: DocumentFocusTarget): FieldTraceFocus[] {
@@ -44,6 +49,9 @@ export function listFocusTraces(focus: DocumentFocusTarget): FieldTraceFocus[] {
 }
 
 export function focusAppliesToPage(focus: DocumentFocusTarget, pageNumber: number): boolean {
+  if (focus.page != null && focus.page > 0) {
+    return focus.page === pageNumber;
+  }
   return listFocusTraces(focus).some(
     (trace) => trace.page == null || trace.page === pageNumber,
   );
@@ -81,22 +89,43 @@ export function createFocusFromPreExtracted(
 }
 
 export function createFocusFromFieldRow(row: FieldRow): DocumentFocusTarget | null {
+  const pages = tracePagesFromRow(row);
+  const preferredPage = pages[0] ?? null;
+  return createFocusFromFieldRowAtPage(row, preferredPage);
+}
+
+export function createFocusFromFieldRowAtPage(
+  row: FieldRow,
+  page: number | null,
+): DocumentFocusTarget | null {
   const traces =
     row.traces.length > 0
-      ? row.traces.map((trace) => ({
-          page: trace.page,
-          sourceText: trace.source_text,
-        }))
-      : [{ page: row.page !== "-" ? Number.parseInt(row.page, 10) : null, sourceText: row.sourceText }];
+      ? row.traces.map(traceToFocus)
+      : [
+          {
+            page: row.page !== "-" ? Number.parseInt(row.page, 10) : null,
+            sourceText: row.sourceText,
+          },
+        ];
 
-  if (!tracesCanFocus(traces, row.value !== "-" ? row.value : undefined)) return null;
+  if (!tracesCanFocus(traces, row.value !== "not_found" ? row.value : undefined)) return null;
 
-  const primary = traces[0]!;
+  const activeTraces =
+    page != null ? traces.filter((trace) => trace.page === page) : traces;
+  const selected =
+    activeTraces[0] ??
+    traces.find((trace) => trace.page != null) ??
+    traces[0];
+  if (!selected) return null;
+
+  const fieldKey = `${row.section}-${row.field}`.replace(/\s+/g, "-").toLowerCase();
+
   return createDocumentFocus({
-    page: Number.isFinite(primary.page as number) ? (primary.page as number) : null,
-    sourceText: primary.sourceText,
-    traces,
-    value: row.value !== "-" ? row.value : undefined,
+    id: `${fieldKey}-p${selected.page ?? "na"}-n${activeTraces.length}`,
+    page: selected.page,
+    sourceText: selected.sourceText,
+    traces: activeTraces,
+    value: row.value !== "not_found" ? row.value : undefined,
     label: `${row.section} · ${row.field}`,
   });
 }

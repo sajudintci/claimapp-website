@@ -6,6 +6,22 @@ import {
 } from "@/lib/extraction/claim-extraction";
 import { fieldRowKey } from "@/lib/extraction/claim-review";
 
+import { tracePagesFromRow } from "@/lib/extraction/field-trace";
+
+describe("tracePagesFromRow", () => {
+  it("returns sorted unique pages from traces", () => {
+    expect(
+      tracePagesFromRow({
+        page: "1, 4",
+        traces: [
+          { source_text: "A", page: 1 },
+          { source_text: "B", page: 4 },
+        ],
+      }),
+    ).toEqual([1, 4]);
+  });
+});
+
 describe("buildFieldRows", () => {
   it("includes line items and laboratory tests from LLM output", () => {
     const rows = buildFieldRows({
@@ -109,5 +125,40 @@ describe("buildFieldRows", () => {
     const nameRow = rows.find((row) => row.section === "Patient" && row.field === "name");
     expect(nameRow?.page).toBe("1, 4");
     expect(nameRow?.traces).toHaveLength(2);
+  });
+
+  it("renders multi-page field_traces for line item fields", () => {
+    const rows = buildFieldRows({
+      items: [
+        {
+          description: "Konsultasi",
+          quantity: "1",
+          amount: "150000",
+          related_doctor: "",
+          source_text: "Konsultasi",
+          page: 1,
+          confidence: 0.9,
+          field_traces: {
+            amount: [
+              {
+                source_text: "150.000,",
+                page: 2,
+                region: { l: 100, t: 200, r: 180, b: 220 },
+              },
+              {
+                source_text: "150.000,",
+                page: 5,
+                region: { l: 110, t: 210, r: 190, b: 230 },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    const amountRow = rows.find((row) => row.section === "Line Items" && row.field === "1-amount");
+    expect(amountRow?.page).toBe("2, 5");
+    expect(amountRow?.traces).toHaveLength(2);
+    expect(tracePagesFromRow(amountRow!)).toEqual([2, 5]);
   });
 });

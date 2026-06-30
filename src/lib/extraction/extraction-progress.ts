@@ -9,7 +9,7 @@ const STAGE_LABELS: Record<string, string> = {
   queued: "In queue",
   ocr: "OCR extraction",
   llm: "LLM structuring",
-  validate: "Validation & synthesis",
+  validate: "Validation",
   persist: "Saving results",
   completed: "Complete",
   failed: "Failed",
