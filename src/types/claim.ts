@@ -1,6 +1,7 @@
 export type ClaimStatus =
   | "Processing"
   | "Extracted"
+  | "Draft"
   | "Reviewed"
   | "Needs Attention"
   | "Failed"
@@ -15,6 +16,10 @@ export type ClaimRecord = {
   provider: string;
   amount: number;
   submittedAt: string;
+  claimDate: string | null;
+  documentFileName: string | null;
+  pageCount: number | null;
+  reviewerName: string | null;
   status: ClaimStatus;
   confidence: number;
   department: string;

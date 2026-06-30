@@ -138,7 +138,11 @@ function DataTable({
                       className={cn(
                         "border-t border-slate-100 dark:border-slate-800",
                         clickable &&
+<<<<<<< HEAD
                           "cursor-pointer hover:bg-primary-50/60 dark:hover:bg-primary/10",
+=======
+                          "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                         row.focus?.label === activeFocusLabel && "bg-amber-50/80 dark:bg-amber-950/25",
                       )}
                       onClick={

@@ -268,7 +268,7 @@ function DepartmentsTable({
               >
                 <td className="px-4 py-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-dark ring-1 ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30">
+                    <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-hover ring-1 ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30">
                       <Building2 className="size-4" />
                     </div>
                     <p className="font-semibold text-slate-900 dark:text-slate-100">{dept.name}</p>
@@ -355,7 +355,7 @@ function KpiCard({
   tone: "blue" | "emerald" | "slate";
 }) {
   const tones = {
-    blue: "bg-primary-50 text-primary-dark ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30",
+    blue: "bg-primary/10 text-primary-hover ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30",
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
     slate: "bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
   };

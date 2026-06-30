@@ -16,15 +16,17 @@ function compact(text: string): string {
 
 function buildQueries(sourceText: string, value?: string): string[] {
   const out: string[] = [];
+  const val = value ? normalize(String(value)) : "";
+  if (val.length >= 2) {
+    out.push(val, loose(String(value)), compact(String(value)));
+  }
   const src = normalize(sourceText);
-  if (src.length >= 2) {
+  if (src.length >= 2 && src !== val) {
     out.push(src, loose(sourceText), compact(sourceText));
     const words = src.split(" ");
     if (words.length >= 4) out.push(words.slice(0, 6).join(" "));
     if (words.length >= 2) out.push(words.slice(0, 3).join(" "));
   }
-  const val = value ? normalize(String(value)) : "";
-  if (val.length >= 2 && val !== src) out.push(val, loose(val));
   return [...new Set(out)].filter((q) => q.length >= 2);
 }
 
@@ -101,6 +103,8 @@ function rectFromBox(
   if (!box || !pageWidth || !pageHeight) return [];
   return [abbyyBoxToViewportRect(box, pageWidth, pageHeight, viewport)];
 }
+
+export { rectFromBox };
 
 function findPairHighlight(
   ocrPage: OcrPageLines,

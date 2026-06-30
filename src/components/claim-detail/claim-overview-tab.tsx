@@ -3,6 +3,7 @@
 import { Crosshair } from "lucide-react";
 import {
   ExtractionClaim,
+  tracedFieldReviewValue,
   tracedFieldValue,
 } from "@/lib/extraction/claim-extraction";
 import { createFocusFromPreExtracted, createFocusFromTracedField } from "@/lib/extraction/document-focus";
@@ -50,10 +51,7 @@ export function ClaimOverviewTab({
         <FocusableKpiCard
           label="Patient"
           traceLabel="Patient · name"
-          value={
-            tracedFieldValue(activeClaim?.patient?.name) ||
-            String(summary.insuredName ?? "-")
-          }
+          value={tracedFieldReviewValue(activeClaim?.patient?.name)}
           field={activeClaim?.patient?.name}
           canFocus={canFocusPdf}
           isActive={activeFocusLabel === "Patient · name"}
@@ -127,7 +125,11 @@ export function ClaimOverviewTab({
                   className={cn(
                     "rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-colors dark:border-slate-700 dark:bg-slate-800/50",
                     focusTarget &&
+<<<<<<< HEAD
                       "cursor-pointer hover:border-primary/40 hover:bg-primary-50/50 dark:hover:border-primary-dark dark:hover:bg-primary/10",
+=======
+                      "cursor-pointer hover:border-primary/30 hover:bg-primary/10 dark:hover:border-primary/30 dark:hover:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                     activeFocusLabel === label && "border-amber-400 bg-amber-50/80 dark:border-amber-700 dark:bg-amber-950/30",
                     !focusTarget && "cursor-default",
                   )}
@@ -213,7 +215,11 @@ function FocusableKpiCard({
       type="button"
       onClick={onFocus}
       className={cn(
+<<<<<<< HEAD
         "rounded-xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-colors hover:border-primary/40 hover:bg-primary-50/40 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-primary-dark dark:hover:bg-primary/10",
+=======
+        "rounded-xl border border-slate-200 bg-white px-3 py-3 text-left shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/10 dark:border-slate-700 dark:bg-slate-800/80 dark:hover:border-primary/30 dark:hover:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         isActive && "border-amber-400 bg-amber-50/80 ring-1 ring-amber-300/60 dark:border-amber-700 dark:bg-amber-950/30",
       )}
     >

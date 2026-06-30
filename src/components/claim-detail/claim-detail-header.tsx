@@ -1,120 +1,85 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Copy, Download, Loader2, RefreshCw } from "lucide-react";
-import { toast } from "sonner";
-import { ConfidenceBadge, StatusBadge } from "@/components/claimora/badges";
-import { ExtractionContext } from "@/components/claim-detail/types";
-import { downloadJson } from "@/components/claim-detail/utils";
+import { Cloud, Loader2, RefreshCw } from "lucide-react";
+import {
+  dashboardStatusClassName,
+  toDashboardDisplayStatus,
+} from "@/components/claimora/dashboard/dashboard-utils";
+import { ClaimStatus } from "@/types/claim";
 import { cn } from "@/lib/utils";
 
 type ClaimDetailHeaderProps = {
-  claimId: string;
-  claimNumber?: string;
-  createdAt?: string;
-  extractionSource?: string;
-  ctx: ExtractionContext;
-  isRetrying: boolean;
+  status: ClaimStatus;
+  draftSavedAt: Date | null;
   isRefreshing?: boolean;
-  isUpdatingStatus: "Reviewed" | "Needs Attention" | null;
   onRefresh?: () => void;
-  onRetry: () => void;
-  onMarkReviewed: () => void;
-  onNeedsAttention: () => void;
 };
 
-export function ClaimDetailHeader({
-  claimId,
-  claimNumber,
-  createdAt,
-  extractionSource,
-  ctx,
-  isRetrying,
-  isRefreshing = false,
-  isUpdatingStatus,
-  onRefresh,
-  onRetry,
-  onMarkReviewed,
-  onNeedsAttention,
-}: ClaimDetailHeaderProps) {
-  const displayId = claimNumber ?? claimId.slice(0, 8);
+function formatDraftSaved(at: Date | null): string | null {
+  if (!at) return null;
+  const diffMs = Date.now() - at.getTime();
+  const mins = Math.max(1, Math.round(diffMs / 60_000));
+  if (mins < 60) return `Draft saved ${mins} min${mins === 1 ? "" : "s"} ago`;
+  const hours = Math.round(mins / 60);
+  return `Draft saved ${hours} hour${hours === 1 ? "" : "s"} ago`;
+}
 
-  async function copyClaimId() {
-    try {
-      await navigator.clipboard.writeText(claimId);
-      toast.success("Claim ID copied");
-    } catch {
-      toast.error("Could not copy claim ID");
-    }
+function resolveDisplayStatus(status: ClaimStatus, draftSavedAt: Date | null): string {
+  if (status === "Draft") return "Draft";
+  if (
+    draftSavedAt &&
+    status !== "Reviewed" &&
+    status !== "Archived"
+  ) {
+    return "Draft";
   }
+  return status;
+}
+
+export function ClaimDetailHeader({
+  status,
+  draftSavedAt,
+  isRefreshing = false,
+  onRefresh,
+}: ClaimDetailHeaderProps) {
+  const draftLabel = formatDraftSaved(draftSavedAt);
+  const displayStatus = toDashboardDisplayStatus(resolveDisplayStatus(status, draftSavedAt));
 
   return (
-    <header className="sticky top-0 z-20 -mx-3 border-b border-slate-200/80 bg-white/95 px-3 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/95 sm:-mx-4 sm:px-4 lg:-mx-6 lg:px-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 space-y-2">
-          <nav className="flex flex-wrap items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-            <Link href="/claims" className="inline-flex items-center gap-1 hover:text-slate-900 dark:hover:text-slate-100">
-              <ArrowLeft className="size-3.5" />
-              Claims
-            </Link>
-            <span className="text-slate-300 dark:text-slate-600">/</span>
-            <span className="font-medium text-slate-700 dark:text-slate-300">{displayId}</span>
-          </nav>
+    <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0">
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
+          Claim Review
+        </h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Validate extracted fields against the source document and finalize review status.
+        </p>
+      </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
-              Claim Review
-            </h1>
-            <StatusBadge status={ctx.currentStatus} />
-            <ConfidenceBadge confidence={ctx.confidence} />
-          </div>
-
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            Validate extracted fields against the source document and finalize review status.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-            <button
-              type="button"
-              onClick={copyClaimId}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 font-mono hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700"
-            >
-              <Copy className="size-3" />
-              {claimId.slice(0, 8)}…
-            </button>
-            {createdAt ? (
-              <span>Created {new Date(createdAt).toLocaleString()}</span>
-            ) : null}
-            {extractionSource ? (
-              <span>
-                Source: <span className="font-medium text-slate-700 dark:text-slate-300">{extractionSource}</span>
-              </span>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {onRefresh ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              onClick={onRefresh}
-              disabled={isRefreshing || isRetrying || isUpdatingStatus !== null}
-              title="Refresh claim data"
-            >
-              {isRefreshing ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <RefreshCw className="size-4" />
-              )}
-              Refresh
-            </button>
-          ) : null}
+      <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+        {draftLabel ? (
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+            <Cloud className="size-3.5" />
+            {draftLabel}
+          </span>
+        ) : null}
+        <span
+          className={cn(
+            "inline-flex rounded-lg px-2.5 py-1 text-xs font-semibold ring-1 ring-inset",
+            dashboardStatusClassName(displayStatus),
+          )}
+        >
+          {displayStatus}
+        </span>
+        {onRefresh ? (
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-            onClick={() => downloadJson(`claim-${claimId}-extraction.json`, ctx.payload)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            title="Refresh claim data"
           >
+<<<<<<< HEAD
             <Download className="size-4" />
             Export JSON
           </button>
@@ -136,27 +101,16 @@ export function ClaimDetailHeader({
             disabled={isUpdatingStatus !== null || isRetrying || ctx.isJobActive}
           >
             {isUpdatingStatus === "Reviewed" ? (
+=======
+            {isRefreshing ? (
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <CheckCircle2 className="size-4" />
+              <RefreshCw className="size-4" />
             )}
-            Reviewed
+            Refresh
           </button>
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold disabled:opacity-60",
-              "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300 dark:hover:bg-amber-950/70",
-            )}
-            onClick={onNeedsAttention}
-            disabled={isUpdatingStatus !== null || isRetrying || ctx.isJobActive}
-          >
-            {isUpdatingStatus === "Needs Attention" ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : null}
-            Needs Attention
-          </button>
-        </div>
+        ) : null}
       </div>
     </header>
   );

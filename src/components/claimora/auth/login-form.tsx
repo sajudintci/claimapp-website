@@ -124,7 +124,11 @@ export function LoginForm() {
         </label>
         <Link
           href="/forgot-password"
+<<<<<<< HEAD
           className="text-sm font-medium text-primary transition-colors hover:text-primary-dark dark:text-primary dark:hover:text-primary"
+=======
+          className="text-sm font-medium text-primary transition-colors hover:text-primary-hover dark:text-primary dark:hover:text-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         >
           Forgot password?
         </Link>
@@ -147,9 +151,15 @@ export function LoginForm() {
             key={user.id}
             type="button"
             onClick={() => fillDemo(user.email)}
+<<<<<<< HEAD
             className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-all hover:border-primary/30 hover:bg-primary-50/50 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-primary/40 dark:hover:bg-primary/10"
           >
             <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-dark text-xs font-semibold text-white">
+=======
+            className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/80 px-3 py-2.5 text-left transition-all hover:border-primary/30 hover:bg-primary/5 hover:shadow-sm dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-primary/40 dark:hover:bg-primary/10"
+          >
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-hover text-xs font-semibold text-white">
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
               {user.initials}
             </span>
             <span className="min-w-0 flex-1">
@@ -163,10 +173,6 @@ export function LoginForm() {
         ))}
       </div>
 
-      <p className="flex items-center justify-center gap-1.5 text-center text-[11px] text-slate-500 dark:text-slate-400">
-        <Lock className="size-3 shrink-0" />
-        Secure insurance environment
-      </p>
     </form>
   );
 }

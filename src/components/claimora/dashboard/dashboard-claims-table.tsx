@@ -67,7 +67,11 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
           </div>
           <Link
             href="/claims"
+<<<<<<< HEAD
             className="inline-flex h-9 items-center gap-1 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark"
+=======
+            className="inline-flex h-9 items-center gap-1 rounded-xl bg-slate-900 px-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           >
             View all claims
             <ArrowUpRight className="size-3.5" />
@@ -125,7 +129,11 @@ export function DashboardClaimsTable({ refreshKey = 0 }: { refreshKey?: number }
                   <td className="px-5 py-3.5 text-right">
                     <Link
                       href={`/claims/${claim.id}`}
+<<<<<<< HEAD
                       className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark"
+=======
+                      className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                     >
                       Open
                       <ArrowUpRight className="size-3" />

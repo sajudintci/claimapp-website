@@ -47,7 +47,11 @@ export function WorkflowPipeline() {
       detail: "OCR / AI running now",
       icon: <ScanLine className="size-4" />,
       href: "/claims?status=Processing",
+<<<<<<< HEAD
       tone: "border-primary/30 bg-primary-50 text-primary-dark dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+=======
+      tone: "border-primary/20 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     },
     {
       label: "Needs attention",
@@ -76,7 +80,11 @@ export function WorkflowPipeline() {
             Live queue and review workload ({total.toLocaleString()} total claims)
           </p>
         </div>
+<<<<<<< HEAD
         <span className="shrink-0 rounded-lg bg-primary-50 px-2.5 py-1 text-xs font-semibold text-primary-dark dark:bg-primary/10 dark:text-primary">
+=======
+        <span className="shrink-0 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary-hover dark:bg-primary/15 dark:text-primary">
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           Live
         </span>
       </div>

@@ -7,24 +7,17 @@ export function JsonViewer({ value }: { value: Record<string, unknown> }) {
   const pretty = useMemo(() => JSON.stringify(value, null, 2), [value]);
 
   return (
-    <section className="rounded-2xl border bg-slate-950 p-4 text-slate-100">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm font-semibold">Extracted JSON</p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            className="rounded-lg border border-slate-700 px-2 py-1 text-xs"
-            onClick={() => setCollapsed((v) => !v)}
-          >
+    <div className="overflow-hidden rounded-lg bg-slate-950 text-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 px-2.5 py-1.5">
+        <p className="text-xs font-semibold text-slate-300">Extracted JSON</p>
+        <div className="flex flex-wrap gap-1">
+          <JsonActionButton onClick={() => setCollapsed((v) => !v)}>
             {collapsed ? "Expand" : "Collapse"}
-          </button>
-          <button
-            className="rounded-lg border border-slate-700 px-2 py-1 text-xs"
-            onClick={() => navigator.clipboard.writeText(pretty)}
-          >
-            Copy JSON
-          </button>
-          <button
-            className="rounded-lg border border-slate-700 px-2 py-1 text-xs"
+          </JsonActionButton>
+          <JsonActionButton onClick={() => navigator.clipboard.writeText(pretty)}>
+            Copy
+          </JsonActionButton>
+          <JsonActionButton
             onClick={() => {
               const blob = new Blob([pretty], { type: "application/json" });
               const link = document.createElement("a");
@@ -34,14 +27,32 @@ export function JsonViewer({ value }: { value: Record<string, unknown> }) {
             }}
           >
             Download
-          </button>
+          </JsonActionButton>
         </div>
       </div>
-      {!collapsed && (
-        <pre className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-900 p-3 text-xs leading-5 text-slate-100">
+      {!collapsed ? (
+        <pre className="max-h-[min(52vh,480px)] overflow-auto p-2.5 text-[11px] leading-5 text-slate-100">
           <code>{pretty}</code>
         </pre>
-      )}
-    </section>
+      ) : null}
+    </div>
+  );
+}
+
+function JsonActionButton({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className="rounded-md border border-slate-700 px-2 py-0.5 text-[10px] font-medium text-slate-300 hover:bg-slate-800"
+      onClick={onClick}
+    >
+      {children}
+    </button>
   );
 }

@@ -67,8 +67,13 @@ function typeStyles(type: string) {
     default:
       return {
         icon: Info,
+<<<<<<< HEAD
         dot: "bg-primary-500",
         bg: "bg-primary-50 dark:bg-primary/10",
+=======
+        dot: "bg-primary/100",
+        bg: "bg-primary/10 dark:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         iconColor: "text-primary dark:text-primary",
       };
   }
@@ -137,7 +142,11 @@ export function HeaderNotifications() {
               <button
                 type="button"
                 onClick={() => void markAllRead()}
+<<<<<<< HEAD
                 className="text-xs font-semibold text-primary hover:text-primary-dark dark:text-primary dark:hover:text-primary"
+=======
+                className="text-xs font-semibold text-primary hover:text-primary-hover dark:text-primary dark:hover:text-primary"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
               >
                 Mark all read
               </button>
@@ -203,7 +212,11 @@ function NotificationRow({
         onClick={onMarkRead}
         className={cn(
           "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/60",
+<<<<<<< HEAD
           !item.isRead && "bg-primary-50/40 dark:bg-primary/10",
+=======
+          !item.isRead && "bg-primary/10 dark:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         )}
       >
         <span

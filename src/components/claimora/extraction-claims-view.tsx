@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   buildFieldRows,
   ExtractionClaim,
+  tracedFieldReviewValue,
   tracedFieldValue,
 } from "@/lib/extraction/claim-extraction";
 
@@ -56,7 +57,11 @@ export function ExtractionClaimsView({ claims, summary }: ExtractionClaimsViewPr
               onClick={() => setActiveIndex(index)}
               className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
                 activeIndex === index
+<<<<<<< HEAD
                   ? "border-primary/40 bg-primary-50 text-primary-dark"
+=======
+                  ? "border-primary/30 bg-primary/10 text-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                   : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
@@ -69,7 +74,7 @@ export function ExtractionClaimsView({ claims, summary }: ExtractionClaimsViewPr
       <div className="grid gap-3 sm:grid-cols-2">
         <SummaryCard
           label="Patient"
-          value={tracedFieldValue(activeClaim?.patient?.name) || String(summary?.insuredName ?? "-")}
+          value={tracedFieldReviewValue(activeClaim?.patient?.name)}
         />
         <SummaryCard
           label="Provider"

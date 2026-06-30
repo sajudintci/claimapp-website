@@ -62,7 +62,11 @@ export function UploadDropzone() {
                 Pastikan file sudah benar sebelum kirim ke pipeline OCR.
               </p>
             </div>
+<<<<<<< HEAD
             <span className="rounded-md border border-primary/30 bg-primary-50 px-2 py-1 text-xs font-semibold text-primary-dark">
+=======
+            <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary-hover">
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
               {selectedExt}
             </span>
           </div>
@@ -91,7 +95,11 @@ export function UploadDropzone() {
               type="button"
               onClick={onConfirmUpload}
               disabled={!selectedFile || isUploading}
+<<<<<<< HEAD
               className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-50"
+=======
+              className="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
             >
               {isUploading ? "Uploading..." : "Konfirmasi Upload"}
             </button>

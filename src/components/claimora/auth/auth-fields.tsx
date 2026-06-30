@@ -61,7 +61,11 @@ export function AuthSubmitButton({
     <button
       type="submit"
       disabled={loading}
+<<<<<<< HEAD
       className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all duration-150 hover:bg-primary-dark hover:shadow-md hover:shadow-primary/25 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+=======
+      className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold text-white shadow-sm shadow-primary/20 transition-all duration-150 hover:bg-primary-hover hover:shadow-md hover:shadow-primary/25 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     >
       {loading && <Loader2 className="size-4 animate-spin" aria-hidden="true" />}
       {loading ? "Signing in..." : children}

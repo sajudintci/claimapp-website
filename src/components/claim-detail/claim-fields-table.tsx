@@ -136,10 +136,17 @@ export function ClaimFieldsTable({
                   <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Value</p>
                   <p
                     className={cn(
+<<<<<<< HEAD
                       "mt-0.5 break-words [overflow-wrap:anywhere] text-sm font-medium leading-relaxed",
                       isMissing ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-100",
+=======
+                      "border-t border-slate-100 align-top dark:border-slate-800",
+                      canFocus && "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
+                      activeFocusLabel === rowLabel && "bg-amber-50/80 dark:bg-amber-950/25",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                     )}
                   >
+<<<<<<< HEAD
                     {row.value}
                   </p>
                 </div>
@@ -157,6 +164,52 @@ export function ClaimFieldsTable({
                     >
                       {sourceExpanded ? (
                         row.sourceText
+=======
+                    <td className="px-3 py-2 text-slate-600 break-words dark:text-slate-400">{row.section}</td>
+                    <td className="px-3 py-2 font-medium break-words text-slate-800 dark:text-slate-200">
+                      <span className="inline-flex flex-wrap items-center gap-1.5">
+                        {row.field}
+                        {canFocus ? <Crosshair className="size-3 shrink-0 text-primary/70 dark:text-primary" /> : null}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2">
+                      <span
+                        className={cn(
+                          "block break-words font-medium leading-snug",
+                          isMissing ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-100",
+                        )}
+                      >
+                        {row.value}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      <ConfidencePill value={row.confidence} low={isLowConf} />
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2 text-slate-600 dark:text-slate-400">{row.page}</td>
+                    <td className="px-3 py-2">
+                      {row.sourceText ? (
+                        <button
+                          type="button"
+                          className="block w-full break-words text-left text-xs leading-relaxed text-primary-hover hover:underline dark:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedSource(sourceExpanded ? null : rowKey);
+                          }}
+                        >
+                          {sourceExpanded ? (
+                            row.sourceText
+                          ) : (
+                            <>
+                              <span className="line-clamp-3">{row.sourceText}</span>
+                              {row.sourceText.length > 120 ? (
+                                <span className="mt-0.5 block text-[10px] font-semibold uppercase tracking-wide text-primary/80 dark:text-primary/80">
+                                  Show more
+                                </span>
+                              ) : null}
+                            </>
+                          )}
+                        </button>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                       ) : (
                         <>
                           <span className="line-clamp-4">{row.sourceText}</span>

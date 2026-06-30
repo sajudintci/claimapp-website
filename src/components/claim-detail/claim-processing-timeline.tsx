@@ -76,7 +76,11 @@ function resolveSteps(ctx: ExtractionContext, hasDocuments: boolean): Step[] {
 
 const stateStyles: Record<StepState, string> = {
   done: "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300",
+<<<<<<< HEAD
   active: "border-primary/40 bg-primary-50 text-primary-dark ring-2 ring-primary/30 dark:border-primary-dark dark:bg-primary/10 dark:text-primary dark:ring-primary/30",
+=======
+  active: "border-primary/30 bg-primary/10 text-primary-hover ring-2 ring-primary/20 dark:border-primary/30 dark:bg-primary/15 dark:text-primary dark:ring-primary/30",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
   error: "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300",
   pending: "border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400",
 };

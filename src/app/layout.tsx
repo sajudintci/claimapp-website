@@ -16,7 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sequis",
+<<<<<<< HEAD
   description: "Your Better Tomorrow — asuransi modern yang dekat dengan gaya hidup Anda",
+=======
+  description: "AI-Powered Insurance Claim Intelligence",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 };
 
 export default function RootLayout({

@@ -40,8 +40,11 @@ const menuSections: NavSection[] = [
   {
     title: "Claims",
     items: [
-      { label: "All Claims", href: "/claims", icon: FolderOpen },
       { label: "Upload Claim", href: "/claims/upload", icon: Upload },
+<<<<<<< HEAD
+=======
+      { label: "All Claims", href: "/claims", icon: FolderOpen },
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     ],
   },
   {
@@ -67,6 +70,7 @@ function isNavActive(pathname: string, item: NavItem): boolean {
 }
 
 function SidebarBrand({ collapsed }: { collapsed: boolean }) {
+<<<<<<< HEAD
   return (
     <Link
       href="/dashboard"
@@ -87,6 +91,31 @@ function SidebarBrand({ collapsed }: { collapsed: boolean }) {
           collapsed ? "h-8 w-8 object-cover object-left" : "h-9 w-auto max-w-[11rem]",
         )}
       />
+=======
+  if (collapsed) {
+    return (
+      <Link
+        href="/dashboard"
+        className="mx-auto flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-white shadow-sm shadow-primary/25 transition-transform hover:scale-[1.02]"
+        title="Sequis — Dashboard"
+      >
+        S
+      </Link>
+    );
+  }
+
+  return (
+    <Link href="/dashboard" className="group flex items-center gap-3 rounded-xl px-1 py-0.5 transition-colors">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-hover text-sm font-bold text-white shadow-sm shadow-primary/25">
+        S
+      </span>
+      <span className="min-w-0">
+        <span className="block text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">Sequis</span>
+        <span className="block truncate text-[11px] font-medium text-slate-500 dark:text-slate-400">
+          Insurance Claim Intelligence
+        </span>
+      </span>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     </Link>
   );
 }
@@ -116,7 +145,11 @@ function NavLink({
         active
           ? collapsed
             ? "bg-primary text-white shadow-sm shadow-primary/20"
+<<<<<<< HEAD
             : "bg-primary-50 text-primary-dark dark:bg-primary/10 dark:text-primary"
+=======
+            : "bg-primary/10 text-primary-hover dark:bg-primary/15 dark:text-primary"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100",
       )}
     >

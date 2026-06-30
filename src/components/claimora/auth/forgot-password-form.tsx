@@ -30,7 +30,11 @@ export function ForgotPasswordForm() {
         </div>
         <Link
           href="/reset-password"
+<<<<<<< HEAD
           className="inline-block text-sm font-medium text-primary hover:text-primary-dark"
+=======
+          className="inline-block text-sm font-medium text-primary hover:text-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         >
           Continue to reset password →
         </Link>

@@ -465,7 +465,7 @@ function KpiCard({
   tone: "blue" | "emerald" | "slate";
 }) {
   const tones = {
-    blue: "bg-primary-50 text-primary-dark ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30",
+    blue: "bg-primary/10 text-primary-hover ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30",
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
     slate: "bg-slate-100 text-slate-700 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
   };

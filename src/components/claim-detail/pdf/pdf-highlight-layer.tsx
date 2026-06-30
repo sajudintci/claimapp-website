@@ -1,7 +1,11 @@
 import type { HighlightRect } from "@/lib/pdf/types";
 
 const HIGHLIGHT_PDF_CLASS =
+<<<<<<< HEAD
   "absolute rounded-[2px] bg-[#008F88]/45 ring-1 ring-[#008F88]/80";
+=======
+  "absolute rounded-[2px] bg-[#3399ff]/55 ring-1 ring-primary/80";
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 
 const HIGHLIGHT_OCR_CLASS =
   "absolute rounded-[2px] bg-[#fbbf24]/50 ring-2 ring-amber-500/90 ring-dashed";

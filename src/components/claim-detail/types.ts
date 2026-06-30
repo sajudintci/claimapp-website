@@ -1,4 +1,5 @@
 import { ClaimStatus } from "@/types/claim";
+import { ExtractionProgress } from "@/lib/extraction/extraction-progress";
 
 export type ClaimDocument = {
   id: string;
@@ -8,16 +9,34 @@ export type ClaimDocument = {
   createdAt?: string;
 };
 
+export type ClaimMetadata = {
+  patientName?: string | null;
+  documentType?: string[] | string | null;
+  priority?: string | null;
+  notes?: string | null;
+};
+
 export type ClaimDetailData = {
   claim?: {
     id?: string;
     claimNumber?: string;
     status?: string;
     createdAt?: string;
+    updatedAt?: string;
+    reviewerId?: string | null;
+    metadata?: ClaimMetadata | null;
     extractionResult?: Record<string, unknown>;
+    reviewedResult?: Record<string, unknown> | null;
+    reviewer?: { id?: string; name?: string; email?: string } | null;
   };
   documents?: ClaimDocument[];
-  latestJob?: { status?: string; attempts?: number; errorMessage?: string | null };
+  latestJob?: {
+    status?: string;
+    attempts?: number;
+    errorMessage?: string | null;
+    progressStage?: string | null;
+    progress?: ExtractionProgress;
+  };
   latestResult?: { payload?: Record<string, unknown>; source?: string; createdAt?: string };
 };
 
@@ -35,6 +54,7 @@ export type TracedFieldDisplay = {
   source_text: string;
   page: number | null;
   confidence: number;
+  traces?: Array<{ source_text: string; page: number | null }>;
 };
 
 export type ExtractionContext = {
@@ -56,16 +76,24 @@ export type ExtractionContext = {
   };
   isJobActive: boolean;
   canRetryExtraction: boolean;
+  extractionProgress: ExtractionProgress | null;
 };
 
-export type ExtractionTab = "overview" | "fields" | "lineitems" | "json" | "debug";
+export type ExtractionTab = "data" | "json" | "audit" | "comment";
 
 export type MobileWorkspaceTab = "document" | "extraction";
+
+export type FieldTraceFocus = {
+  page: number | null;
+  sourceText: string;
+  region?: { l: number; t: number; r: number; b: number };
+};
 
 export type DocumentFocusTarget = {
   id: string;
   page: number | null;
   sourceText: string;
+  traces?: FieldTraceFocus[];
   value?: string;
   label?: string;
 };
@@ -81,6 +109,7 @@ export function createDocumentFocus(
     id: params.id ?? `${slug}-${params.page ?? "na"}-${Date.now()}`,
     page: params.page,
     sourceText: params.sourceText,
+    traces: params.traces,
     value: params.value,
     label: params.label,
   };

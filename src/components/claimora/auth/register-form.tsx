@@ -40,7 +40,11 @@ export function RegisterForm() {
         router.push("/login");
       })}
     >
+<<<<<<< HEAD
       <p className="rounded-lg border border-primary/20 bg-primary-50 px-3 py-2 text-xs text-primary-dark">
+=======
+      <p className="rounded-lg border border-primary/15 bg-primary/10 px-3 py-2 text-xs text-primary-hover">
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         Registration is invitation-only. Use the code sent by your insurance administrator.
       </p>
 

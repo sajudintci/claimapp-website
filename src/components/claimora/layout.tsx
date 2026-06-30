@@ -85,9 +85,17 @@ export function TopNavbar({
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-colors duration-200 dark:border-slate-800 dark:bg-slate-950 dark:shadow-[0_1px_2px_rgba(0,0,0,0.35)]">
       <div className="flex h-14 items-center gap-3 px-4 lg:px-6">
+<<<<<<< HEAD
         <HeaderIconButton label="Toggle sidebar" onClick={onSidebarToggle}>
           <Menu className="size-[18px]" />
         </HeaderIconButton>
+=======
+        <div className="flex items-center gap-2.5">
+          <HeaderIconButton label="Toggle sidebar" onClick={onSidebarToggle}>
+            <Menu className="size-[18px]" />
+          </HeaderIconButton>
+        </div>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
           <div className="flex items-center gap-0.5 rounded-lg border border-slate-200/80 bg-slate-50/50 p-0.5 dark:border-slate-700 dark:bg-slate-900/50">
@@ -115,7 +123,11 @@ export function TopNavbar({
               type="button"
               className={cn(
                 "inline-flex h-9 items-center gap-2 rounded-lg border border-slate-200/80 bg-white pl-1 pr-2.5 text-left shadow-sm transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800",
+<<<<<<< HEAD
                 profileMenuOpen && "border-primary/30 bg-primary-50/40 dark:border-primary/40 dark:bg-primary/10",
+=======
+                profileMenuOpen && "border-primary/20 bg-primary/10 dark:border-primary/30 dark:bg-primary/15",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
               )}
               aria-label="Profile menu"
               aria-expanded={profileMenuOpen}

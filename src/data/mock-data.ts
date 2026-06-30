@@ -10,11 +10,11 @@ export const claimStats = [
 ];
 
 export const claims: ClaimRecord[] = [
-  { id: "CLM-1001", claimNumber: "CLM-1001", patientName: "Andi Pratama", provider: "Abby Insurance Group", amount: 2450000, submittedAt: "2026-05-24", status: "Extracted", confidence: 92, department: "Claims" },
-  { id: "CLM-1002", claimNumber: "CLM-1002", patientName: "Rani Salsabila", provider: "Nusantara Assurance", amount: 3280000, submittedAt: "2026-05-24", status: "Needs Attention", confidence: 61, department: "Finance" },
-  { id: "CLM-1003", claimNumber: "CLM-1003", patientName: "Budi Santoso", provider: "Abby Insurance Group", amount: 1875000, submittedAt: "2026-05-23", status: "Reviewed", confidence: 97, department: "Claims" },
-  { id: "CLM-1004", claimNumber: "CLM-1004", patientName: "Siti Nurlaila", provider: "Sentra Insurance Network", amount: 4120000, submittedAt: "2026-05-23", status: "Processing", confidence: 0, department: "Policy Ops" },
-  { id: "CLM-1005", claimNumber: "CLM-1005", patientName: "Rizky Mahendra", provider: "Nusantara Assurance", amount: 1200000, submittedAt: "2026-05-22", status: "Failed", confidence: 23, department: "Claims" },
+  { id: "CLM-1001", claimNumber: "CLM-1001", patientName: "Andi Pratama", provider: "Abby Insurance Group", amount: 2450000, submittedAt: "2026-05-24", claimDate: "2026-05-20", documentFileName: "Andi_Pratama_Claim.pdf", pageCount: 4, reviewerName: null, status: "Extracted", confidence: 92, department: "Claims" },
+  { id: "CLM-1002", claimNumber: "CLM-1002", patientName: "Rani Salsabila", provider: "Nusantara Assurance", amount: 3280000, submittedAt: "2026-05-24", claimDate: "2026-05-19", documentFileName: "Rani_Salsabila_Claim.pdf", pageCount: 6, reviewerName: "Sarah Rahman", status: "Needs Attention", confidence: 61, department: "Finance" },
+  { id: "CLM-1003", claimNumber: "CLM-1003", patientName: "Budi Santoso", provider: "Abby Insurance Group", amount: 1875000, submittedAt: "2026-05-23", claimDate: "2026-05-18", documentFileName: "Budi_Santoso_Claim.pdf", pageCount: 3, reviewerName: "Sarah Rahman", status: "Reviewed", confidence: 97, department: "Claims" },
+  { id: "CLM-1004", claimNumber: "CLM-1004", patientName: "Siti Nurlaila", provider: "Sentra Insurance Network", amount: 4120000, submittedAt: "2026-05-23", claimDate: null, documentFileName: "Siti_Nurlaila_Claim.pdf", pageCount: null, reviewerName: null, status: "Processing", confidence: 0, department: "Policy Ops" },
+  { id: "CLM-1005", claimNumber: "CLM-1005", patientName: "Rizky Mahendra", provider: "Nusantara Assurance", amount: 1200000, submittedAt: "2026-05-22", claimDate: "2026-05-17", documentFileName: "Rizky_Mahendra_Claim.pdf", pageCount: 2, reviewerName: null, status: "Failed", confidence: 23, department: "Claims" },
 ];
 
 export const users: UserRecord[] = [

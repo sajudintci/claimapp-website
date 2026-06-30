@@ -73,7 +73,11 @@ function buildIssues(
 const severityStyles = {
   error: "border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300",
   warning: "border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300",
+<<<<<<< HEAD
   info: "border-primary/30 bg-primary-50 text-neutral-900 dark:border-primary/40 dark:bg-primary/10 dark:text-primary",
+=======
+  info: "border-primary/20 bg-primary/10 text-primary-hover dark:border-primary/30 dark:bg-primary/15 dark:text-primary",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 };
 
 const severityIcon = {

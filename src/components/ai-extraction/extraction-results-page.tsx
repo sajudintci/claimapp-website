@@ -197,7 +197,11 @@ export function ExtractionResultsPage() {
           </Link>
           <Link
             href="/claims/upload"
+<<<<<<< HEAD
             className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-sm hover:bg-primary-dark"
+=======
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-white shadow-sm hover:bg-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           >
             <Plus className="size-4" />
             Upload claim
@@ -319,7 +323,11 @@ function KpiCard({
   tone: "blue" | "amber" | "violet" | "emerald";
 }) {
   const tones = {
+<<<<<<< HEAD
     blue: "bg-primary-50 text-primary-dark ring-primary/20 dark:bg-primary/10 dark:text-primary dark:ring-primary/30",
+=======
+    blue: "bg-primary/10 text-primary-hover ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     amber: "bg-amber-50 text-amber-800 ring-amber-100 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-900",
     violet: "bg-violet-50 text-violet-700 ring-violet-100 dark:bg-violet-950 dark:text-violet-300 dark:ring-violet-900",
     emerald: "bg-emerald-50 text-emerald-700 ring-emerald-100 dark:bg-emerald-950 dark:text-emerald-300 dark:ring-emerald-900",
@@ -355,7 +363,11 @@ function FilterPill({
       className={cn(
         "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
         active && variant === "default" && "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900",
+<<<<<<< HEAD
         active && variant === "subtle" && "bg-primary-light text-neutral-900 dark:bg-primary/10 dark:text-primary",
+=======
+        active && variant === "subtle" && "bg-primary/15 text-primary-hover dark:bg-primary/15 dark:text-primary",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         !active && variant === "default" && "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
         !active && variant === "subtle" && "bg-slate-50 text-slate-500 ring-1 ring-slate-200 hover:bg-slate-100 dark:bg-slate-800/80 dark:text-slate-400 dark:ring-slate-700 dark:hover:bg-slate-800",
       )}
@@ -403,7 +415,11 @@ function ResultsTable({
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <Link
             href={emptyHref}
+<<<<<<< HEAD
             className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-dark"
+=======
+            className="inline-flex h-10 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-white hover:bg-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           >
             Upload claim
           </Link>
@@ -481,7 +497,11 @@ function ResultsTable({
                   <td className="px-4 py-3.5 text-right">
                     <Link
                       href={`/claims/${row.id}`}
+<<<<<<< HEAD
                       className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-dark"
+=======
+                      className="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-primary dark:hover:bg-primary-hover"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                     >
                       Review
                       <ArrowUpRight className="size-3.5" />

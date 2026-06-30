@@ -7,7 +7,11 @@ const actions = [
     label: "Upload documents",
     description: "Add new claim files for AI extraction",
     icon: Upload,
+<<<<<<< HEAD
     color: "text-primary bg-primary-50 ring-primary/20 dark:text-primary dark:bg-primary/10 dark:ring-primary/30",
+=======
+    color: "text-primary bg-primary/10 ring-primary/10 dark:text-primary dark:bg-primary/15 dark:ring-primary/30",
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
   },
   {
     href: "/ai-extraction/confidence-review",
@@ -45,7 +49,11 @@ export function QuickActions() {
           <Link
             key={action.href}
             href={action.href}
+<<<<<<< HEAD
             className="group flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all hover:border-primary/30 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/40"
+=======
+            className="group flex items-start gap-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all hover:border-primary/20 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/30"
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           >
             <div
               className={`flex size-10 shrink-0 items-center justify-center rounded-xl ring-1 ${action.color}`}
@@ -53,7 +61,11 @@ export function QuickActions() {
               <action.icon className="size-5" />
             </div>
             <div className="min-w-0 flex-1">
+<<<<<<< HEAD
               <p className="flex items-center gap-1 text-sm font-semibold text-slate-900 group-hover:text-primary-dark dark:text-slate-100 dark:group-hover:text-primary">
+=======
+              <p className="flex items-center gap-1 text-sm font-semibold text-slate-900 group-hover:text-primary-hover dark:text-slate-100 dark:group-hover:text-primary">
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
                 {action.label}
                 <ArrowUpRight className="size-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
               </p>

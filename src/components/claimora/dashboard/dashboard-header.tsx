@@ -1,14 +1,18 @@
 "use client";
 
+<<<<<<< HEAD
 import Link from "next/link";
 import { useAuth } from "@/contexts/auth-context";
 import { RefreshCw, Upload } from "lucide-react";
 
+=======
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 type DashboardHeaderProps = {
   onRefresh?: () => void;
   isRefreshing?: boolean;
 };
 
+<<<<<<< HEAD
 export function DashboardHeader({ onRefresh, isRefreshing }: DashboardHeaderProps) {
   const { user } = useAuth();
   const hour = new Date().getHours();
@@ -58,6 +62,17 @@ export function DashboardHeader({ onRefresh, isRefreshing }: DashboardHeaderProp
           Upload claim
         </Link>
       </div>
+=======
+export function DashboardHeader(_props: DashboardHeaderProps) {
+  return (
+    <header>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+        Dashboard
+      </h1>
+      <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+        Monitor claim intake, review workload, and extraction performance at a glance.
+      </p>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
     </header>
   );
 }

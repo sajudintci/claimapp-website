@@ -1,32 +1,65 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+<<<<<<< HEAD
 import { Filter, Plus, RefreshCw, Search } from "lucide-react";
 import { ClaimsListKpis } from "@/components/claims-list/claims-list-kpis";
+=======
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 import { ClaimsListTable } from "@/components/claims-list/claims-list-table";
 import { ErrorState } from "@/components/claimora/states";
+import { exportClaimsCsv } from "@/lib/api/claims-export";
+import { apiAuthedFetch } from "@/lib/api/client";
 import { apiAuthedFetchPaginated } from "@/lib/api/paginated-fetch";
 import { mapClaimFromApi } from "@/lib/api/mappers";
 import { ClaimRecord, ClaimStatus } from "@/types/claim";
-import { cn } from "@/lib/utils";
 
 const STATUS_FILTERS: Array<{ value: "" | ClaimStatus; label: string }> = [
-  { value: "", label: "All" },
-  { value: "Processing", label: "Processing" },
-  { value: "Extracted", label: "Extracted" },
-  { value: "Needs Attention", label: "Needs attention" },
-  { value: "Reviewed", label: "Reviewed" },
-  { value: "Failed", label: "Failed" },
+  { value: "", label: "All status" },
+  { value: "Needs Attention", label: "Pending Review" },
+  { value: "Draft", label: "Draft" },
+  { value: "Extracted", label: "Pending Approval" },
+  { value: "Processing", label: "Extracting" },
+  { value: "Reviewed", label: "Approved" },
+  { value: "Failed", label: "Rejected" },
 ];
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
+const SEARCH_DEBOUNCE_MS = 300;
+
+type ReviewerOption = { id: string; name: string };
 
 export function ClaimsListPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<"" | ClaimStatus>("");
-  const [search, setSearch] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [reviewerFilter, setReviewerFilter] = useState<"" | "unassigned" | string>("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+  const [reviewers, setReviewers] = useState<ReviewerOption[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+      setPage(1);
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    let active = true;
+    apiAuthedFetch<{ items: ReviewerOption[] }>("/claims/reviewers")
+      .then((payload) => {
+        if (active) setReviewers(payload.items ?? []);
+      })
+      .catch(() => {
+        if (active) setReviewers([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const queryPath = useMemo(() => {
     const params = new URLSearchParams({
@@ -34,8 +67,11 @@ export function ClaimsListPage() {
       limit: String(PAGE_SIZE),
     });
     if (statusFilter) params.set("status", statusFilter);
+    if (searchQuery) params.set("q", searchQuery);
+    if (reviewerFilter === "unassigned") params.set("reviewer", "unassigned");
+    else if (reviewerFilter) params.set("reviewer", reviewerFilter);
     return `/claims?${params.toString()}`;
-  }, [page, statusFilter]);
+  }, [page, statusFilter, searchQuery, reviewerFilter]);
 
   const [fetchState, setFetchState] = useState<{
     rows: ClaimRecord[];
@@ -81,35 +117,33 @@ export function ClaimsListPage() {
     return () => {
       active = false;
     };
-  }, [queryPath, refreshKey, page]);
-
-  const filteredRows = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    if (!needle) return fetchState.rows;
-    return fetchState.rows.filter((row) => {
-      const haystack = [
-        row.claimNumber,
-        row.id,
-        row.patientName,
-        row.provider,
-        row.status,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(needle);
-    });
-  }, [fetchState.rows, search]);
+  }, [queryPath, page]);
 
   function handleStatusChange(next: "" | ClaimStatus) {
     setStatusFilter(next);
     setPage(1);
   }
 
-  function refresh() {
-    setRefreshKey((k) => k + 1);
+  function handleReviewerChange(next: "" | "unassigned" | string) {
+    setReviewerFilter(next);
+    setPage(1);
+  }
+
+  async function handleExport() {
+    setIsExporting(true);
+    try {
+      await exportClaimsCsv({
+        status: statusFilter || undefined,
+        q: searchQuery || undefined,
+        reviewer: reviewerFilter || undefined,
+      });
+    } finally {
+      setIsExporting(false);
+    }
   }
 
   return (
+<<<<<<< HEAD
     <div className="space-y-5 pb-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
@@ -187,15 +221,39 @@ export function ClaimsListPage() {
         ) : null}
       </section>
 
+=======
+    <div className="space-y-6 pb-8">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+          Documents
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Search, filter, and review uploaded claim documents across your organization.
+        </p>
+      </header>
+
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
       {fetchState.error ? (
         <ErrorState message={fetchState.error} />
       ) : (
         <ClaimsListTable
-          rows={filteredRows}
+          rows={fetchState.rows}
           isLoading={fetchState.isLoading}
           page={fetchState.pagination.page}
           totalPages={fetchState.pagination.totalPages}
           totalRows={fetchState.pagination.totalRows}
+          search={searchInput}
+          statusFilter={statusFilter}
+          reviewerFilter={reviewerFilter}
+          statusOptions={STATUS_FILTERS}
+          reviewers={reviewers}
+          showMoreFilters={showMoreFilters}
+          isExporting={isExporting}
+          onSearchChange={setSearchInput}
+          onStatusChange={handleStatusChange}
+          onReviewerChange={handleReviewerChange}
+          onToggleMoreFilters={() => setShowMoreFilters((open) => !open)}
+          onExport={handleExport}
           onPageChange={setPage}
         />
       )}

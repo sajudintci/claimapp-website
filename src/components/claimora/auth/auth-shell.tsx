@@ -1,7 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+<<<<<<< HEAD
 import { FileSearch, Lock, ShieldCheck } from "lucide-react";
 import sequisLogo from "@/favicon.png";
+=======
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 import { cn } from "@/lib/utils";
 
 function SequisLogo({ className }: { className?: string }) {
@@ -33,9 +36,15 @@ export function AuthShell({
   const isLogin = variant === "login";
 
   return (
+<<<<<<< HEAD
     <div className="grid min-h-screen bg-neutral-50 dark:bg-neutral-950 lg:grid-cols-[1fr_1.05fr]">
       <aside className="relative hidden overflow-hidden bg-neutral-950 lg:flex lg:flex-col lg:justify-between">
         <div className="absolute inset-0 bg-gradient-to-br from-primary-dark/95 via-primary/90 to-neutral-950/95" />
+=======
+    <div className="grid min-h-screen bg-slate-50 dark:bg-slate-950 lg:grid-cols-[1fr_1.05fr]">
+      <aside className="relative hidden overflow-hidden bg-slate-950 lg:flex lg:flex-col lg:justify-between">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/85 to-slate-900/95" />
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         <div
           className="absolute inset-0 opacity-[0.06]"
           style={{
@@ -44,11 +53,17 @@ export function AuthShell({
             backgroundSize: "28px 28px",
           }}
         />
+<<<<<<< HEAD
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
         <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-primary-dark/20 blur-3xl" />
+=======
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-teal-500/20 blur-3xl" />
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
 
-        <div className="relative z-10 flex flex-1 flex-col justify-between p-10 xl:p-12">
+        <div className="relative z-10 flex flex-1 flex-col justify-center p-10 xl:p-12">
           <div>
+<<<<<<< HEAD
             <p className="max-w-md text-base leading-relaxed text-white/80">
               Asuransi yang relevan, efisien, dan dekat dengan kebutuhan gaya hidup Anda di era
               digital.
@@ -87,6 +102,14 @@ export function AuthShell({
               </div>
             ))}
           </div>
+=======
+            <h1 className="text-4xl font-bold tracking-tight text-white">Sequis</h1>
+            <p className="mt-3 max-w-md text-base leading-relaxed text-teal-100/90">
+              AI-Powered Insurance Claim Intelligence — process claims faster with
+              structured extraction and audit-ready review workflows.
+            </p>
+          </div>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
         </div>
       </aside>
 
@@ -97,11 +120,22 @@ export function AuthShell({
             "bg-[linear-gradient(180deg,#fafafa_0%,#f5f5f5_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#141414_100%)]",
         )}
       >
+<<<<<<< HEAD
         <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-primary-light/60 blur-3xl dark:bg-primary/10" />
 
         <div className="relative mx-auto w-full max-w-[420px]">
           <Link href="/login" className="mb-8 inline-block">
             <SequisLogo />
+=======
+        <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 rounded-full bg-primary/10 blur-3xl dark:bg-primary/20" />
+
+        <div className="relative mx-auto w-full max-w-[420px]">
+          <Link href="/login" className="mb-8 inline-flex items-center gap-2 lg:hidden">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-bold text-white">
+              S
+            </span>
+            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">Sequis</span>
+>>>>>>> 6791d5af7a697dabd3706cb36796d0d203378ff5
           </Link>
 
           <div className={cn("mb-8", isLogin && "mb-6")}>

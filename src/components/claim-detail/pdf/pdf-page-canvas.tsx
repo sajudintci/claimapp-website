@@ -5,8 +5,9 @@ import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
 import { PdfHighlightLayer } from "@/components/claim-detail/pdf/pdf-highlight-layer";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
+import { focusAppliesToPage, listFocusTraces } from "@/lib/extraction/document-focus";
 import { isPdfRenderCancelled, swallowRenderCancel } from "@/lib/pdf/pdfjs-client";
-import { resolvePageHighlights } from "@/lib/pdf/pdf-focus-resolve";
+import { resolveTracesOnPage } from "@/lib/pdf/pdf-focus-resolve";
 import { getOcrPageData, getOcrPageLines, type OcrPageLines } from "@/lib/pdf/pdf-ocr-pages";
 import type { HighlightRect, PdfPageMeta } from "@/lib/pdf/types";
 import { cn } from "@/lib/utils";
@@ -15,9 +16,10 @@ type PdfPageCanvasProps = {
   pageNumber: number;
   meta: PdfPageMeta;
   scale: number;
+  rotation?: number;
   pdfRef: RefObject<PDFDocumentProxy | null>;
   documentFocus: DocumentFocusTarget | null;
-  isHighlightPage: boolean;
+  shouldHighlight: boolean;
   ocrPages: OcrPageLines[];
 };
 
@@ -25,9 +27,10 @@ export function PdfPageCanvas({
   pageNumber,
   meta,
   scale,
+  rotation = 0,
   pdfRef,
   documentFocus,
-  isHighlightPage,
+  shouldHighlight,
   ocrPages,
 }: PdfPageCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,7 +49,7 @@ export function PdfPageCanvas({
       try {
         const page = await pdf.getPage(pageNumber);
         if (dead) return;
-        const vp = page.getViewport({ scale });
+        const vp = page.getViewport({ scale, rotation });
         const ctx = canvas.getContext("2d");
         if (!ctx || dead) return;
 
@@ -66,12 +69,20 @@ export function PdfPageCanvas({
 
         if (dead) return;
 
-        if (isHighlightPage && documentFocus) {
+        if (shouldHighlight && documentFocus) {
           const content = await page.getTextContent();
           const items = content.items.filter((x): x is TextItem => "str" in x);
           const ocrLines = getOcrPageLines(ocrPages, pageNumber);
           const ocrPage = getOcrPageData(ocrPages, pageNumber);
-          const resolved = resolvePageHighlights(items, ocrLines, vp, documentFocus, ocrPage);
+          const resolved = resolveTracesOnPage(
+            items,
+            ocrLines,
+            vp,
+            listFocusTraces(documentFocus),
+            documentFocus.value,
+            ocrPage,
+            pageNumber,
+          );
           if (!dead) {
             setHighlights(resolved.rects);
             setHighlightVia(resolved.via);
@@ -92,9 +103,9 @@ export function PdfPageCanvas({
         swallowRenderCancel(task.promise);
       }
     };
-  }, [pageNumber, scale, pdfRef, isHighlightPage, documentFocus?.id, ocrPages]);
+  }, [pageNumber, scale, rotation, pdfRef, shouldHighlight, documentFocus?.id, documentFocus?.page, ocrPages]);
 
-  const showHighlight = isHighlightPage && highlights.length > 0;
+  const showHighlight = shouldHighlight && highlights.length > 0;
 
   return (
     <div
