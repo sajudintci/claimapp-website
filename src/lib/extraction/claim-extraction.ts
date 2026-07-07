@@ -15,6 +15,8 @@ export type TracedField = {
   traces?: FieldTrace[];
   /** Legacy extractions may still store synthesis metadata. */
   value_origin?: "ocr" | "llm_synthesis";
+  /** Structured paths used when value_origin is llm_synthesis. */
+  derived_from?: string[];
 };
 
 export type ExtractionLineItem = {
