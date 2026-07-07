@@ -26,14 +26,24 @@ import { useRef } from "react";
 type ProfileForm = {
   name: string;
   email: string;
-  password: string;
 };
 
-function toForm(profile: UserListItem): ProfileForm {
+type PasswordForm = {
+  password: string;
+  confirmPassword: string;
+};
+
+function toProfileForm(profile: UserListItem): ProfileForm {
   return {
     name: profile.name,
     email: profile.email,
+  };
+}
+
+function emptyPasswordForm(): PasswordForm {
+  return {
     password: "",
+    confirmPassword: "",
   };
 }
 
@@ -43,9 +53,11 @@ const inputClass =
 export function ProfilePageContent() {
   const { refreshProfile } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [saving, setSaving] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [form, setForm] = useState<ProfileForm | null>(null);
+  const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
+  const [passwordForm, setPasswordForm] = useState<PasswordForm>(emptyPasswordForm);
 
   const { data: profile, isLoading, error, refetch } = useApiQuery(
     () => apiAuthedFetch<UserListItem>("/users/me"),
@@ -53,40 +65,72 @@ export function ProfilePageContent() {
   );
 
   useEffect(() => {
-    if (profile) setForm(toForm(profile));
+    if (profile) setProfileForm(toProfileForm(profile));
   }, [profile]);
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSaveProfile(e: React.FormEvent) {
     e.preventDefault();
-    if (!form) return;
+    if (!profileForm) return;
 
-    if (!form.name.trim() || !form.email.trim()) {
+    if (!profileForm.name.trim() || !profileForm.email.trim()) {
       toast.error("Name and email are required");
       return;
     }
 
-    setSaving(true);
+    setSavingProfile(true);
     try {
-      const body: Record<string, string> = {
-        name: form.name.trim(),
-        email: form.email.trim(),
-      };
-      if (form.password.trim()) body.password = form.password;
-
       const updated = await apiAuthedFetch<UserListItem>("/users/me", {
         method: "PATCH",
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          name: profileForm.name.trim(),
+          email: profileForm.email.trim(),
+        }),
       });
 
       refreshProfile(updated);
-      setForm({ ...toForm(updated), password: "" });
+      setProfileForm(toProfileForm(updated));
       toast.success("Profile updated");
       setRefreshKey((k) => k + 1);
       refetch();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to update profile");
     } finally {
-      setSaving(false);
+      setSavingProfile(false);
+    }
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+
+    const password = passwordForm.password.trim();
+    const confirmPassword = passwordForm.confirmPassword.trim();
+
+    if (!password) {
+      toast.error("New password is required");
+      return;
+    }
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      await apiAuthedFetch<UserListItem>("/users/me", {
+        method: "PATCH",
+        body: JSON.stringify({ password }),
+      });
+
+      setPasswordForm(emptyPasswordForm());
+      toast.success("Password updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update password");
+    } finally {
+      setSavingPassword(false);
     }
   }
 
@@ -166,7 +210,7 @@ export function ProfilePageContent() {
 
       {error ? <ErrorState message={error} /> : null}
 
-      {isLoading || !profile || !form ? (
+      {isLoading || !profile || !profileForm ? (
         <ProfileSkeleton />
       ) : (
         <div className="grid gap-5 lg:grid-cols-3">
@@ -212,8 +256,8 @@ export function ProfilePageContent() {
             </section>
           </aside>
 
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSave} className="space-y-5">
+          <div className="space-y-5 lg:col-span-2">
+            <form onSubmit={handleSaveProfile}>
               <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-center gap-2">
                   <User className="size-4 text-violet-600 dark:text-violet-400" />
@@ -225,8 +269,10 @@ export function ProfilePageContent() {
                   <Field label="Full name">
                     <input
                       required
-                      value={form.name}
-                      onChange={(e) => setForm((f) => f && { ...f, name: e.target.value })}
+                      value={profileForm.name}
+                      onChange={(e) =>
+                        setProfileForm((f) => f && { ...f, name: e.target.value })
+                      }
                       className={inputClass}
                     />
                   </Field>
@@ -234,53 +280,81 @@ export function ProfilePageContent() {
                     <input
                       required
                       type="email"
-                      value={form.email}
-                      onChange={(e) => setForm((f) => f && { ...f, email: e.target.value })}
+                      value={profileForm.email}
+                      onChange={(e) =>
+                        setProfileForm((f) => f && { ...f, email: e.target.value })
+                      }
                       className={inputClass}
                     />
                   </Field>
                 </div>
+                <div className="mt-5 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={savingProfile}
+                    className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                  >
+                    {savingProfile ? "Saving…" : "Save profile"}
+                  </button>
+                </div>
               </section>
+            </form>
 
+            <form onSubmit={handleChangePassword}>
               <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="flex items-center gap-2">
                   <Lock className="size-4 text-emerald-600 dark:text-emerald-400" />
-                  <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Security</h2>
+                  <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Change password
+                  </h2>
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                  Leave blank to keep your current password.
+                  Use a strong password with at least 8 characters.
                 </p>
-                <div className="mt-4">
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <Field label="New password">
                     <input
                       type="password"
-                      value={form.password}
-                      onChange={(e) => setForm((f) => f && { ...f, password: e.target.value })}
+                      value={passwordForm.password}
+                      onChange={(e) =>
+                        setPasswordForm((f) => ({ ...f, password: e.target.value }))
+                      }
                       className={inputClass}
                       autoComplete="new-password"
                       placeholder="Minimum 8 characters"
                     />
                   </Field>
+                  <Field label="Confirm new password">
+                    <input
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) =>
+                        setPasswordForm((f) => ({ ...f, confirmPassword: e.target.value }))
+                      }
+                      className={inputClass}
+                      autoComplete="new-password"
+                      placeholder="Repeat new password"
+                    />
+                  </Field>
+                </div>
+                <div className="mt-5 flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={savingPassword}
+                    className="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+                  >
+                    {savingPassword ? "Updating…" : "Update password"}
+                  </button>
                 </div>
               </section>
-
-              <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/50">
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">Primary role:</span>{" "}
-                  {primaryRole}. Contact an administrator to change roles or department assignment.
-                </p>
-              </section>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-5 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-                >
-                  {saving ? "Saving…" : "Save changes"}
-                </button>
-              </div>
             </form>
+
+            <section className="rounded-2xl border border-slate-200/80 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-900/50">
+              <p className="text-xs text-slate-600 dark:text-slate-400">
+                <span className="font-semibold text-slate-700 dark:text-slate-300">Primary role:</span>{" "}
+                {primaryRole}. Contact an administrator to change roles or department assignment.
+              </p>
+            </section>
           </div>
         </div>
       )}

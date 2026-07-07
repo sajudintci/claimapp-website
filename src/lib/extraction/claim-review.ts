@@ -7,11 +7,35 @@ import {
 } from "@/lib/extraction/claim-extraction";
 
 export const REVIEW_META_KEY = "_review";
+export const FIELD_FLAGS_META_KEY = "_fieldFlags";
+
+/** 0 = neutral, 1 = question, 2 = verified, 3 = rejected — UI-only flags, no workflow impact. */
+export type FieldFlagStatus = 0 | 1 | 2 | 3;
+
+export const DEFAULT_FIELD_FLAG_STATUS: FieldFlagStatus = 0;
+
+/** @deprecated Use FieldFlagStatus */
+export type FieldCheckStatus = FieldFlagStatus;
+
+/** @deprecated Use DEFAULT_FIELD_FLAG_STATUS */
+export const DEFAULT_FIELD_CHECK_STATUS = DEFAULT_FIELD_FLAG_STATUS;
 
 export type ClaimReviewMeta = {
-  reviewedFieldKeys: string[];
   updatedAt?: string;
 };
+
+export type ClaimFieldFlagsMeta = {
+  flags: Record<string, FieldFlagStatus>;
+  updatedAt?: string;
+};
+
+export function isFieldFlagged(status: FieldFlagStatus): boolean {
+  return status !== DEFAULT_FIELD_FLAG_STATUS;
+}
+
+function isValidFieldFlagStatus(value: unknown): value is FieldFlagStatus {
+  return value === 0 || value === 1 || value === 2 || value === 3;
+}
 
 const SECTION_TO_CLAIM_KEY: Record<string, keyof ExtractionClaim | "medical_summary"> = {
   Provider: "provider",
@@ -54,16 +78,67 @@ export function fieldRowKey(section: string, field: string): string {
 }
 
 export function parseReviewMeta(payload: Record<string, unknown> | null | undefined): ClaimReviewMeta {
-  if (!payload) return { reviewedFieldKeys: [] };
+  if (!payload) return {};
   const raw = payload[REVIEW_META_KEY];
-  if (!raw || typeof raw !== "object") return { reviewedFieldKeys: [] };
+  if (!raw || typeof raw !== "object") return {};
   const meta = raw as ClaimReviewMeta;
   return {
-    reviewedFieldKeys: Array.isArray(meta.reviewedFieldKeys)
-      ? meta.reviewedFieldKeys.filter((key): key is string => typeof key === "string")
-      : [],
     updatedAt: typeof meta.updatedAt === "string" ? meta.updatedAt : undefined,
   };
+}
+
+export function parseFieldFlagsMeta(
+  payload: Record<string, unknown> | null | undefined,
+): ClaimFieldFlagsMeta {
+  if (!payload) return { flags: {} };
+
+  const raw = payload[FIELD_FLAGS_META_KEY];
+  if (raw && typeof raw === "object") {
+    const meta = raw as ClaimFieldFlagsMeta;
+    const flags: Record<string, FieldFlagStatus> = {};
+    if (meta.flags && typeof meta.flags === "object") {
+      for (const [key, status] of Object.entries(meta.flags)) {
+        if (isValidFieldFlagStatus(status)) {
+          flags[key] = status;
+        }
+      }
+    }
+    return {
+      flags,
+      updatedAt: typeof meta.updatedAt === "string" ? meta.updatedAt : undefined,
+    };
+  }
+
+  return migrateLegacyFieldFlags(payload);
+}
+
+function migrateLegacyFieldFlags(payload: Record<string, unknown>): ClaimFieldFlagsMeta {
+  const review = payload[REVIEW_META_KEY];
+  if (!review || typeof review !== "object") return { flags: {} };
+
+  const meta = review as {
+    fieldCheckStatus?: Record<string, unknown>;
+    reviewedFieldKeys?: unknown;
+  };
+
+  const flags: Record<string, FieldFlagStatus> = {};
+  if (meta.fieldCheckStatus && typeof meta.fieldCheckStatus === "object") {
+    for (const [key, status] of Object.entries(meta.fieldCheckStatus)) {
+      if (isValidFieldFlagStatus(status)) {
+        flags[key] = status;
+      }
+    }
+  }
+
+  if (Array.isArray(meta.reviewedFieldKeys)) {
+    for (const key of meta.reviewedFieldKeys) {
+      if (typeof key === "string" && flags[key] === undefined) {
+        flags[key] = 2;
+      }
+    }
+  }
+
+  return { flags };
 }
 
 export function fieldValuesFromRows(rows: FieldRow[]): Record<string, string> {
@@ -130,13 +205,11 @@ export function applyFieldValueToClaim(
 export function buildReviewedPayload(params: {
   basePayload: Record<string, unknown>;
   fieldValuesByClaim: Record<number, Record<string, string>>;
-  reviewedKeysByClaim: Record<number, string[]>;
 }): Record<string, unknown> {
   const result = structuredClone(params.basePayload) as Record<string, unknown>;
   const claims = resolveClaimsFromPayload(result);
   if (claims.length === 0) {
     result[REVIEW_META_KEY] = {
-      reviewedFieldKeys: [],
       updatedAt: new Date().toISOString(),
     };
     return result;
@@ -162,49 +235,85 @@ export function buildReviewedPayload(params: {
     result.structuredData = { ...structured, claims: nextClaims };
   }
 
-  const allReviewedKeys = flattenReviewedKeys(params.reviewedKeysByClaim);
   result[REVIEW_META_KEY] = {
-    reviewedFieldKeys: allReviewedKeys,
     updatedAt: new Date().toISOString(),
   };
 
   return result;
 }
 
-function flattenReviewedKeys(reviewedKeysByClaim: Record<number, string[]>): string[] {
-  return Object.entries(reviewedKeysByClaim).flatMap(([index, keys]) => {
-    const claimIndex = Number(index);
-    return keys.map((key) => (claimIndex === 0 ? key : `${claimIndex}:${key}`));
-  });
+export function attachFieldFlagsToPayload(
+  payload: Record<string, unknown>,
+  fieldFlagsByClaim: Record<number, Record<string, FieldFlagStatus>>,
+): Record<string, unknown> {
+  const flags = flattenFieldFlags(fieldFlagsByClaim);
+  if (Object.keys(flags).length === 0) {
+    const { [FIELD_FLAGS_META_KEY]: _removed, ...rest } = payload;
+    return rest;
+  }
+
+  return {
+    ...payload,
+    [FIELD_FLAGS_META_KEY]: {
+      flags,
+      updatedAt: new Date().toISOString(),
+    },
+  };
 }
 
-function expandReviewedKeys(keys: string[]): Record<number, string[]> {
-  const out: Record<number, string[]> = {};
-  for (const key of keys) {
+function flattenFieldFlags(
+  fieldFlagsByClaim: Record<number, Record<string, FieldFlagStatus>>,
+): Record<string, FieldFlagStatus> {
+  const out: Record<string, FieldFlagStatus> = {};
+  for (const [index, statuses] of Object.entries(fieldFlagsByClaim)) {
+    const claimIndex = Number(index);
+    for (const [key, status] of Object.entries(statuses)) {
+      if (status === DEFAULT_FIELD_FLAG_STATUS) continue;
+      const flatKey = claimIndex === 0 ? key : `${claimIndex}:${key}`;
+      out[flatKey] = status;
+    }
+  }
+  return out;
+}
+
+function expandFieldFlags(flat: Record<string, FieldFlagStatus>): Record<number, Record<string, FieldFlagStatus>> {
+  const out: Record<number, Record<string, FieldFlagStatus>> = {};
+  for (const [key, status] of Object.entries(flat)) {
     const match = /^(\d+):(.+)$/.exec(key);
     if (match) {
       const idx = Number(match[1]);
-      out[idx] = [...(out[idx] ?? []), match[2]];
+      out[idx] = { ...(out[idx] ?? {}), [match[2]]: status };
       continue;
     }
-    out[0] = [...(out[0] ?? []), key];
+    out[0] = { ...(out[0] ?? {}), [key]: status };
   }
   return out;
 }
 
 export function initReviewStateFromPayload(payload: Record<string, unknown>): {
   fieldValuesByClaim: Record<number, Record<string, string>>;
-  reviewedKeysByClaim: Record<number, string[]>;
+  fieldFlagsByClaim: Record<number, Record<string, FieldFlagStatus>>;
 } {
   const claims = resolveClaimsFromPayload(payload);
-  const meta = parseReviewMeta(payload);
   const fieldValuesByClaim: Record<number, Record<string, string>> = {};
-  const reviewedKeysByClaim = expandReviewedKeys(meta.reviewedFieldKeys);
+  const fieldFlagsByClaim = expandFieldFlags(parseFieldFlagsMeta(payload).flags);
 
   claims.forEach((claim, index) => {
     fieldValuesByClaim[index] = fieldValuesFromRows(buildFieldRows(claim));
-    if (!reviewedKeysByClaim[index]) reviewedKeysByClaim[index] = [];
+    if (!fieldFlagsByClaim[index]) fieldFlagsByClaim[index] = {};
   });
 
-  return { fieldValuesByClaim, reviewedKeysByClaim };
+  return { fieldValuesByClaim, fieldFlagsByClaim };
+}
+
+export function buildReviewPayloadWithFlags(params: {
+  basePayload: Record<string, unknown>;
+  fieldValuesByClaim: Record<number, Record<string, string>>;
+  fieldFlagsByClaim: Record<number, Record<string, FieldFlagStatus>>;
+}): Record<string, unknown> {
+  const reviewed = buildReviewedPayload({
+    basePayload: params.basePayload,
+    fieldValuesByClaim: params.fieldValuesByClaim,
+  });
+  return attachFieldFlagsToPayload(reviewed, params.fieldFlagsByClaim);
 }

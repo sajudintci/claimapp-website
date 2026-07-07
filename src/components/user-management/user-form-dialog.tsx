@@ -7,6 +7,7 @@ import {
   UserFormOptionsResponse,
   UserListItem,
 } from "@/types/api";
+import { mapUserSaveErrorMessage } from "@/lib/user-management/user-delete-messages";
 import { cn } from "@/lib/utils";
 
 export type UserFormMode = "create" | "edit";
@@ -51,7 +52,7 @@ export function UserFormDialog({
   mode: UserFormMode;
   user?: UserListItem;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (reactivated?: boolean) => void;
 }) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [options, setOptions] = useState<UserFormOptionsResponse | null>(null);
@@ -110,10 +111,6 @@ export function UserFormDialog({
       setError("Password must be at least 8 characters");
       return;
     }
-    if (form.roleIds.length === 0) {
-      setError("Select at least one role");
-      return;
-    }
 
     setSaving(true);
     try {
@@ -126,10 +123,11 @@ export function UserFormDialog({
 
       if (mode === "create") {
         body.password = form.password;
-        await apiAuthedFetch("/users", {
+        const created = await apiAuthedFetch<UserListItem & { reactivated?: boolean }>("/users", {
           method: "POST",
           body: JSON.stringify(body),
         });
+        onSaved(created.reactivated === true);
       } else if (user) {
         body.isActive = form.isActive;
         if (form.password.trim()) body.password = form.password;
@@ -137,12 +135,16 @@ export function UserFormDialog({
           method: "PATCH",
           body: JSON.stringify(body),
         });
+        onSaved();
       }
 
-      onSaved();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save user");
+      setError(
+        mapUserSaveErrorMessage(
+          err instanceof Error ? err.message : "Failed to save user",
+        ),
+      );
     } finally {
       setSaving(false);
     }
@@ -217,7 +219,7 @@ export function UserFormDialog({
               />
             </Field>
 
-            <Field label="Department">
+            <Field label="Department (optional)">
               <select
                 value={form.departmentId}
                 onChange={(e) => setForm((f) => ({ ...f, departmentId: e.target.value }))}
@@ -233,7 +235,7 @@ export function UserFormDialog({
               </select>
             </Field>
 
-            <Field label="Roles">
+            <Field label="Roles (optional)">
               {loadingOptions ? (
                 <p className="text-sm text-slate-500 dark:text-slate-400">Loading roles…</p>
               ) : (

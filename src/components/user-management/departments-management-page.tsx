@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   Building2,
@@ -8,7 +8,6 @@ import {
   Plus,
   RefreshCw,
   Search,
-  Shield,
   Trash2,
   Users,
 } from "lucide-react";
@@ -21,11 +20,25 @@ import {
   DepartmentFormDialog,
   type DepartmentFormMode,
 } from "@/components/user-management/department-form-dialog";
+import {
+  ManagementDialog,
+  ManagementDialogButton,
+} from "@/components/user-management/management-dialog";
+import { mapDepartmentDeleteErrorMessage } from "@/lib/user-management/user-delete-messages";
+import {
+  DataTable,
+  DataTableBodyRow,
+  DataTableHeadRow,
+  DataTableScroll,
+  Td,
+  Th,
+} from "@/components/ui/data-table";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 20;
 
 export function DepartmentsManagementPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -33,6 +46,8 @@ export function DepartmentsManagementPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<DepartmentFormMode>("create");
   const [editing, setEditing] = useState<DepartmentListItem | undefined>();
+  const [confirmDeleteTarget, setConfirmDeleteTarget] = useState<DepartmentListItem | null>(null);
+  const [blockedDeleteTarget, setBlockedDeleteTarget] = useState<DepartmentListItem | null>(null);
 
   const { data, isLoading, error, refetch } = useApiQuery(
     () => apiAuthedFetch<DepartmentsListResponse>("/departments"),
@@ -73,25 +88,31 @@ export function DepartmentsManagementPage() {
     refetch();
   }
 
-  async function handleDelete(target: DepartmentListItem) {
+  function requestDelete(target: DepartmentListItem) {
     if (target.userCount > 0) {
-      toast.error(
-        `Cannot delete "${target.name}" — ${target.userCount} user(s) still assigned. Reassign them first.`,
-      );
+      setBlockedDeleteTarget(target);
       return;
     }
-    if (!window.confirm(`Delete department "${target.name}"? This cannot be undone.`)) {
-      return;
-    }
+    setConfirmDeleteTarget(target);
+  }
+
+  async function confirmDelete() {
+    const target = confirmDeleteTarget;
+    if (!target) return;
 
     setDeletingId(target.id);
     try {
       await apiAuthedFetch(`/departments/${target.id}`, { method: "DELETE" });
       toast.success(`"${target.name}" deleted`);
+      setConfirmDeleteTarget(null);
       setRefreshKey((k) => k + 1);
       refetch();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to delete department");
+      toast.error(
+        mapDepartmentDeleteErrorMessage(
+          err instanceof Error ? err.message : "Failed to delete department",
+        ),
+      );
     } finally {
       setDeletingId(null);
     }
@@ -103,10 +124,6 @@ export function DepartmentsManagementPage() {
         <div>
           <nav className="text-xs text-slate-500 dark:text-slate-400">
             <span className="font-medium text-slate-700 dark:text-slate-300">Administration</span>
-            <span className="mx-1 text-slate-300 dark:text-slate-600">/</span>
-            <Link href="/user-management/users" className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
-              Users
-            </Link>
             <span className="mx-1 text-slate-300 dark:text-slate-600">/</span>
             <span className="text-slate-600 dark:text-slate-400">Departments</span>
           </nav>
@@ -129,20 +146,6 @@ export function DepartmentsManagementPage() {
             <RefreshCw className="size-4" />
             Refresh
           </button>
-          <Link
-            href="/user-management/users"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Users className="size-4" />
-            Users
-          </Link>
-          <Link
-            href="/audit-logs"
-            className="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            <Shield className="size-4" />
-            Audit logs
-          </Link>
           <button
             type="button"
             onClick={openCreate}
@@ -162,8 +165,71 @@ export function DepartmentsManagementPage() {
         onSaved={handleSaved}
       />
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="space-y-4 xl:col-span-2">
+      <ManagementDialog
+        open={Boolean(blockedDeleteTarget)}
+        tone="warning"
+        title={`Can't delete "${blockedDeleteTarget?.name ?? ""}"`}
+        description="This department still has users assigned. Reassign them to another department before deleting."
+        onClose={() => setBlockedDeleteTarget(null)}
+        footer={
+          <>
+            <ManagementDialogButton onClick={() => setBlockedDeleteTarget(null)}>
+              Cancel
+            </ManagementDialogButton>
+            <ManagementDialogButton
+              variant="primary"
+              onClick={() => {
+                const name = blockedDeleteTarget?.name;
+                setBlockedDeleteTarget(null);
+                if (name) {
+                  router.push(
+                    `/user-management/users?department=${encodeURIComponent(name)}`,
+                  );
+                }
+              }}
+            >
+              View assigned users
+            </ManagementDialogButton>
+          </>
+        }
+      >
+        {blockedDeleteTarget ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+            <p className="font-semibold">
+              {blockedDeleteTarget.userCount} user
+              {blockedDeleteTarget.userCount === 1 ? "" : "s"} still in this department
+            </p>
+            <p className="mt-1 text-amber-800/90 dark:text-amber-300/90">
+              Open the Users page, edit each user, and change their department. Then return here to
+              delete <span className="font-medium">{blockedDeleteTarget.name}</span>.
+            </p>
+          </div>
+        ) : null}
+      </ManagementDialog>
+
+      <ManagementDialog
+        open={Boolean(confirmDeleteTarget)}
+        tone="danger"
+        title={`Delete "${confirmDeleteTarget?.name ?? ""}"?`}
+        description="This permanently removes the department. This action cannot be undone."
+        onClose={() => setConfirmDeleteTarget(null)}
+        footer={
+          <>
+            <ManagementDialogButton onClick={() => setConfirmDeleteTarget(null)}>
+              Cancel
+            </ManagementDialogButton>
+            <ManagementDialogButton
+              variant="danger"
+              disabled={Boolean(deletingId)}
+              onClick={() => void confirmDelete()}
+            >
+              {deletingId ? "Deleting…" : "Delete department"}
+            </ManagementDialogButton>
+          </>
+        }
+      />
+
+      <div className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <KpiCard label="Total departments" value={summary.total} icon={Building2} tone="blue" />
             <KpiCard label="With users" value={summary.withUsers} icon={Users} tone="emerald" />
@@ -197,33 +263,13 @@ export function DepartmentsManagementPage() {
               rows={pageRows}
               deletingId={deletingId}
               onEdit={openEdit}
-              onDelete={handleDelete}
+              onDelete={requestDelete}
               page={page}
               totalPages={totalPages}
               totalFiltered={filtered.length}
               onPageChange={setPage}
             />
           )}
-        </div>
-
-        <aside>
-          <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Admin notes</h2>
-            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-              <li>New departments are available immediately in user assignment.</li>
-              <li>Departments with assigned users cannot be deleted until users are moved.</li>
-              <li>Department names must be unique within your organization.</li>
-            </ul>
-            <button
-              type="button"
-              onClick={openCreate}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-violet-700"
-            >
-              <Plus className="size-4" />
-              Add department
-            </button>
-          </section>
-        </aside>
       </div>
     </div>
   );
@@ -250,31 +296,31 @@ function DepartmentsTable({
 }) {
   return (
     <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="overflow-x-auto">
-        <table className="min-w-[640px] w-full text-sm">
+      <DataTableScroll>
+        <DataTable minWidth="min-w-[720px]">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50/90 dark:border-slate-800 dark:bg-slate-800/50">
-              <Th>Department</Th>
-              <Th>Users</Th>
-              <Th>Created</Th>
-              <Th className="text-right">Actions</Th>
-            </tr>
+            <DataTableHeadRow>
+              <Th className="min-w-[200px]">Department</Th>
+              <Th className="min-w-[100px]">Users</Th>
+              <Th className="min-w-[120px]">Created</Th>
+              <Th className="min-w-[160px] text-right">Actions</Th>
+            </DataTableHeadRow>
           </thead>
           <tbody>
-            {rows.map((dept) => (
-              <tr
-                key={dept.id}
-                className="border-b border-slate-50 transition-colors hover:bg-slate-50/80 dark:border-slate-800 dark:hover:bg-slate-800/50"
-              >
-                <td className="px-4 py-3.5">
-                  <div className="flex items-center gap-3">
+            {rows.map((dept) => {
+              const createdLabel = new Date(dept.createdAt).toLocaleDateString();
+              const usersLabel = `${dept.userCount} user${dept.userCount === 1 ? "" : "s"}`;
+              return (
+              <DataTableBodyRow key={dept.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
+                <Td title={dept.name}>
+                  <div className="flex min-w-0 items-center gap-3">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary-hover ring-1 ring-primary/10 dark:bg-primary/15 dark:text-primary dark:ring-primary/30">
                       <Building2 className="size-4" />
                     </div>
-                    <p className="font-semibold text-slate-900 dark:text-slate-100">{dept.name}</p>
+                    <p className="truncate font-semibold text-slate-900 dark:text-slate-100">{dept.name}</p>
                   </div>
-                </td>
-                <td className="px-4 py-3.5">
+                </Td>
+                <Td title={usersLabel}>
                   <span
                     className={cn(
                       "inline-flex rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1",
@@ -283,13 +329,13 @@ function DepartmentsTable({
                         : "bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700",
                     )}
                   >
-                    {dept.userCount} user{dept.userCount === 1 ? "" : "s"}
+                    {usersLabel}
                   </span>
-                </td>
-                <td className="px-4 py-3.5 whitespace-nowrap text-slate-600 dark:text-slate-400">
-                  {new Date(dept.createdAt).toLocaleDateString()}
-                </td>
-                <td className="px-4 py-3.5 text-right">
+                </Td>
+                <Td title={createdLabel} className="whitespace-nowrap text-slate-600 dark:text-slate-400">
+                  {createdLabel}
+                </Td>
+                <Td align="right" className="last:border-r-0">
                   <div className="inline-flex items-center justify-end gap-1.5">
                     <button
                       type="button"
@@ -303,18 +349,29 @@ function DepartmentsTable({
                       type="button"
                       disabled={deletingId === dept.id}
                       onClick={() => onDelete(dept)}
-                      className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-semibold text-red-800 hover:bg-red-100 disabled:opacity-50 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/60"
+                      title={
+                        dept.userCount > 0
+                          ? `${dept.userCount} user(s) assigned — reassign before deleting`
+                          : "Delete department"
+                      }
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold disabled:opacity-50",
+                        dept.userCount > 0
+                          ? "border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900/60"
+                          : "border-red-200 bg-red-50 text-red-800 hover:bg-red-100 dark:border-red-900 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900/60",
+                      )}
                     >
                       <Trash2 className="size-3" />
                       {deletingId === dept.id ? "Deleting…" : "Delete"}
                     </button>
                   </div>
-                </td>
-              </tr>
-            ))}
+                </Td>
+              </DataTableBodyRow>
+            );
+            })}
           </tbody>
-        </table>
-      </div>
+        </DataTable>
+      </DataTableScroll>
       <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-slate-500 dark:text-slate-400">
           Page {page} of {totalPages} · {totalFiltered} department
@@ -404,24 +461,5 @@ function TableSkeleton() {
         <div key={i} className="h-14 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
       ))}
     </div>
-  );
-}
-
-function Th({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <th
-      className={cn(
-        "px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400",
-        className,
-      )}
-    >
-      {children}
-    </th>
   );
 }

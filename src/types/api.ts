@@ -78,10 +78,8 @@ export type NotificationsResponse = {
 export type SettingsResponse = {
   organizationName?: string;
   organizationCode?: string;
+  organizationLogoUrl?: string | null;
   timezone?: string;
-  currency?: string;
-  sessionTimeoutMinutes?: number;
-  suspiciousLoginAlert?: boolean;
   ocrCreditsRemaining?: number;
   ocrMonthlyQuota?: number;
   ocrCreditsUsedThisMonth?: number;

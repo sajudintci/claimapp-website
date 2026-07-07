@@ -8,7 +8,6 @@ import {
   CircleHelp,
   Menu,
   MoonStar,
-  Settings,
   Sun,
   User,
 } from "lucide-react";
@@ -157,10 +156,6 @@ export function TopNavbar({
                   <ProfileMenuLink href="/profile" onNavigate={() => setProfileMenuOpen(false)}>
                     <User className="size-4 shrink-0 text-slate-400" />
                     My Profile
-                  </ProfileMenuLink>
-                  <ProfileMenuLink href="/settings" onNavigate={() => setProfileMenuOpen(false)}>
-                    <Settings className="size-4 shrink-0 text-slate-400" />
-                    Account Settings
                   </ProfileMenuLink>
                   <button
                     type="button"

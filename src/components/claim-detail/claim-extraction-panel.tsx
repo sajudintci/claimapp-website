@@ -17,6 +17,7 @@ import {
   type TracedField,
 } from "@/lib/extraction/claim-extraction";
 import { formatTracePages, tracesFromField } from "@/lib/extraction/field-trace";
+import { type FieldFlagStatus } from "@/lib/extraction/claim-review";
 import { cn } from "@/lib/utils";
 
 const TABS: Array<{ id: ExtractionTab; label: string }> = [
@@ -41,9 +42,9 @@ type ClaimExtractionPanelProps = {
   onActiveClaimIndexChange: (index: number) => void;
   fieldValues: Record<string, string>;
   originalValues: Record<string, string>;
-  reviewedKeys: Set<string>;
+  fieldFlags: Record<string, FieldFlagStatus>;
   onFieldChange: (key: string, value: string) => void;
-  onToggleReviewed: (key: string) => void;
+  onSetFieldFlag: (key: string, status: FieldFlagStatus) => void;
   isPdfDocument?: boolean;
   onFocusField?: (focus: DocumentFocusTarget) => void;
   onSaveDraft: () => void;
@@ -101,9 +102,9 @@ export function ClaimExtractionPanel({
   onActiveClaimIndexChange,
   fieldValues,
   originalValues,
-  reviewedKeys,
+  fieldFlags,
   onFieldChange,
-  onToggleReviewed,
+  onSetFieldFlag,
   isPdfDocument = false,
   onFocusField,
   onSaveDraft,
@@ -190,9 +191,9 @@ export function ClaimExtractionPanel({
             fieldRows={detailFieldRows}
             fieldValues={fieldValues}
             originalValues={originalValues}
-            reviewedKeys={reviewedKeys}
+            fieldFlags={fieldFlags}
             onFieldChange={onFieldChange}
-            onToggleReviewed={onToggleReviewed}
+            onSetFieldFlag={onSetFieldFlag}
             isPdfDocument={isPdfDocument}
             onFocusField={onFocusField}
           />

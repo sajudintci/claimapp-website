@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   applyFieldValueToClaim,
+  attachFieldFlagsToPayload,
   buildReviewedPayload,
+  buildReviewPayloadWithFlags,
+  FIELD_FLAGS_META_KEY,
   fieldRowKey,
   fieldValuesFromRows,
   initReviewStateFromPayload,
-  parseReviewMeta,
+  parseFieldFlagsMeta,
   REVIEW_META_KEY,
 } from "@/lib/extraction/claim-review";
 import { buildFieldRows } from "@/lib/extraction/claim-extraction";
@@ -16,8 +19,8 @@ describe("claim-review", () => {
     billing: { total_amount_read: { value: "1000", source_text: "1000", page: 1, confidence: 0.9 } },
   };
 
-  it("builds reviewed payload with edited values and review meta", () => {
-    const payload = buildReviewedPayload({
+  it("builds reviewed payload with edited values only (flags stored separately)", () => {
+    const payload = buildReviewPayloadWithFlags({
       basePayload: { claims: [baseClaim] },
       fieldValuesByClaim: {
         0: {
@@ -25,29 +28,51 @@ describe("claim-review", () => {
           [fieldRowKey("Billing", "total_amount_read")]: "1200",
         },
       },
-      reviewedKeysByClaim: {
-        0: [fieldRowKey("Patient", "name")],
+      fieldFlagsByClaim: {
+        0: {
+          [fieldRowKey("Patient", "name")]: 2,
+          [fieldRowKey("Billing", "total_amount_read")]: 3,
+        },
       },
     });
 
     const claim = (payload.claims as typeof baseClaim[])[0];
     expect(claim.patient.name.value).toBe("Dewi Susanti");
     expect(claim.billing.total_amount_read.value).toBe("1200");
-    expect(parseReviewMeta(payload).reviewedFieldKeys).toEqual([fieldRowKey("Patient", "name")]);
+    expect(parseFieldFlagsMeta(payload).flags).toEqual({
+      [fieldRowKey("Patient", "name")]: 2,
+      [fieldRowKey("Billing", "total_amount_read")]: 3,
+    });
+    expect(payload[REVIEW_META_KEY]).toMatchObject({ updatedAt: expect.any(String) });
+    expect((payload[REVIEW_META_KEY] as Record<string, unknown>).reviewedFieldKeys).toBeUndefined();
   });
 
   it("hydrates review state from saved reviewed result", () => {
-    const saved = buildReviewedPayload({
+    const saved = buildReviewPayloadWithFlags({
       basePayload: { claims: [baseClaim] },
       fieldValuesByClaim: {
         0: { [fieldRowKey("Patient", "name")]: "Edited Name" },
       },
-      reviewedKeysByClaim: { 0: [fieldRowKey("Patient", "name")] },
+      fieldFlagsByClaim: {
+        0: { [fieldRowKey("Patient", "name")]: 1 },
+      },
     });
 
     const state = initReviewStateFromPayload(saved);
     expect(state.fieldValuesByClaim[0][fieldRowKey("Patient", "name")]).toBe("Edited Name");
-    expect(state.reviewedKeysByClaim[0]).toEqual([fieldRowKey("Patient", "name")]);
+    expect(state.fieldFlagsByClaim[0][fieldRowKey("Patient", "name")]).toBe(1);
+  });
+
+  it("migrates legacy _review.fieldCheckStatus into field flags", () => {
+    const legacyPayload = {
+      claims: [baseClaim],
+      _review: {
+        fieldCheckStatus: { [fieldRowKey("Patient", "name")]: 2 },
+      },
+    };
+
+    const state = initReviewStateFromPayload(legacyPayload);
+    expect(state.fieldFlagsByClaim[0][fieldRowKey("Patient", "name")]).toBe(2);
   });
 
   it("applies empty value as not_found", () => {
@@ -65,13 +90,17 @@ describe("claim-review", () => {
     expect(values[fieldRowKey("Medical", "summary")]).toBe("not_found");
   });
 
-  it("stores review meta under _review key", () => {
-    const payload = buildReviewedPayload({
-      basePayload: { claims: [baseClaim] },
-      fieldValuesByClaim: { 0: {} },
-      reviewedKeysByClaim: { 0: [] },
+  it("stores field flags under _fieldFlags key", () => {
+    const payload = attachFieldFlagsToPayload(
+      buildReviewedPayload({
+        basePayload: { claims: [baseClaim] },
+        fieldValuesByClaim: { 0: {} },
+      }),
+      { 0: { [fieldRowKey("Patient", "name")]: 1 } },
+    );
+    expect(payload[FIELD_FLAGS_META_KEY]).toMatchObject({
+      flags: { [fieldRowKey("Patient", "name")]: 1 },
     });
-    expect(payload[REVIEW_META_KEY]).toMatchObject({ reviewedFieldKeys: [] });
   });
 
   it("persists edits to line items and laboratory tests", () => {
@@ -89,7 +118,6 @@ describe("claim-review", () => {
           [fieldRowKey("Laboratory", "1-result")]: "96",
         },
       },
-      reviewedKeysByClaim: { 0: [] },
     });
 
     const claim = (payload.claims as typeof claimWithArrays[])[0];

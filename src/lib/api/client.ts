@@ -55,12 +55,21 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
     if (response.status === 401) {
       redirectToLoginOnUnauthorized(path);
     }
-    try {
-      const parsed = JSON.parse(text) as Partial<StandardApiResponse<unknown>>;
-      throw new Error(parsed.message || `Request failed: ${response.status}`);
-    } catch {
-      throw new Error(text || `Request failed: ${response.status}`);
+
+    let message = `Request failed: ${response.status}`;
+    if (text) {
+      try {
+        const parsed = JSON.parse(text) as Partial<StandardApiResponse<unknown>>;
+        if (typeof parsed.message === "string" && parsed.message.trim()) {
+          message = parsed.message.trim();
+        } else {
+          message = text;
+        }
+      } catch {
+        message = text;
+      }
     }
+    throw new Error(message);
   }
 
   if (response.status === 204) return undefined as T;

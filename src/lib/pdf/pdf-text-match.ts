@@ -199,9 +199,37 @@ export function findHighlightRects(
 ): HighlightRect[] {
   if (items.length === 0) return [];
 
+  const val = value ? normalize(String(value)) : "";
+
   for (const query of buildCandidates(sourceText, value)) {
     const indexes = matchIndexes(items, query);
     if (indexes.length === 0) continue;
+
+    // When the match was found via sourceText (not the value itself), try to
+    // narrow the highlight to only the value tokens within the matched row.
+    // We only use spaced/loose matching on the subset — never compact — to
+    // avoid false positives from concatenated strings like "tagihan2853350".
+    if (val.length >= 2 && normalize(query) !== val) {
+      const subItems = indexes.map((i) => items[i]!);
+      const subIndex = buildPageTextIndex(subItems);
+      const qNorm = val.toLowerCase();
+      const qLoose = loose(val);
+
+      for (const { haystack, map, needle } of [
+        { haystack: subIndex.spaced, map: subIndex.spacedToItem, needle: qNorm },
+        { haystack: subIndex.loose, map: subIndex.looseToItem, needle: qLoose },
+      ]) {
+        if (!needle || needle.length < 2) continue;
+        const start = haystack.indexOf(needle);
+        if (start === -1) continue;
+        const relIndexes = indexesFromRange(map, start, start + needle.length);
+        if (relIndexes.length > 0) {
+          const origIndexes = relIndexes.map((rel) => indexes[rel]!);
+          return boundingBoxFromRects(origIndexes.map((i) => itemRect(items[i]!, viewport)));
+        }
+      }
+    }
+
     const rects = indexes.map((i) => itemRect(items[i]!, viewport));
     return boundingBoxFromRects(rects);
   }

@@ -1,5 +1,5 @@
-import { SettingsPageContent } from "@/components/settings/settings-page";
+import { redirect } from "next/navigation";
 
-export default function SettingsPage() {
-  return <SettingsPageContent />;
+export default function SettingsIndexPage() {
+  redirect("/settings/organization");
 }

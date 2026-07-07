@@ -17,9 +17,10 @@ import { buildExtractionContext } from "@/components/claim-detail/utils";
 import { ExtractionProgress } from "@/lib/extraction/extraction-progress";
 import { buildFieldRows, resolveClaimsFromPayload } from "@/lib/extraction/claim-extraction";
 import {
-  buildReviewedPayload,
+  buildReviewPayloadWithFlags,
   fieldValuesFromRows,
   initReviewStateFromPayload,
+  type FieldFlagStatus,
 } from "@/lib/extraction/claim-review";
 import { parseOcrPagesFromPayload } from "@/lib/pdf/pdf-ocr-pages";
 import { LoadingSkeleton } from "@/components/claimora/states";
@@ -45,7 +46,9 @@ export default function ClaimDetailPage() {
   const [originalValuesByClaim, setOriginalValuesByClaim] = useState<
     Record<number, Record<string, string>>
   >({});
-  const [reviewedKeysByClaim, setReviewedKeysByClaim] = useState<Record<number, string[]>>({});
+  const [fieldFlagsByClaim, setFieldFlagsByClaim] = useState<
+    Record<number, Record<string, FieldFlagStatus>>
+  >({});
   const [draftSavedAt, setDraftSavedAt] = useState<Date | null>(null);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -134,7 +137,7 @@ export default function ClaimDetailPage() {
 
     setFieldValuesByClaim(reviewState.fieldValuesByClaim);
     setOriginalValuesByClaim(originals);
-    setReviewedKeysByClaim(reviewState.reviewedKeysByClaim);
+    setFieldFlagsByClaim(reviewState.fieldFlagsByClaim);
 
     const savedAt = (workingPayload._review as { updatedAt?: string } | undefined)?.updatedAt;
     setDraftSavedAt(savedAt ? new Date(savedAt) : null);
@@ -191,20 +194,17 @@ export default function ClaimDetailPage() {
 
   const reviewPayload = useMemo(
     () =>
-      buildReviewedPayload({
+      buildReviewPayloadWithFlags({
         basePayload: extractionPayload,
         fieldValuesByClaim,
-        reviewedKeysByClaim,
+        fieldFlagsByClaim,
       }),
-    [extractionPayload, fieldValuesByClaim, reviewedKeysByClaim],
+    [extractionPayload, fieldValuesByClaim, fieldFlagsByClaim],
   );
 
   const activeFieldValues = fieldValuesByClaim[activeClaimIndex] ?? {};
   const activeOriginalValues = originalValuesByClaim[activeClaimIndex] ?? {};
-  const activeReviewedKeys = useMemo(
-    () => new Set(reviewedKeysByClaim[activeClaimIndex] ?? []),
-    [reviewedKeysByClaim, activeClaimIndex],
-  );
+  const activeFieldFlags = fieldFlagsByClaim[activeClaimIndex] ?? {};
 
   const updateFieldValue = useCallback(
     (key: string, value: string) => {
@@ -219,17 +219,15 @@ export default function ClaimDetailPage() {
     [activeClaimIndex],
   );
 
-  const toggleReviewed = useCallback(
-    (key: string) => {
-      setReviewedKeysByClaim((current) => {
-        const existing = new Set(current[activeClaimIndex] ?? []);
-        if (existing.has(key)) existing.delete(key);
-        else existing.add(key);
-        return {
-          ...current,
-          [activeClaimIndex]: Array.from(existing),
-        };
-      });
+  const setFieldFlag = useCallback(
+    (key: string, status: FieldFlagStatus) => {
+      setFieldFlagsByClaim((current) => ({
+        ...current,
+        [activeClaimIndex]: {
+          ...(current[activeClaimIndex] ?? {}),
+          [key]: status,
+        },
+      }));
     },
     [activeClaimIndex],
   );
@@ -240,10 +238,10 @@ export default function ClaimDetailPage() {
       const setter = mode === "draft" ? setIsSavingDraft : setIsSubmitting;
       setter(true);
       try {
-        const payload = buildReviewedPayload({
+        const payload = buildReviewPayloadWithFlags({
           basePayload: extractionPayload,
           fieldValuesByClaim,
-          reviewedKeysByClaim,
+          fieldFlagsByClaim,
         });
 
         await apiAuthedFetch(`/claims/${claimId}/review`, {
@@ -273,7 +271,7 @@ export default function ClaimDetailPage() {
         setter(false);
       }
     },
-    [claimId, extractionPayload, fieldValuesByClaim, reviewedKeysByClaim, refetch, setData],
+    [claimId, extractionPayload, fieldValuesByClaim, fieldFlagsByClaim, refetch, setData],
   );
 
   const handleFocusField = useCallback((focus: DocumentFocusTarget) => {
@@ -337,9 +335,9 @@ export default function ClaimDetailPage() {
                 onActiveClaimIndexChange={setActiveClaimIndex}
                 fieldValues={activeFieldValues}
                 originalValues={activeOriginalValues}
-                reviewedKeys={activeReviewedKeys}
+                fieldFlags={activeFieldFlags}
                 onFieldChange={updateFieldValue}
-                onToggleReviewed={toggleReviewed}
+                onSetFieldFlag={setFieldFlag}
                 isPdfDocument={isPdfDocument}
                 onFocusField={isPdfDocument ? handleFocusField : undefined}
                 onSaveDraft={() => saveReview("Draft", "draft")}

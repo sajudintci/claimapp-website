@@ -28,6 +28,8 @@ export function ClaimsListPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<"" | ClaimStatus>("");
   const [reviewerFilter, setReviewerFilter] = useState<"" | "unassigned" | string>("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showMoreFilters, setShowMoreFilters] = useState(false);
@@ -65,8 +67,10 @@ export function ClaimsListPage() {
     if (searchQuery) params.set("q", searchQuery);
     if (reviewerFilter === "unassigned") params.set("reviewer", "unassigned");
     else if (reviewerFilter) params.set("reviewer", reviewerFilter);
+    if (dateFrom) params.set("dateFrom", dateFrom);
+    if (dateTo) params.set("dateTo", dateTo);
     return `/claims?${params.toString()}`;
-  }, [page, statusFilter, searchQuery, reviewerFilter]);
+  }, [page, statusFilter, searchQuery, reviewerFilter, dateFrom, dateTo]);
 
   const [fetchState, setFetchState] = useState<{
     rows: ClaimRecord[];
@@ -124,6 +128,35 @@ export function ClaimsListPage() {
     setPage(1);
   }
 
+  function handleDateFromChange(next: string) {
+    setDateFrom(next);
+    setPage(1);
+  }
+
+  function handleDateToChange(next: string) {
+    setDateTo(next);
+    setPage(1);
+  }
+
+  function clearAllFilters() {
+    setSearchInput("");
+    setSearchQuery("");
+    setStatusFilter("");
+    setReviewerFilter("");
+    setDateFrom("");
+    setDateTo("");
+    setPage(1);
+  }
+
+  const advancedFilterCount = [reviewerFilter, dateFrom, dateTo].filter(Boolean).length;
+  const activeFilterCount = [
+    searchQuery,
+    statusFilter,
+    reviewerFilter,
+    dateFrom,
+    dateTo,
+  ].filter(Boolean).length;
+
   async function handleExport() {
     setIsExporting(true);
     try {
@@ -131,6 +164,8 @@ export function ClaimsListPage() {
         status: statusFilter || undefined,
         q: searchQuery || undefined,
         reviewer: reviewerFilter || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
       });
     } finally {
       setIsExporting(false);
@@ -158,15 +193,28 @@ export function ClaimsListPage() {
           totalPages={fetchState.pagination.totalPages}
           totalRows={fetchState.pagination.totalRows}
           search={searchInput}
+          searchQuery={searchQuery}
           statusFilter={statusFilter}
           reviewerFilter={reviewerFilter}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          activeFilterCount={activeFilterCount}
+          advancedFilterCount={advancedFilterCount}
           statusOptions={STATUS_FILTERS}
           reviewers={reviewers}
           showMoreFilters={showMoreFilters}
           isExporting={isExporting}
           onSearchChange={setSearchInput}
+          onSearchClear={() => {
+            setSearchInput("");
+            setSearchQuery("");
+            setPage(1);
+          }}
           onStatusChange={handleStatusChange}
           onReviewerChange={handleReviewerChange}
+          onDateFromChange={handleDateFromChange}
+          onDateToChange={handleDateToChange}
+          onClearFilters={clearAllFilters}
           onToggleMoreFilters={() => setShowMoreFilters((open) => !open)}
           onExport={handleExport}
           onPageChange={setPage}

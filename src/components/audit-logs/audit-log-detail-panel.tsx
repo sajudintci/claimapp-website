@@ -77,7 +77,6 @@ export function AuditLogDetailPanel({ log }: { log: AuditLogRecord }) {
             </tbody>
           </table>
         </div>
-        <RawJsonSection before={log.beforeChanges} after={log.afterChanges} />
       </div>
     );
   }
@@ -112,7 +111,6 @@ export function AuditLogDetailPanel({ log }: { log: AuditLogRecord }) {
           })}
         </dl>
       </div>
-      <RawJsonSection before={log.beforeChanges} after={log.afterChanges} />
     </div>
   );
 }
@@ -149,46 +147,5 @@ function AuditValue({
     >
       {formatAuditValue(value)}
     </span>
-  );
-}
-
-function RawJsonSection({
-  before,
-  after,
-}: {
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
-}) {
-  if (!before && !after) return null;
-
-  return (
-    <details className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-950">
-      <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200">
-        Raw JSON payload
-      </summary>
-      <div className="grid gap-3 border-t border-slate-100 p-3 md:grid-cols-2 dark:border-slate-800">
-        <JsonPreview title="Before" data={before} />
-        <JsonPreview title="After" data={after} />
-      </div>
-    </details>
-  );
-}
-
-function JsonPreview({
-  title,
-  data,
-}: {
-  title: string;
-  data: Record<string, unknown> | null;
-}) {
-  return (
-    <div>
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        {title}
-      </p>
-      <pre className="mt-1 max-h-36 overflow-auto rounded-lg bg-slate-50 p-2 text-[10px] leading-relaxed text-slate-700 dark:bg-slate-900 dark:text-slate-300">
-        {data ? JSON.stringify(data, null, 2) : "—"}
-      </pre>
-    </div>
   );
 }

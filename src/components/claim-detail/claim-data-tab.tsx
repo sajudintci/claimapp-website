@@ -1,24 +1,40 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, ChevronDown, Crosshair, Search } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, Crosshair, HelpCircle, Minus, Search, X } from "lucide-react";
 import { FieldRow, FIELD_SECTION_ORDER, isExtractedValueMissing } from "@/lib/extraction/claim-extraction";
-import { fieldRowKey } from "@/lib/extraction/claim-review";
+import {
+  DEFAULT_FIELD_FLAG_STATUS,
+  fieldRowKey,
+  isFieldFlagged,
+  type FieldFlagStatus,
+} from "@/lib/extraction/claim-review";
 import { createFocusFromFieldRow, createFocusFromFieldRowAtPage } from "@/lib/extraction/document-focus";
 import { tracePagesFromRow } from "@/lib/extraction/field-trace";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
 import { cn } from "@/lib/utils";
 
-type ReviewFilter = "all" | "reviewed" | "not_reviewed";
+type FlagFilter = "all" | "flagged" | "neutral";
+
+const FIELD_FLAG_OPTIONS: Array<{
+  value: FieldFlagStatus;
+  icon: typeof Minus;
+  label: string;
+}> = [
+  { value: 0, icon: Minus, label: "Neutral" },
+  { value: 1, icon: HelpCircle, label: "Question" },
+  { value: 2, icon: Check, label: "Verified" },
+  { value: 3, icon: X, label: "Rejected" },
+];
 
 type ClaimDataTabProps = {
   overviewRows: FieldRow[];
   fieldRows: FieldRow[];
   fieldValues: Record<string, string>;
   originalValues: Record<string, string>;
-  reviewedKeys: Set<string>;
+  fieldFlags: Record<string, FieldFlagStatus>;
   onFieldChange: (key: string, value: string) => void;
-  onToggleReviewed: (key: string) => void;
+  onSetFieldFlag: (key: string, status: FieldFlagStatus) => void;
   isPdfDocument?: boolean;
   onFocusField?: (focus: DocumentFocusTarget) => void;
 };
@@ -28,14 +44,14 @@ export function ClaimDataTab({
   fieldRows,
   fieldValues,
   originalValues,
-  reviewedKeys,
+  fieldFlags,
   onFieldChange,
-  onToggleReviewed,
+  onSetFieldFlag,
   isPdfDocument = false,
   onFocusField,
 }: ClaimDataTabProps) {
   const [search, setSearch] = useState("");
-  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>("all");
+  const [flagFilter, setFlagFilter] = useState<FlagFilter>("all");
   const [visibleKeysSnapshot, setVisibleKeysSnapshot] = useState<Set<string> | null>(null);
   const [overviewOpen, setOverviewOpen] = useState(true);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
@@ -52,11 +68,15 @@ export function ClaimDataTab({
     return merged;
   }, [overviewRows, fieldRows]);
 
-  const reviewedCount = useMemo(
-    () => allRows.filter((row) => reviewedKeys.has(fieldRowKey(row.section, row.field))).length,
-    [allRows, reviewedKeys],
+  function fieldFlag(key: string): FieldFlagStatus {
+    return fieldFlags[key] ?? DEFAULT_FIELD_FLAG_STATUS;
+  }
+
+  const flaggedCount = useMemo(
+    () => allRows.filter((row) => isFieldFlagged(fieldFlag(fieldRowKey(row.section, row.field)))).length,
+    [allRows, fieldFlags],
   );
-  const notReviewedCount = allRows.length - reviewedCount;
+  const neutralCount = allRows.length - flaggedCount;
 
   function displayValue(row: FieldRow) {
     const key = fieldRowKey(row.section, row.field);
@@ -65,8 +85,8 @@ export function ClaimDataTab({
     return row.value;
   }
 
-  function applyReviewFilter(filter: ReviewFilter) {
-    setReviewFilter(filter);
+  function applyFlagFilter(filter: FlagFilter) {
+    setFlagFilter(filter);
     if (filter === "all") {
       setVisibleKeysSnapshot(null);
       return;
@@ -75,27 +95,18 @@ export function ClaimDataTab({
     const keys = new Set<string>();
     for (const row of allRows) {
       const key = fieldRowKey(row.section, row.field);
-      const isReviewed = reviewedKeys.has(key);
-      if (filter === "reviewed" && isReviewed) keys.add(key);
-      if (filter === "not_reviewed" && !isReviewed) keys.add(key);
+      const status = fieldFlag(key);
+      if (filter === "flagged" && isFieldFlagged(status)) keys.add(key);
+      if (filter === "neutral" && !isFieldFlagged(status)) keys.add(key);
     }
     setVisibleKeysSnapshot(keys);
-  }
-
-  function handleToggleReviewed(row: FieldRow) {
-    const key = fieldRowKey(row.section, row.field);
-    const current = displayValue(row);
-    if (fieldValues[key] === undefined) {
-      onFieldChange(key, current);
-    }
-    onToggleReviewed(key);
   }
 
   function matchesFilters(row: FieldRow) {
     const key = fieldRowKey(row.section, row.field);
     const haystack = `${row.section} ${row.field} ${displayValue(row)}`.toLowerCase();
     if (search.trim() && !haystack.includes(search.trim().toLowerCase())) return false;
-    if (reviewFilter === "all") return true;
+    if (flagFilter === "all") return true;
     return visibleKeysSnapshot?.has(key) ?? true;
   }
 
@@ -122,7 +133,7 @@ export function ClaimDataTab({
         rows: (grouped.get(section) ?? []).filter(matchesFilters),
       }))
       .filter((entry) => entry.rows.length > 0);
-  }, [fieldRows, search, reviewFilter, visibleKeysSnapshot, fieldValues, reviewedKeys]);
+  }, [fieldRows, search, flagFilter, visibleKeysSnapshot, fieldValues, fieldFlags]);
 
   const hasVisibleFields = fieldSections.length > 0;
 
@@ -150,19 +161,19 @@ export function ClaimDataTab({
 
         <div className="flex flex-wrap gap-1">
           <ReviewChip
-            active={reviewFilter === "all"}
-            onClick={() => applyReviewFilter("all")}
+            active={flagFilter === "all"}
+            onClick={() => applyFlagFilter("all")}
             label={`All (${allRows.length})`}
           />
           <ReviewChip
-            active={reviewFilter === "reviewed"}
-            onClick={() => applyReviewFilter("reviewed")}
-            label={`Done (${reviewedCount})`}
+            active={flagFilter === "flagged"}
+            onClick={() => applyFlagFilter("flagged")}
+            label={`Flagged (${flaggedCount})`}
           />
           <ReviewChip
-            active={reviewFilter === "not_reviewed"}
-            onClick={() => applyReviewFilter("not_reviewed")}
-            label={`Pending (${notReviewedCount})`}
+            active={flagFilter === "neutral"}
+            onClick={() => applyFlagFilter("neutral")}
+            label={`Neutral (${neutralCount})`}
           />
         </div>
       </div>
@@ -180,11 +191,13 @@ export function ClaimDataTab({
                 row={row}
                 value={displayValue(row)}
                 originalValue={originalValues[fieldRowKey(row.section, row.field)] ?? ""}
-                reviewed={reviewedKeys.has(fieldRowKey(row.section, row.field))}
+                flagStatus={fieldFlag(fieldRowKey(row.section, row.field))}
                 onValueChange={(value) =>
                   onFieldChange(fieldRowKey(row.section, row.field), value)
                 }
-                onToggleReviewed={() => handleToggleReviewed(row)}
+                onSetFlag={(status) =>
+                  onSetFieldFlag(fieldRowKey(row.section, row.field), status)
+                }
                 isPdfDocument={isPdfDocument}
                 onFocusField={onFocusField}
               />
@@ -212,11 +225,13 @@ export function ClaimDataTab({
                 row={row}
                 value={displayValue(row)}
                 originalValue={originalValues[fieldRowKey(row.section, row.field)] ?? ""}
-                reviewed={reviewedKeys.has(fieldRowKey(row.section, row.field))}
+                flagStatus={fieldFlag(fieldRowKey(row.section, row.field))}
                 onValueChange={(value) =>
                   onFieldChange(fieldRowKey(row.section, row.field), value)
                 }
-                onToggleReviewed={() => handleToggleReviewed(row)}
+                onSetFlag={(status) =>
+                  onSetFieldFlag(fieldRowKey(row.section, row.field), status)
+                }
                 isPdfDocument={isPdfDocument}
                 onFocusField={onFocusField}
               />
@@ -288,22 +303,106 @@ function CollapsibleSection({
   );
 }
 
+function FieldFlagDropdown({
+  status,
+  onChange,
+}: {
+  status: FieldFlagStatus;
+  onChange: (status: FieldFlagStatus) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const current = FIELD_FLAG_OPTIONS.find((option) => option.value === status) ?? FIELD_FLAG_OPTIONS[0]!;
+  const CurrentIcon = current.icon;
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((value) => !value);
+        }}
+        aria-label={`Field flag: ${current.label}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={cn(
+          "inline-flex size-6 items-center justify-center rounded-md border transition-colors",
+          status === 2
+            ? "border-emerald-600 bg-emerald-600 text-white dark:border-emerald-500 dark:bg-emerald-500"
+            : status === 3
+              ? "border-rose-600 bg-rose-600 text-white dark:border-rose-500 dark:bg-rose-500"
+              : status === 1
+                ? "border-amber-400 bg-amber-50 text-amber-700 dark:border-amber-500 dark:bg-amber-950 dark:text-amber-300"
+                : "border-slate-300 bg-white text-slate-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400",
+        )}
+      >
+        <CurrentIcon className="size-3.5" />
+      </button>
+
+      {open ? (
+        <div
+          role="listbox"
+          aria-label="Field flag"
+          className="absolute right-0 top-full z-20 mt-1 min-w-[9.5rem] overflow-hidden rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+        >
+          {FIELD_FLAG_OPTIONS.map((option) => {
+            const OptionIcon = option.icon;
+            const selected = option.value === status;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="option"
+                aria-selected={selected}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "flex w-full items-center gap-2 px-2.5 py-1.5 text-left text-xs transition-colors hover:bg-slate-50 dark:hover:bg-slate-800",
+                  selected && "bg-slate-50 font-semibold dark:bg-slate-800",
+                )}
+              >
+                <OptionIcon className="size-3.5 shrink-0 text-slate-600 dark:text-slate-300" />
+                <span className="text-slate-700 dark:text-slate-200">{option.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function FieldCard({
   row,
   value,
   originalValue,
-  reviewed,
+  flagStatus,
   onValueChange,
-  onToggleReviewed,
+  onSetFlag,
   isPdfDocument,
   onFocusField,
 }: {
   row: FieldRow;
   value: string;
   originalValue: string;
-  reviewed: boolean;
+  flagStatus: FieldFlagStatus;
   onValueChange: (value: string) => void;
-  onToggleReviewed: () => void;
+  onSetFlag: (status: FieldFlagStatus) => void;
   isPdfDocument?: boolean;
   onFocusField?: (focus: DocumentFocusTarget) => void;
 }) {
@@ -315,12 +414,15 @@ function FieldCard({
     .replace(/^\d+-/, (match) => `#${match.slice(0, -1)} `)
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+  const isEdited = value.trim() !== originalValue.trim();
+  const isNotFound = isExtractedValueMissing(value);
+  const isLlmField = row.valueOrigin === "llm";
+  const showDocumentTrace = !isNotFound && !isLlmField;
   const canLocate =
+    showDocumentTrace &&
     isPdfDocument &&
     Boolean(onFocusField) &&
     createFocusFromFieldRowAtPage(row, selectedPage ?? pageOptions[0] ?? null) != null;
-  const isEdited = value.trim() !== originalValue.trim();
-  const isNotFound = isExtractedValueMissing(value);
 
   function focusPage(page: number | null) {
     if (!onFocusField) return;
@@ -355,23 +457,7 @@ function FieldCard({
               <Crosshair className="size-3" />
             </button>
           ) : null}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleReviewed();
-            }}
-            aria-label={reviewed ? "Mark as not reviewed" : "Mark as reviewed"}
-            aria-pressed={reviewed}
-            className={cn(
-              "inline-flex size-6 items-center justify-center rounded-md border transition-colors",
-              reviewed
-                ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
-                : "border-slate-300 bg-white text-transparent dark:border-slate-600 dark:bg-slate-900",
-            )}
-          >
-            <Check className={cn("size-3.5", reviewed ? "opacity-100" : "opacity-0")} />
-          </button>
+          <FieldFlagDropdown status={flagStatus} onChange={onSetFlag} />
         </div>
       </div>
 
@@ -390,40 +476,64 @@ function FieldCard({
       />
 
       <div className="mt-1.5 flex flex-wrap items-center gap-1">
-        {pageOptions.length > 1 ? (
-          <select
-            value={selectedPage ?? pageOptions[0]}
-            onChange={(e) => {
-              const page = Number.parseInt(e.target.value, 10);
-              setSelectedPage(page);
-              focusPage(page);
-            }}
-            className="h-6 rounded-md border border-slate-200 bg-white px-2 text-[10px] font-semibold uppercase tracking-wide text-slate-600 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-300"
-            aria-label={`Pages for ${label}`}
-          >
-            {pageOptions.map((page) => (
-              <option key={page} value={page}>
-                Page {page}
-              </option>
-            ))}
-          </select>
-        ) : pageOptions.length === 1 ? (
-          <MetaTag>Page {pageOptions[0]}</MetaTag>
-        ) : row.page !== "-" ? (
-          <MetaTag>Page {row.page}</MetaTag>
+        {showDocumentTrace ? (
+          <>
+            {pageOptions.length > 1 ? (
+              <select
+                value={selectedPage ?? pageOptions[0]}
+                onChange={(e) => {
+                  const page = Number.parseInt(e.target.value, 10);
+                  setSelectedPage(page);
+                  focusPage(page);
+                }}
+                className="h-6 rounded-md border border-sky-200 bg-sky-50 px-2 text-[10px] font-semibold uppercase tracking-wide text-sky-700 outline-none focus:border-sky-400 focus:ring-2 focus:ring-sky-200 dark:border-sky-800 dark:bg-sky-950 dark:text-sky-300"
+                aria-label={`Pages for ${label}`}
+              >
+                {pageOptions.map((page) => (
+                  <option key={page} value={page}>
+                    Page {page}
+                  </option>
+                ))}
+              </select>
+            ) : pageOptions.length === 1 ? (
+              <MetaTag variant="page">Page {pageOptions[0]}</MetaTag>
+            ) : row.page !== "-" ? (
+              <MetaTag variant="page">Page {row.page}</MetaTag>
+            ) : null}
+          </>
         ) : null}
-        {row.confidence > 0 ? <MetaTag>{row.confidence}%</MetaTag> : null}
-        {row.valueOrigin === "ocr" ? <MetaTag>OCR</MetaTag> : null}
-        {row.valueOrigin === "llm" ? <MetaTag>LLM</MetaTag> : null}
+        {row.valueOrigin === "ocr" && row.confidence > 0 ? (
+          <MetaTag variant="confidence">{row.confidence}%</MetaTag>
+        ) : null}
+        {row.valueOrigin === "ocr" ? <MetaTag variant="ocr">OCR</MetaTag> : null}
+        {row.valueOrigin === "llm" ? <MetaTag variant="llm">LLM</MetaTag> : null}
       </div>
     </div>
   );
 }
 
-function MetaTag({ children }: { children: React.ReactNode }) {
+type MetaTagVariant = "page" | "confidence" | "ocr" | "llm";
+
+const META_TAG_STYLES: Record<MetaTagVariant, string> = {
+  page: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
+  confidence: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300",
+  ocr: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
+  llm: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
+};
+
+function MetaTag({
+  variant,
+  children,
+}: {
+  variant: MetaTagVariant;
+  children: React.ReactNode;
+}) {
   return (
     <span
-      className="inline-flex max-w-full truncate rounded-md bg-slate-200/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+      className={cn(
+        "inline-flex max-w-full truncate rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+        META_TAG_STYLES[variant],
+      )}
     >
       {children}
     </span>

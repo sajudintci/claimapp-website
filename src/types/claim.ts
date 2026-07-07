@@ -12,13 +12,19 @@ export type ConfidenceLevel = "High" | "Medium" | "Low";
 export type ClaimRecord = {
   id: string;
   claimNumber: string;
+  /** Upload metadata patient name; falls back to extracted name when absent. */
   patientName: string;
+  /** Extracted hospital name from OCR/LLM. */
+  hospitalName: string;
+  /** @deprecated Use hospitalName — kept for dashboard tables. */
   provider: string;
   amount: number;
   submittedAt: string;
   claimDate: string | null;
   documentFileName: string | null;
   pageCount: number | null;
+  documentTypes: string[];
+  priority: string | null;
   reviewerName: string | null;
   status: ClaimStatus;
   confidence: number;

@@ -5,6 +5,8 @@ type ExportClaimsParams = {
   status?: ClaimStatus | "";
   q?: string;
   reviewer?: "" | "unassigned" | string;
+  dateFrom?: string;
+  dateTo?: string;
 };
 
 export async function exportClaimsCsv(params: ExportClaimsParams): Promise<void> {
@@ -16,6 +18,8 @@ export async function exportClaimsCsv(params: ExportClaimsParams): Promise<void>
   if (params.q) searchParams.set("q", params.q);
   if (params.reviewer === "unassigned") searchParams.set("reviewer", "unassigned");
   else if (params.reviewer) searchParams.set("reviewer", params.reviewer);
+  if (params.dateFrom) searchParams.set("dateFrom", params.dateFrom);
+  if (params.dateTo) searchParams.set("dateTo", params.dateTo);
 
   const response = await fetch(`${API_BASE_URL}/claims/export?${searchParams.toString()}`, {
     headers: {

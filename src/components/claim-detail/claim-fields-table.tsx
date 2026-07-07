@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Crosshair } from "lucide-react";
+import { useRef, useState, useMemo, useEffect } from "react";
+import { Crosshair, ChevronDown } from "lucide-react";
 import { FieldRow } from "@/lib/extraction/claim-extraction";
-import { createFocusFromFieldRow } from "@/lib/extraction/document-focus";
+import { createFocusFromFieldRow, createFocusFromFieldRowAtPage } from "@/lib/extraction/document-focus";
+import { tracePagesFromRow } from "@/lib/extraction/field-trace";
 import { DocumentFocusTarget } from "@/components/claim-detail/types";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +48,12 @@ export function ClaimFieldsTable({
   function handleFocusRow(row: FieldRow) {
     if (!onFocusField || !isPdfDocument) return;
     const focus = createFocusFromFieldRow(row);
+    if (focus) onFocusField(focus);
+  }
+
+  function handleFocusRowAtPage(row: FieldRow, page: number) {
+    if (!onFocusField || !isPdfDocument) return;
+    const focus = createFocusFromFieldRowAtPage(row, page);
     if (focus) onFocusField(focus);
   }
 
@@ -108,23 +115,25 @@ export function ClaimFieldsTable({
                   isPdfDocument &&
                   Boolean(onFocusField) &&
                   createFocusFromFieldRow(row) != null;
+                const pages = tracePagesFromRow(row);
+                const isMultiPage = pages.length > 1;
 
                 return (
                   <tr
                     key={rowKey}
                     className={cn(
                       "border-t border-slate-100 align-top dark:border-slate-800",
-                      canFocus && "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
+                      canFocus && !isMultiPage && "cursor-pointer hover:bg-primary/10 dark:hover:bg-primary/15",
                       activeFocusLabel === rowLabel && "bg-amber-50/80 dark:bg-amber-950/25",
                     )}
-                    onClick={canFocus ? () => handleFocusRow(row) : undefined}
-                    title={canFocus ? "Locate in PDF" : undefined}
+                    onClick={canFocus && !isMultiPage ? () => handleFocusRow(row) : undefined}
+                    title={canFocus && !isMultiPage ? "Locate in PDF" : undefined}
                   >
                     <td className="px-3 py-2 text-slate-600 break-words dark:text-slate-400">{row.section}</td>
                     <td className="px-3 py-2 font-medium break-words text-slate-800 dark:text-slate-200">
                       <span className="inline-flex flex-wrap items-center gap-1.5">
                         {row.field}
-                        {canFocus ? <Crosshair className="size-3 shrink-0 text-primary/70 dark:text-primary" /> : null}
+                        {canFocus && !isMultiPage ? <Crosshair className="size-3 shrink-0 text-primary/70 dark:text-primary" /> : null}
                       </span>
                     </td>
                     <td className="px-3 py-2">
@@ -140,7 +149,16 @@ export function ClaimFieldsTable({
                     <td className="whitespace-nowrap px-3 py-2">
                       <ConfidencePill value={row.confidence} low={isLowConf} />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-slate-600 dark:text-slate-400">{row.page}</td>
+                    <td className="whitespace-nowrap px-3 py-2">
+                      {isMultiPage && canFocus ? (
+                        <PageDropdown
+                          pages={pages}
+                          onSelect={(page) => handleFocusRowAtPage(row, page)}
+                        />
+                      ) : (
+                        <span className="text-slate-600 dark:text-slate-400">{row.page}</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2">
                       {row.sourceText ? (
                         <button
@@ -179,6 +197,81 @@ export function ClaimFieldsTable({
   );
 }
 
+// ---------------------------------------------------------------------------
+// PageDropdown — shown when a field appears on multiple pages
+// ---------------------------------------------------------------------------
+
+function PageDropdown({
+  pages,
+  onSelect,
+}: {
+  pages: number[];
+  onSelect: (page: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((prev) => !prev);
+        }}
+        className={cn(
+          "inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-semibold transition-colors",
+          "bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 dark:text-primary",
+        )}
+        title="Value appears on multiple pages — click to navigate"
+      >
+        <span>{pages[0]}</span>
+        <span className="text-[10px] text-primary/60">+{pages.length - 1}</span>
+        <ChevronDown className="size-3 shrink-0" />
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 min-w-[80px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+          <p className="px-2.5 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+            Go to page
+          </p>
+          {pages.map((page) => (
+            <button
+              key={page}
+              type="button"
+              className="flex w-full items-center gap-2 px-2.5 py-1 text-xs text-slate-700 hover:bg-primary/10 hover:text-primary dark:text-slate-300 dark:hover:bg-primary/20 dark:hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(false);
+                onSelect(page);
+              }}
+            >
+              <Crosshair className="size-3 shrink-0 text-primary/60" />
+              Page {page}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FilterChip
+// ---------------------------------------------------------------------------
+
 function FilterChip({
   active,
   onClick,
@@ -203,6 +296,10 @@ function FilterChip({
     </button>
   );
 }
+
+// ---------------------------------------------------------------------------
+// ConfidencePill
+// ---------------------------------------------------------------------------
 
 function ConfidencePill({ value, low }: { value: number; low: boolean }) {
   return (

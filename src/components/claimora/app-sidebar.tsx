@@ -4,11 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Building2,
+  ChevronDown,
   ClipboardList,
   FolderOpen,
   LayoutDashboard,
   PanelLeftClose,
   PanelLeftOpen,
+  ScanText,
   Settings,
   Upload,
   Users,
@@ -17,6 +19,7 @@ import {
 import { useAuth } from "@/contexts/auth-context";
 import { UserAvatar } from "@/components/claimora/user-avatar";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 type NavItem = {
   label: string;
@@ -25,9 +28,22 @@ type NavItem = {
   exact?: boolean;
 };
 
+type NavGroup = {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+  children: NavItem[];
+};
+
+type NavEntry = NavItem | NavGroup;
+
+function isNavGroup(entry: NavEntry): entry is NavGroup {
+  return "children" in entry;
+}
+
 type NavSection = {
   title: string;
-  items: NavItem[];
+  items: NavEntry[];
 };
 
 const menuSections: NavSection[] = [
@@ -48,12 +64,20 @@ const menuSections: NavSection[] = [
       { label: "Audit Logs", href: "/audit-logs", icon: ClipboardList },
       { label: "Users", href: "/user-management/users", icon: Users },
       { label: "Departments", href: "/user-management/departments", icon: Building2 },
-      { label: "Settings", href: "/settings", icon: Settings },
+      {
+        label: "Settings",
+        href: "/settings/organization",
+        icon: Settings,
+        children: [
+          { label: "Organization", href: "/settings/organization", icon: Building2 },
+          { label: "OCR Credits", href: "/settings/ocr-credits", icon: ScanText },
+        ],
+      },
     ],
   },
 ];
 
-function isNavActive(pathname: string, item: NavItem): boolean {
+function isNavItemActive(pathname: string, item: NavItem): boolean {
   if (item.href === "/claims") {
     return (
       pathname === "/claims" ||
@@ -62,6 +86,10 @@ function isNavActive(pathname: string, item: NavItem): boolean {
   }
   if (item.exact) return pathname === item.href;
   return pathname === item.href || pathname.startsWith(`${item.href}/`);
+}
+
+function isNavGroupActive(pathname: string, group: NavGroup): boolean {
+  return group.children.some((child) => isNavItemActive(pathname, child));
 }
 
 function SidebarBrand({ collapsed }: { collapsed: boolean }) {
@@ -96,11 +124,13 @@ function NavLink({
   item,
   active,
   collapsed,
+  nested,
   onNavigate,
 }: {
   item: NavItem;
   active: boolean;
   collapsed: boolean;
+  nested?: boolean;
   onNavigate: () => void;
 }) {
   const Icon = item.icon;
@@ -113,7 +143,7 @@ function NavLink({
       aria-current={active ? "page" : undefined}
       className={cn(
         "group relative flex items-center gap-3 rounded-lg text-sm font-medium transition-all duration-150",
-        collapsed ? "justify-center px-2 py-2.5" : "px-3 py-2",
+        collapsed ? "justify-center px-2 py-2.5" : nested ? "px-3 py-2 pl-9" : "px-3 py-2",
         active
           ? collapsed
             ? "bg-primary text-white shadow-sm shadow-primary/20"
@@ -121,7 +151,7 @@ function NavLink({
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100",
       )}
     >
-      {!collapsed && active ? (
+      {!collapsed && active && !nested ? (
         <span
           className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary dark:bg-primary"
           aria-hidden
@@ -129,7 +159,8 @@ function NavLink({
       ) : null}
       <Icon
         className={cn(
-          "size-[18px] shrink-0 transition-colors",
+          nested ? "size-4" : "size-[18px]",
+          "shrink-0 transition-colors",
           active
             ? collapsed
               ? "text-white"
@@ -139,6 +170,90 @@ function NavLink({
       />
       {!collapsed ? <span className="truncate">{item.label}</span> : <span className="sr-only">{item.label}</span>}
     </Link>
+  );
+}
+
+function NavGroupMenu({
+  group,
+  pathname,
+  collapsed,
+  onNavigate,
+}: {
+  group: NavGroup;
+  pathname: string;
+  collapsed: boolean;
+  onNavigate: () => void;
+}) {
+  const groupActive = isNavGroupActive(pathname, group);
+  const [open, setOpen] = useState(groupActive);
+  const Icon = group.icon;
+
+  useEffect(() => {
+    if (groupActive) setOpen(true);
+  }, [groupActive]);
+
+  if (collapsed) {
+    return (
+      <NavLink
+        item={{ label: group.label, href: group.href, icon: group.icon }}
+        active={groupActive}
+        collapsed
+        onNavigate={onNavigate}
+      />
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium transition-all duration-150",
+          groupActive
+            ? "bg-primary/10 text-primary-hover dark:bg-primary/15 dark:text-primary"
+            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-slate-100",
+        )}
+        aria-expanded={open}
+      >
+        {groupActive ? (
+          <span
+            className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary dark:bg-primary"
+            aria-hidden
+          />
+        ) : null}
+        <Icon
+          className={cn(
+            "size-[18px] shrink-0 transition-colors",
+            groupActive
+              ? "text-primary dark:text-primary"
+              : "text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300",
+          )}
+        />
+        <span className="min-w-0 flex-1 truncate">{group.label}</span>
+        <ChevronDown
+          className={cn(
+            "size-4 shrink-0 text-slate-400 transition-transform",
+            open && "rotate-180",
+          )}
+        />
+      </button>
+      {open ? (
+        <ul className="mt-0.5 space-y-0.5">
+          {group.children.map((child) => (
+            <li key={child.href}>
+              <NavLink
+                item={child}
+                active={isNavItemActive(pathname, child)}
+                collapsed={false}
+                nested
+                onNavigate={onNavigate}
+              />
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 
@@ -175,7 +290,6 @@ export function AppSidebar({
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        {/* Header */}
         <div
           className={cn(
             "flex shrink-0 items-center border-b border-slate-100 px-3 py-4 dark:border-slate-800",
@@ -193,7 +307,6 @@ export function AppSidebar({
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4" aria-label="Main navigation">
           <div className="space-y-6">
             {menuSections.map((section, sectionIndex) => (
@@ -206,14 +319,23 @@ export function AppSidebar({
                   <div className="mx-auto mb-2 h-px w-6 bg-slate-200 dark:bg-slate-800" aria-hidden />
                 ) : null}
                 <ul className="space-y-0.5">
-                  {section.items.map((item) => (
-                    <li key={item.href}>
-                      <NavLink
-                        item={item}
-                        active={isNavActive(pathname, item)}
-                        collapsed={collapsed}
-                        onNavigate={onCloseMobile}
-                      />
+                  {section.items.map((entry) => (
+                    <li key={isNavGroup(entry) ? entry.label : entry.href}>
+                      {isNavGroup(entry) ? (
+                        <NavGroupMenu
+                          group={entry}
+                          pathname={pathname}
+                          collapsed={collapsed}
+                          onNavigate={onCloseMobile}
+                        />
+                      ) : (
+                        <NavLink
+                          item={entry}
+                          active={isNavItemActive(pathname, entry)}
+                          collapsed={collapsed}
+                          onNavigate={onCloseMobile}
+                        />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -222,7 +344,6 @@ export function AppSidebar({
           </div>
         </nav>
 
-        {/* Footer */}
         <div className="shrink-0 border-t border-slate-100 p-2 dark:border-slate-800">
           {!collapsed && user ? (
             <div className="mb-2 flex items-center gap-2.5 rounded-lg bg-slate-50 px-3 py-2.5 dark:bg-slate-900/60">

@@ -112,19 +112,26 @@ export function createFocusFromFieldRowAtPage(
 
   const activeTraces =
     page != null ? traces.filter((trace) => trace.page === page) : traces;
-  const selected =
-    activeTraces[0] ??
-    traces.find((trace) => trace.page != null) ??
-    traces[0];
+
+  // When no trace exists for the requested page, synthesise one from the field
+  // value so the viewer can still navigate to that page and attempt a match.
+  const effectiveTraces =
+    activeTraces.length > 0
+      ? activeTraces
+      : page != null
+        ? [{ page, sourceText: row.value !== "not_found" ? row.value : row.sourceText }]
+        : traces;
+
+  const selected = effectiveTraces[0] ?? traces[0];
   if (!selected) return null;
 
   const fieldKey = `${row.section}-${row.field}`.replace(/\s+/g, "-").toLowerCase();
 
   return createDocumentFocus({
-    id: `${fieldKey}-p${selected.page ?? "na"}-n${activeTraces.length}`,
+    id: `${fieldKey}-p${selected.page ?? "na"}-n${effectiveTraces.length}`,
     page: selected.page,
     sourceText: selected.sourceText,
-    traces: activeTraces,
+    traces: effectiveTraces,
     value: row.value !== "not_found" ? row.value : undefined,
     label: `${row.section} · ${row.field}`,
   });
